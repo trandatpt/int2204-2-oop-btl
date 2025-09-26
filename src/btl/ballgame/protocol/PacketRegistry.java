@@ -22,6 +22,9 @@ public class PacketRegistry {
 	@SuppressWarnings("unchecked")
 	public <T extends NetworkPacket, U extends ConnectionCtx>
 	PacketHandler<T, U> getHandle(Class<? extends NetworkPacket> packet) {
+		if (!this.registered.containsKey(packet)) {
+			
+		}
 		return (PacketHandler<T, U>) this.registered.get(packet);
 	}
 }

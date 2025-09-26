@@ -1,5 +1,3 @@
 package btl.ballgame.protocol.packets.out;
 
-public interface IPacketPlayOut {
-	
-}
+public interface IPacketPlayOut {}

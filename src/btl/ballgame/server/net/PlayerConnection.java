@@ -12,11 +12,14 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import btl.ballgame.protocol.packets.ConnectionCtx;
 import btl.ballgame.protocol.packets.NetworkPacket;
+import btl.ballgame.protocol.packets.out.IPacketPlayOut;
 import btl.ballgame.protocol.packets.out.PacketPlayOutSocketClose;
 import btl.ballgame.server.ArkanoidServer;
+import btl.ballgame.shared.UnknownPacketException;
 
 public class PlayerConnection implements ConnectionCtx {
 	public static final int CLIENT_READ_INTERVAL = 10;
@@ -26,7 +29,7 @@ public class PlayerConnection implements ConnectionCtx {
 	private ObjectInputStream receiveStream;
 	private ObjectOutputStream sendStream;
 	
-	private Queue<NetworkPacket> dispatchQueue = new ArrayDeque<>();
+	private Queue<NetworkPacket> dispatchQueue = new ConcurrentLinkedQueue<>();
 	
 	private boolean closed = false;
 	
@@ -37,12 +40,9 @@ public class PlayerConnection implements ConnectionCtx {
 		
 		new Thread(() -> {
 			Thread.currentThread().setName("PlayerConnection: Packet Listener Thread");
-			while (true) {
+			while (!closed) {
 				try {
 					Thread.sleep(CLIENT_READ_INTERVAL);
-					if (closed) {
-						break;
-					}
 					NetworkPacket packet = NetworkPacket.readNextPacket(receiveStream);
 					server.getRegistry().getHandle(packet.getClass())
 						.handle(packet, this)
@@ -55,12 +55,9 @@ public class PlayerConnection implements ConnectionCtx {
 		
 		new Thread(() -> {
 			Thread.currentThread().setName("PlayerConnection: Packet Dispatcher Thread");
-			while (true) {
+			while (!closed) {
 				try {
 					Thread.sleep(PACKET_DISPATCH_INTERVAL);
-					if (closed) {
-						break;
-					}
 					flush();
 				} catch (Exception e) {
 					handleConnectionException(e);
@@ -71,26 +68,30 @@ public class PlayerConnection implements ConnectionCtx {
 	
 	private synchronized void flush() throws IOException {
 		if (dispatchQueue.isEmpty()) return;
-		while (!dispatchQueue.isEmpty()) {
-			dispatchQueue.poll().write(sendStream);
+		NetworkPacket packet;
+		while ((packet = dispatchQueue.poll()) != null) {
+			packet.write(sendStream);
 		}
 		sendStream.flush();
 	}
 	
-	public synchronized void sendPacket(NetworkPacket packet) {
-		this.sendPacket(packet, false);
+	public void sendPacket(IPacketPlayOut packet) {
+		if (!(packet instanceof NetworkPacket)) {
+			throw new IllegalArgumentException("Cannot dispatch " + packet.getClass().getName() + "! Malformed blueprint.");
+		}
+		this.sendPacket((NetworkPacket) packet, false);
 	}
 	
-	public synchronized void sendPacket(NetworkPacket packet, boolean instant) {
+	public void sendPacket(NetworkPacket packet, boolean instant) {
 		if (closed) return;
 		dispatchQueue.add(packet);
 		if (instant) {
 			try {
-				this.flush();
+				flush();
 			} catch (Exception e) {
 				handleConnectionException(e);
 			}
-		}
+		}	
 	}
 	
 	public void close(String reason) {
@@ -104,6 +105,10 @@ public class PlayerConnection implements ConnectionCtx {
 	}
 	
 	private void handleConnectionException(Throwable e) {
+		if (e instanceof UnknownPacketException) {
+			close(e.getMessage());
+			return;
+		}
 		if (e instanceof IOException) {
 			close("Broken pipe");
 			return;
