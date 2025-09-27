@@ -91,7 +91,7 @@ public class PacketRegistry {
 	}
 	
 	/**
-	 * Retrieves the registered handler for a specific packet class.
+	 * Retrieves the registered handler for a specific INCOMING (Inbound) packet class.
 	 *
 	 * @param packetClass The class of the packet
 	 * @param <T>         Packet type

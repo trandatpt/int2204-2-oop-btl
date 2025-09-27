@@ -3,12 +3,6 @@ package btl.ballgame.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 import btl.ballgame.server.net.NetworkManager;
 import btl.ballgame.server.net.PlayerConnection;

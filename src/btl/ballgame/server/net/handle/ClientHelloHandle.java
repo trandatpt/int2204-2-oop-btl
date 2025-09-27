@@ -11,20 +11,23 @@ public class ClientHelloHandle implements PacketHandler<PacketPlayInClientHello,
 	@Override
 	public void handle(PacketPlayInClientHello packet, PlayerConnection context) {
 		String username = packet.who();
-		String passwordHash = "TODO"; // TODO
+		// TODO Do this later
+		String passwordHash = "ba sau manh dat anh hung co ba doi dep mat cung mot dem";
 		
-		// username predicates
+		// username predicates (enforced on both client + server)
 		if (!username.matches("^[a-zA-Z0-9_]{3,16}$")) {
 			context.closeWithNotify("Malformed username.");
 			return;
 		}
 		
 		// TODO: check for password
+		PacketPlayOutLoginAck aLoginAck;
 		try {
 			ArkaPlayer player = ArkanoidServer.getServer().getPlayerManager().addPlayer(context, username);
-			player.playerConnection.sendPacket(new PacketPlayOutLoginAck(player.getUniqueId()));
+			aLoginAck = new PacketPlayOutLoginAck(player.getUniqueId()); // success
 		} catch (Exception e) {
-			context.closeWithNotify(e.getMessage());
+			aLoginAck = new PacketPlayOutLoginAck(e.getMessage());
 		}
+		context.sendPacket(aLoginAck);
 	}
 }

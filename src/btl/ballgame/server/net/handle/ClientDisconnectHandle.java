@@ -7,7 +7,6 @@ import btl.ballgame.server.net.PlayerConnection;
 public class ClientDisconnectHandle implements PacketHandler<PacketPlayInDisconnect, PlayerConnection> {
 	@Override
 	public void handle(PacketPlayInDisconnect packet, PlayerConnection context) {
-		System.out.println("client gracefully left");
-		context.closeConnection();
+		context.handleGracefulDisconnect();
 	}
 }

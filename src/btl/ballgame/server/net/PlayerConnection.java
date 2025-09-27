@@ -7,8 +7,9 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import btl.ballgame.protocol.ConnectionCtx;
 import btl.ballgame.protocol.packets.NetworkPacket;
@@ -29,21 +30,22 @@ import btl.ballgame.server.ArkaPlayer;
  * </ul>
  */
 public class PlayerConnection implements ConnectionCtx {
-    /** Interval (in milliseconds) to wait between reading packets from the client. */
-	public static final int CLIENT_READ_INTERVAL = 10;
     /** Interval (in milliseconds) to wait between dispatching outgoing packets. */
-	public static final int PACKET_DISPATCH_INTERVAL = 5;
+	public static final int PACKET_DISPATCH_INTERVAL = 1;
 	
 	private Socket clientSocket;
 	private DataInputStream receiveStream;
 	private DataOutputStream sendStream;
 	
-	private Queue<NetworkPacket> dispatchQueue = new ConcurrentLinkedQueue<>();
+	private LinkedBlockingQueue<NetworkPacket> dispatchQueue = new LinkedBlockingQueue<>();
 	
 	private boolean closed = false;
 	
 	private ArkanoidServer server;
 	private ArkaPlayer owner;
+	
+	private Thread packetListenerThread;
+	private Thread packetDispatcherThread;
 	
 	@SuppressWarnings("unchecked")    
 	/**
@@ -62,31 +64,48 @@ public class PlayerConnection implements ConnectionCtx {
 		this.sendStream = new DataOutputStream(socket.getOutputStream());
 		this.receiveStream = new DataInputStream(socket.getInputStream());
 		
-		new Thread(() -> {
+		// packet listening thread
+		this.packetListenerThread = new Thread(() -> {
 			Thread.currentThread().setName("PlayerConnection: Packet Listener Thread");
 			while (!closed) {
 				try {
-					Thread.sleep(CLIENT_READ_INTERVAL);
+					// read the next packet from the stream
 					NetworkPacket packet = server.codec().readPacket(receiveStream);
+					// find the handle of the packet and then invoke it
 					PacketHandler<?, ?> handler = server.getRegistry().getHandle(packet.getClass());
 					((PacketHandler<NetworkPacket, PlayerConnection>) handler).handle(packet, this);
 				} catch (Exception e) {
 					handleConnectionException(e);
 				}
 			}
-		}).start();
+		});
 		
-		new Thread(() -> {
+		// packet dispatching thread
+		this.packetDispatcherThread = new Thread(() -> {
 			Thread.currentThread().setName("PlayerConnection: Packet Dispatcher Thread");
-			while (!closed) {
+			while (true) {
 				try {
-					Thread.sleep(PACKET_DISPATCH_INTERVAL);
-					flush();
+					NetworkPacket first = dispatchQueue.take(); // this blocks until there's something to pick up
+					List<NetworkPacket> batch = new ArrayList<>();
+					batch.add(first);
+					dispatchQueue.drainTo(batch); // grab any other queued packets immediately
+					synchronized (sendStream) {
+						for (NetworkPacket p : batch) {
+							server.codec().writePacket(sendStream, p);
+						}
+						sendStream.flush();
+					}
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					break;
 				} catch (Exception e) {
 					handleConnectionException(e);
 				}
 			}
-		}).start();
+		});
+		
+		this.packetDispatcherThread.start();
+		this.packetListenerThread.start();
 	}
 	
     /**
@@ -108,21 +127,6 @@ public class PlayerConnection implements ConnectionCtx {
 	}
 	
 	/**
-	 * Sends all queued packets to the client. Synchronized to ensure thread-safe
-	 * flushing.
-	 * 
-	 * @throws IOException if an I/O error occurs while sending packets
-	 */
-	private synchronized void flush() throws IOException {
-		if (closed || dispatchQueue.isEmpty()) return;
-		NetworkPacket packet;
-		while ((packet = dispatchQueue.poll()) != null) {
-			server.codec().writePacket(sendStream, packet);
-		}
-		sendStream.flush();
-	}
-	
-	/**
 	 * Queues a packet for sending to the client.
 	 * 
 	 * @param packet the packet to send
@@ -133,27 +137,7 @@ public class PlayerConnection implements ConnectionCtx {
 		if (!(packet instanceof NetworkPacket)) {
 			throw new IllegalArgumentException("Cannot dispatch " + packet.getClass().getName() + "! Malformed blueprint.");
 		}
-		this.sendPacket((NetworkPacket) packet, false, false);
-	}
-	
-	/**
-	 * Queues a {@link NetworkPacket} for sending. Optionally sends the packet
-	 * immediately if {@code instant} is true.
-	 * 
-	 * @param packet  the packet to send
-	 * @param instant whether to flush the packet immediately
-	 * @param ignoreFlushExceptions whether to fail silently (only if instant is true) or not
-	 */
-	protected void sendPacket(NetworkPacket packet, boolean instant, boolean ignoreFlushExceptions) {
-		if (closed) return;
-		dispatchQueue.add(packet);
-		if (instant) {
-			try {
-				flush();
-			} catch (Exception e) {
-				if (!ignoreFlushExceptions) handleConnectionException(e);
-			}
-		}
+		dispatchQueue.add((NetworkPacket) packet);
 	}
 	
 	/**
@@ -164,7 +148,15 @@ public class PlayerConnection implements ConnectionCtx {
 	 */
 	public void closeWithNotify(String reason) {
 		if (closed) return;
-		sendPacket(new PacketPlayOutCloseSocket(reason), true, true);
+		// dispatch a disconnect reason immediately, this bypasses the queue
+		synchronized (sendStream) {
+			try {
+				server.codec().writePacket(sendStream, new PacketPlayOutCloseSocket(reason));
+				sendStream.flush();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		closeConnection();
 	}
 	
@@ -178,15 +170,23 @@ public class PlayerConnection implements ConnectionCtx {
 		this.closed = true;
 		// only do this if the client socket is still open
 		if (!clientSocket.isClosed()) {
-			try { clientSocket.close(); } catch (IOException ignored) {}
+			try { 
+				receiveStream.close();
+				sendStream.close();
+				clientSocket.close(); 
+			} catch (IOException ignored) {}
 		}
+		// stop the dispatcher thread
+		this.packetDispatcherThread.interrupt();
+		// untrack this instance
+		server.getNetworkManager().untrack(this);
 		// notify the internal server impl to handle quit event
 		if (owner == null) return;
 		owner.onPlayerConnectionClose();
 		attachTo(null);
 	}
 	
-	private void handleGracefulDisconnect() {
+	public void handleGracefulDisconnect() {
 		closeConnection();
 	}
 	
