@@ -23,6 +23,10 @@ public abstract class WorldEntity {
 		this.location = loc;
 		return this;
 	}
+	
+	public void updateLocation() {
+		
+	}
 
 	public abstract void tick();
 
