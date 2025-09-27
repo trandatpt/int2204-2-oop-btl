@@ -15,6 +15,7 @@ public class NetworkManager {
 	
 	public void untrack(PlayerConnection conn) {
 		connections.remove(conn);
+		conn.closeConnection();
 	}
 	
 	public void broadcast(IPacketPlayOut packet) {

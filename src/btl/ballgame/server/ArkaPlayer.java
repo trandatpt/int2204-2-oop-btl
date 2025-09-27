@@ -1,23 +1,31 @@
-package btl.ballgame.server.game;
+package btl.ballgame.server;
 
 import java.util.UUID;
 
 import btl.ballgame.server.net.PlayerConnection;
 
-public class Player {
+public class ArkaPlayer {
 	public final PlayerConnection playerConnection;
 	private final UUID uuid;
 	private final String userName;
 	
-	public Player(String userName, PlayerConnection conn) {
+	protected ArkaPlayer(String userName, PlayerConnection conn) {
 		this.playerConnection = conn;
 		this.userName = userName;
 		this.uuid = UUID.nameUUIDFromBytes(("ArkaPlayer:" + this.userName.toLowerCase()).getBytes());
-		this.playerConnection.attachTo(this);
+	}
+	
+	public void onPlayerConnectionClose() {
+		ArkanoidServer.getServer().getPlayerManager().removePlayer(this.getUniqueId());
+		System.out.println(userName + " left");
 	}
 	
 	public UUID getUniqueId() {
 		return this.uuid;
+	}
+	
+	public String getName() {
+		return this.userName;
 	}
 	
 	public void kick(String reason) {
@@ -25,6 +33,6 @@ public class Player {
 	}
 	
 	public void disconnect(String reason) {
-		this.playerConnection.close(reason);
+		this.playerConnection.closeWithNotify(reason);
 	}
 }

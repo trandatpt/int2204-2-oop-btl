@@ -36,6 +36,11 @@ public class PacketByteBuf {
 	}
 	
 	// WRITE
+	public void writeBool(boolean bool) {
+		ensureCapacity(Byte.BYTES);
+		backend.put((byte) (bool ? 0x1 : 0x0));
+	}
+	
 	public void writeInt8(byte b) {
 		ensureCapacity(Byte.BYTES);
 		backend.put(b);
@@ -62,7 +67,13 @@ public class PacketByteBuf {
 	}
 
 	public void writeU16String(String str) {
-		ensureCapacity(Integer.BYTES + str.length() * Character.BYTES);
+		if (str == null) {
+			writeBool(false); // string is null
+			return;
+		}
+		
+		ensureCapacity(Byte.BYTES + Integer.BYTES + str.length() * Character.BYTES);
+		writeBool(true); // string is not null
 		writeInt32(str.length());
 		for (int i = 0; i < str.length(); i++) {
 			writeUint16(str.charAt(i));
@@ -70,13 +81,23 @@ public class PacketByteBuf {
 	}
 	
 	public void writeU8String(String str) {
+		if (str == null) {
+			writeBool(false); // string is null
+			return;
+		}
+		
 		byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
-		ensureCapacity(Integer.BYTES + bytes.length);
+		ensureCapacity(Byte.BYTES + Integer.BYTES + bytes.length);
+		writeBool(true); // string is not null
 		writeInt32(bytes.length);
 		backend.put(bytes);
 	}
 	
 	// READ OPS
+	public boolean readBool() {
+		return backend.get() != 0x0;
+	}
+	
 	public byte readInt8() {
 		return backend.get();
 	}
@@ -98,6 +119,7 @@ public class PacketByteBuf {
 	}
 	
 	public String readU16String() {
+		if (!readBool()) return null; // null string
 		char buf[] = new char[readInt32()];
 		for (int i = 0; i < buf.length; i++) {
 			buf[i] = readUint16();
@@ -106,6 +128,7 @@ public class PacketByteBuf {
 	}
 	
 	public String readU8String() {
+		if (!readBool()) return null; // null string
 		int len = readInt32();
 		byte[] bytes = new byte[len];
 		backend.get(bytes);

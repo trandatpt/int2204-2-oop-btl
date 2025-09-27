@@ -9,10 +9,11 @@ import java.net.Socket;
 
 import btl.ballgame.protocol.PacketCodec;
 import btl.ballgame.protocol.PacketRegistry;
+import btl.ballgame.protocol.ProtoUtils;
 import btl.ballgame.protocol.packets.NetworkPacket;
 import btl.ballgame.protocol.packets.in.PacketPlayInClientHello;
-import btl.ballgame.protocol.packets.out.PacketPlayOutServerAck;
-import btl.ballgame.protocol.packets.out.PacketPlayOutSocketClose;
+import btl.ballgame.protocol.packets.in.PacketPlayInDisconnect;
+import btl.ballgame.protocol.packets.out.PacketPlayOutCloseSocket;
 import btl.ballgame.shared.UnknownPacketException;
 
 public class TestClient {
@@ -21,12 +22,7 @@ public class TestClient {
 			PacketRegistry registry = new PacketRegistry();
 			PacketCodec codec = new PacketCodec(registry);
 			
-			registry.registerPacket(0x1, 
-				PacketPlayInClientHello.class, PacketPlayInClientHello::new
-			);
-			registry.registerPacket(0x3, 
-					PacketPlayOutServerAck.class, PacketPlayOutServerAck::new
-				);
+			ProtoUtils.registerMutualPackets(registry);
 			
 			System.out.println("[Client] Connected to server.");
 			DataOutputStream out = new DataOutputStream(socket.getOutputStream());
@@ -35,11 +31,14 @@ public class TestClient {
 			PacketPlayInClientHello hello = new PacketPlayInClientHello("baSauNigga", 1);
 			codec.writePacket(out, hello);
 			
+			PacketPlayInDisconnect disconnect = new PacketPlayInDisconnect();
+			codec.writePacket(out, disconnect);
+			
 			while (true) {
 				NetworkPacket packet = codec.readPacket(in);
 				System.out.println("[Client] received: " + packet.getClass().getSimpleName());
-				if (packet instanceof PacketPlayOutSocketClose) {
-					System.out.println("[Client] sv asked to close");
+				if (packet instanceof PacketPlayOutCloseSocket p) {
+					System.out.println("[Client] sv asked to close " + p.getReason());
 					break;
 				}
 			}
