@@ -1,24 +1,19 @@
 package btl.ballgame.server.net;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.net.Socket;
-import java.sql.Connection;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import btl.ballgame.protocol.packets.ConnectionCtx;
+import btl.ballgame.protocol.ConnectionCtx;
 import btl.ballgame.protocol.packets.NetworkPacket;
+import btl.ballgame.protocol.packets.PacketHandler;
 import btl.ballgame.protocol.packets.out.IPacketPlayOut;
 import btl.ballgame.protocol.packets.out.PacketPlayOutSocketClose;
 import btl.ballgame.server.ArkanoidServer;
+import btl.ballgame.server.game.Player;
 import btl.ballgame.shared.UnknownPacketException;
 
 public class PlayerConnection implements ConnectionCtx {
@@ -26,27 +21,31 @@ public class PlayerConnection implements ConnectionCtx {
 	public static final int PACKET_DISPATCH_INTERVAL = 5;
 	
 	private Socket clientSocket;
-	private ObjectInputStream receiveStream;
-	private ObjectOutputStream sendStream;
+	private DataInputStream receiveStream;
+	private DataOutputStream sendStream;
 	
 	private Queue<NetworkPacket> dispatchQueue = new ConcurrentLinkedQueue<>();
 	
 	private boolean closed = false;
 	
+	private ArkanoidServer server;
+	private Player owner;
+	
+	@SuppressWarnings("unchecked")
 	public PlayerConnection(ArkanoidServer server, Socket socket) throws IOException {
+		this.server = server;
 		this.clientSocket = socket;
-		this.sendStream = new ObjectOutputStream(socket.getOutputStream());
-		this.receiveStream = new ObjectInputStream(socket.getInputStream());
+		this.sendStream = new DataOutputStream(socket.getOutputStream());
+		this.receiveStream = new DataInputStream(socket.getInputStream());
 		
 		new Thread(() -> {
 			Thread.currentThread().setName("PlayerConnection: Packet Listener Thread");
 			while (!closed) {
 				try {
 					Thread.sleep(CLIENT_READ_INTERVAL);
-					NetworkPacket packet = NetworkPacket.readNextPacket(receiveStream);
-					server.getRegistry().getHandle(packet.getClass())
-						.handle(packet, this)
-					;
+					NetworkPacket packet = server.codec().readPacket(receiveStream);
+					PacketHandler<?, ?> handler = server.getRegistry().getHandle(packet.getClass());
+					((PacketHandler<NetworkPacket, PlayerConnection>) handler).handle(packet, this);
 				} catch (Exception e) {
 					handleConnectionException(e);
 				}
@@ -70,7 +69,7 @@ public class PlayerConnection implements ConnectionCtx {
 		if (dispatchQueue.isEmpty()) return;
 		NetworkPacket packet;
 		while ((packet = dispatchQueue.poll()) != null) {
-			packet.write(sendStream);
+			server.codec().writePacket(sendStream, packet);
 		}
 		sendStream.flush();
 	}
@@ -102,6 +101,14 @@ public class PlayerConnection implements ConnectionCtx {
 				this.clientSocket.close();
 			}
 		} catch (IOException e) {}
+	}
+	
+	public void attachTo(Player p) {
+		this.owner = p;
+	}
+	
+	public Player getPlayer() {
+		return this.owner;
 	}
 	
 	private void handleConnectionException(Throwable e) {

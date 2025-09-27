@@ -1,12 +1,13 @@
 package btl.ballgame.protocol.packets.in;
 
+import btl.ballgame.protocol.PacketByteBuf;
 import btl.ballgame.protocol.packets.NetworkPacket;
 
 public class PacketPlayInClientHello extends NetworkPacket implements IPacketPlayIn {
-	private static final long serialVersionUID = 1L;
+	private String userName;
+	private int protocolVersion;
 	
-	private final String userName;
-	private final int protocolVersion;
+	public PacketPlayInClientHello() {}; /* for packet decoding */
 	
 	public PacketPlayInClientHello(String username, int protocolVersion) {
 		this.userName = username;
@@ -19,5 +20,17 @@ public class PacketPlayInClientHello extends NetworkPacket implements IPacketPla
 	
 	public int whatVersion() {
 		return this.protocolVersion;
+	}
+
+	@Override
+	public void write(PacketByteBuf buffer) {
+		buffer.writeU8String(this.userName);
+		buffer.writeInt32(this.protocolVersion);
+	}
+
+	@Override
+	public void read(PacketByteBuf buffer) {
+		this.userName = buffer.readU8String();
+		this.protocolVersion = buffer.readInt32();
 	}
 }

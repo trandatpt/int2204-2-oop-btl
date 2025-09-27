@@ -2,14 +2,15 @@ package btl.ballgame.protocol.packets.out;
 
 import java.util.UUID;
 
+import btl.ballgame.protocol.PacketByteBuf;
 import btl.ballgame.protocol.packets.NetworkPacket;
 
 public class PacketPlayOutServerAck extends NetworkPacket implements IPacketPlayOut {
-	private static final long serialVersionUID = 1L;
+	private boolean success;
+	private UUID userUuid;
+	private String errorMessage;
 	
-	private final boolean success;
-	private final UUID userUuid;
-	private final String errorMessage;
+	public PacketPlayOutServerAck() {};
 	
 	// when the server ACCEPTS the client, return the UUID
 	public PacketPlayOutServerAck(UUID userUUID) {
@@ -35,5 +36,15 @@ public class PacketPlayOutServerAck extends NetworkPacket implements IPacketPlay
 	
 	public UUID getServerSideUUID() {
 		return this.userUuid;
+	}
+
+	@Override
+	public void write(PacketByteBuf buffer) {
+		
+	}
+
+	@Override
+	public void read(PacketByteBuf buffer) {
+		
 	}
  }

@@ -3,12 +3,21 @@ package btl.ballgame.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
+import btl.ballgame.server.game.Player;
+import btl.ballgame.server.net.NetworkManager;
 import btl.ballgame.server.net.PlayerConnection;
 import btl.ballgame.server.net.handle.ClientHelloHandle;
-
+import btl.ballgame.protocol.PacketCodec;
 import btl.ballgame.protocol.PacketRegistry;
 import btl.ballgame.protocol.packets.in.PacketPlayInClientHello;
+import btl.ballgame.protocol.packets.out.PacketPlayOutServerAck;
 
 public class ArkanoidServer {
 	public static void main(String[] args) {
@@ -17,11 +26,17 @@ public class ArkanoidServer {
 	
 	private ServerSocket serverSocket;
 	private PacketRegistry registry;
+	private PacketCodec codec;
+	private NetworkManager netMan;
+	
+	private Map<UUID, Player> onlinePlayers = new HashMap<>();
 	
 	public ArkanoidServer(int port) {
 		try {
 			this.serverSocket = new ServerSocket(port);
 			this.registry = new PacketRegistry();
+			this.codec = new PacketCodec(registry);
+			this.netMan = new NetworkManager();
 			
 			this.onServerInit();
 		} catch (IOException e) {
@@ -36,7 +51,7 @@ public class ArkanoidServer {
 	            Socket client = serverSocket.accept();
 	            client.setSoTimeout(5000);
 	            System.out.println("[TEST] connected: " + client.getInetAddress());
-	            new PlayerConnection(this, client);
+	            netMan.track(new PlayerConnection(this, client));
 	        } catch (IOException e) {
 	            e.printStackTrace();
 	            break;
@@ -44,11 +59,38 @@ public class ArkanoidServer {
 	    }
 	}
 	
-	public void onServerInit() {
-		this.registry.register(PacketPlayInClientHello.class, new ClientHelloHandle());
+	public Collection<Player> getOnlinePlayers() {
+		return this.onlinePlayers.values();
+	}
+	
+	public void addOnlinePlayer(Player p) {
+		this.onlinePlayers.put(p.getUniqueId(), p);
+	}
+	
+	public void removeOnlinePlayer(Player p) {
+		this.onlinePlayers.remove(p.getUniqueId());
+	}
+	
+	private void onServerInit() {
+		this.registry.registerPacket(0x1, 
+			PacketPlayInClientHello.class, PacketPlayInClientHello::new
+		);
+		this.registry.registerPacket(0x3, 
+			PacketPlayOutServerAck.class, PacketPlayOutServerAck::new
+		);
+		
+		this.registry.registerHandler(PacketPlayInClientHello.class, new ClientHelloHandle());
 	}
 	
 	public PacketRegistry getRegistry() {
 		return this.registry;
+	}
+	
+	public PacketCodec codec() {
+		return this.codec;
+	}
+	
+	public NetworkManager getNetworkManager() {
+		return this.netMan;
 	}
 }
