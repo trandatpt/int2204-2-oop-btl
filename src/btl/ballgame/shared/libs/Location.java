@@ -13,6 +13,10 @@ public class Location {
 		return this;
 	}
 	
+	public IWorld getWorld() {
+		return world;
+	}
+	
 	public int getX() {
 		return x;
 	}
