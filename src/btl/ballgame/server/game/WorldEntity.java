@@ -8,7 +8,7 @@ import btl.ballgame.shared.libs.Location;
 
 public abstract class WorldEntity {
 	private final int id;
-	private boolean valid = false;
+	protected boolean active = false;
 	private Location location;
 	private Set<LevelChunk> occupiedChunks = new HashSet<>();
 	
@@ -51,7 +51,11 @@ public abstract class WorldEntity {
 	}
 	
 	public void remove() {
-		this.valid = false;
+		if (!active) {
+			return;
+		}
+		
+		this.active = false;
 		new HashSet<>(occupiedChunks).forEach(chunk -> {
 			leaveChunk(chunk);
 		});
@@ -65,7 +69,6 @@ public abstract class WorldEntity {
 	}
 
 	public abstract void tick();
-
 	public abstract int getWidth();
 	public abstract int getHeight();
 }

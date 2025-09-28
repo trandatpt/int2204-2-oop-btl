@@ -74,8 +74,11 @@ public class WorldServer implements IWorld {
 				entity.joinChunk(chunk);
 			}
 		}
+		
 		entities.put(entity.getId(), entity);
 		entity.getLocation().setWorld(this);
+		entity.active = true;
+		
 		return true;
 	}
 	
