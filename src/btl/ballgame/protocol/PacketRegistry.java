@@ -10,7 +10,7 @@ import btl.ballgame.shared.UnhandledPacketException;
 import btl.ballgame.shared.UnknownPacketException;
 
 /**
- * Registry for PennyWort Protocol packets and their handlers.
+ * Registry for PennyWortProtocol packets and their handlers.
  * <p>
  * Maintains the mappings:
  * <ul>

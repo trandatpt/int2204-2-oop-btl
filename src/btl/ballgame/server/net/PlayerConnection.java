@@ -108,20 +108,21 @@ public class PlayerConnection implements ConnectionCtx {
 		this.packetListenerThread.start();
 	}
 	
-    /**
-     * Associates this connection with a Arkanoid player.
-     * 
-     * @param player the {@link ArkaPlayer} that owns this connection
-     */
+	/**
+	 * Associates this connection with a Arkanoid player.
+	 * 
+	 * @param player the {@link ArkaPlayer} that owns this connection
+	 */
 	public void attachTo(ArkaPlayer p) {
 		this.owner = p;
 	}
 	
-    /**
-     * Returns the player associated with this connection.
-     * 
-     * @return the {@link ArkaPlayer} owning this connection, or {@code null} if not attached
-     */
+	/**
+	 * Returns the player associated with this connection.
+	 * 
+	 * @return the {@link ArkaPlayer} owning this connection, or {@code null} if not
+	 *         attached
+	 */
 	public ArkaPlayer getPlayer() {
 		return this.owner;
 	}

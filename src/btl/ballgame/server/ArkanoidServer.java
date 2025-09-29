@@ -52,18 +52,18 @@ public class ArkanoidServer {
 	public void startDedicatedServer() {
 		System.out.println("[TEST] Started dedi server");
 		while (true) {
-	        try {
-	            Socket client = serverSocket.accept();
-	            client.setSoTimeout(15_000);
-	            System.out.println("[TEST] connected: " + client.getInetAddress());
-	            netMan.track(new PlayerConnection(this, client));
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	            break;
-	        }
-	    }
+			try {
+				Socket client = serverSocket.accept();
+				client.setSoTimeout(15_000);
+				System.out.println("[TEST] connected: " + client.getInetAddress());
+				netMan.track(new PlayerConnection(this, client));
+			} catch (IOException e) {
+				e.printStackTrace();
+				break;
+			}
+		}
 	}
-	
+
 	private void onServerInit() {
 		this.registry.registerHandler(PacketPlayInClientHello.class, new ClientHelloHandle());
 		this.registry.registerHandler(PacketPlayInDisconnect.class, new ClientDisconnectHandle());

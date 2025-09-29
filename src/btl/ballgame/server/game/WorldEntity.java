@@ -8,20 +8,42 @@ import btl.ballgame.shared.libs.Location;
 
 import static btl.ballgame.server.game.LevelChunk.CHUNK_SHIFT;
 
+/**
+ * Represents a dynamic/static entity in the {@link WorldServer}
+ * <p>
+ * Each WorldEntity knows its location, size, and which chunks it occupies.
+ * Supports server-side collision detection, chunk management, and
+ * tick-based updates. This is an abstract base class for entities like
+ * balls, paddles, bricks, and other dynamic objects.
+ * <p>
+ */
 public abstract class WorldEntity {
+	/** unique ID for the entity, tracked by the Client */
 	private final int id;
+	
+	/** whether the entity is currently active (spawned) in the world */
 	protected boolean active = false;
 	
+	/** set of chunks this entity currently occupies */
 	private Set<LevelChunk> occupiedChunks = new HashSet<>();
 	
+	/** entity location and size metadata */
 	private WorldServer world;	
 	private int x, y, rot; // NOTE: the location stored here is the center of the entity
 	// to compute the upper left corner, use x - width / 2
-    protected int width; 
-    protected int height;
-    
+
+	protected int width;
+	protected int height;
+
+	/** the current bounding box of this entity, dependent on location and size */
 	private AABB boundingBox;
-    
+
+	/**
+	 * Constructs a new WorldEntity with a given ID and initial location.
+	 *
+	 * @param id       Unique entity ID.
+	 * @param location Initial world location of the entity (center point).
+	 */
 	public WorldEntity(int id, Location location) {
 		this.id = id;
 		this.world = (WorldServer) location.getWorld();
@@ -30,18 +52,68 @@ public abstract class WorldEntity {
 		this.rot = location.getRotation();
 	}
 	
+	/** @return Unique ID of the entity. */
 	public int getId() {
 		return id;
 	}
 	
+	/**
+	 * Gets the current location of the entity.
+	 * <p>
+	 * Location is immutable; always returns a new Location object.
+	 *
+	 * @return Location representing the entity's center position and rotation.
+	 */
 	public Location getLocation() {
 		return new Location(world, x, y, rot);
 	}
 	
+	/** @return The world this entity belongs to. */
 	public WorldServer getWorld() {
 		return this.world;
 	}
 	
+	/**
+	 * Queries all entities this entity is currently colliding with.
+	 * <p>
+	 * Uses a broadphase culling via spatial partitioning (chunks) and a narrowphase
+	 * AABB intersection check. Excludes itself from the results.
+	 *
+	 * @return Set of WorldEntities currently colliding with this entity.
+	 */
+	public Set<WorldEntity> queryCollisions() {
+		Set<WorldEntity> collided = new HashSet<>();
+		// broadphase check, get all entities around the box
+		Set<WorldEntity> nearby = getWorld().getNearbyEntities(boundingBox.expand(128));
+		nearby.remove(this); // exclude SELF as a potential collider
+		
+		// skip since there's nothing around it
+		if (nearby.size() == 0) {
+			return collided;
+		}
+		
+		// narrowphase check, filter out exactly which entity collided with this one
+		AABB thisBox = this.getBoundingBox();
+		for (WorldEntity entity : nearby) {
+			if (!thisBox.intersects(entity.getBoundingBox())) { // this is cheap
+				continue;
+			}
+			collided.add(entity);
+		}
+		
+		return collided;
+	}
+	
+	/**
+	 * Updates the entity's location.
+	 * <p>
+	 * Automatically recomputes occupied chunks and 
+	 * bounding box if the position has changed. Also send (an)
+	 * update packet(s)
+	 *
+	 * @param loc New location.
+	 * @return This entity, for chaining.
+	 */
 	public WorldEntity setLocation(Location loc) {
 		int oldX = this.x, oldY = this.y, oldRot = this.rot;
 		
@@ -60,6 +132,12 @@ public abstract class WorldEntity {
 		return this;
 	}
 	
+	/**
+	 * Recomputes which chunks this entity occupies based on its bounding box.
+	 * <p>
+	 * Removes the entity from old chunks and joins new ones. Ensures
+	 * `getNearbyEntities()` always returns correct results.
+	 */
 	protected void computeOccupiedChunks() {
 		Set<LevelChunk> newOccupiedChunks = new HashSet<>();
 		AABB aabb = getBoundingBox();
@@ -87,6 +165,13 @@ public abstract class WorldEntity {
 		this.occupiedChunks.forEach(this::joinChunk);
 	}
 	
+	/**
+	 * Gets the Axis-Aligned Bounding Box of the entity.
+	 * <p>
+	 * Automatically computed if not already initialized.
+	 *
+	 * @return Current bounding box.
+	 */
 	public AABB getBoundingBox() {
 		if (this.boundingBox == null) {
 			this.computeBoundingBox();
@@ -94,48 +179,79 @@ public abstract class WorldEntity {
 		return this.boundingBox;
 	}
 	
+	/**
+	 * Sets the width and height of the entity and updates its bounding box.
+	 *
+	 * @param width  Width in world units.
+	 * @param height Height in world units.
+	 */
 	public void setBoundingBox(int width, int height) {
 		this.width = width;
 		this.height = height;
 		this.computeBoundingBox();
 	}
 	
+	/** Recomputes the bounding box centered on the entity's current location. */
 	private void computeBoundingBox() {
 		this.boundingBox = AABB.fromCenteredPositionWithSize(
 			x, y, getWidth(), getHeight()
 		);
 	}
 	
+	/**
+	 * Joins a specific chunk and marks it as occupied by this entity.
+	 *
+	 * @param chunk Chunk to join.
+	 */
 	public void joinChunk(LevelChunk chunk) {
 		chunk.entityJoin(this);
 		occupiedChunks.add(chunk);
 	}
 	
+	/**
+	 * Leaves a specific chunk and removes occupancy.
+	 *
+	 * @param chunk Chunk to leave.
+	 */
 	public void leaveChunk(LevelChunk chunk) {
 		chunk.entityLeave(this);
 		occupiedChunks.remove(chunk);
 	}
 	
+	/**
+	 * Checks whether this entity is currently inside a given chunk.
+	 *
+	 * @param chunk Chunk to check.
+	 * @return True if the entity occupies the chunk.
+	 */
 	public boolean insideChunk(LevelChunk chunk) {
 		return occupiedChunks.contains(chunk);
 	}
 	
+	/**
+	 * Removes the entity from the world and all chunks.
+	 * <p>
+	 * Marks it inactive, removes from occupied chunks, and unregisters it from the
+	 * world's entity registry.
+	 */
 	public void remove() {
 		if (!active) {
 			return;
 		}
-		
 		this.active = false;
 		new HashSet<>(occupiedChunks).forEach(chunk -> {
 			leaveChunk(chunk);
 		});
 		if (getLocation().getWorld() instanceof WorldServer ws) {
-		    ws.removeEntityFromRegistry(this);
+			ws.removeEntityFromRegistry(this);
 		}
 	}
 	
+	/** @return Width of the entity. */
 	public int getWidth() { return this.width; }
+	/** @return Height of the entity. */
 	public int getHeight() { return this.height; }
 	
+	/** Called every server tick to update entity logic. */
 	public abstract void tick();
 }
