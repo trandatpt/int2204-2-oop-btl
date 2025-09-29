@@ -36,7 +36,7 @@ public class WorldServer implements IWorld {
 	}
 	
 	public LevelChunk getChunkAtWorldLoc(int wx, int wy) {
-		// each chunk is 128 x 128 (2^7)
+		// each chunk is 128 x 128 (2^7), a >> k is just div by 2^k
 		return this.getChunkAt(wx >> CHUNK_SHIFT, wy >> CHUNK_SHIFT);
 	}
 	
@@ -60,24 +60,11 @@ public class WorldServer implements IWorld {
 		if (isEntirelyOutOfWorld(entity.getBoundingBox())) {
 			return false;
 		}
-		
-		int minChunkX = entity.getBoundingBox().minX >> CHUNK_SHIFT;
-		int maxChunkX = entity.getBoundingBox().maxX >> CHUNK_SHIFT;
-		
-		int minChunkY = entity.getBoundingBox().minY >> CHUNK_SHIFT;
-		int maxChunkY = entity.getBoundingBox().maxY >> CHUNK_SHIFT;
-		
-		for (int cx = minChunkX; cx < maxChunkX; ++cx) {
-			for (int cy = minChunkY; cy < maxChunkY; ++cy) {
-				LevelChunk chunk = getChunkAt(cx, cy);
-				if (chunk == null) continue;
-				entity.joinChunk(chunk);
-			}
-		}
-		
+		entity.computeOccupiedChunks();
 		entities.put(entity.getId(), entity);
-		entity.getLocation().setWorld(this);
 		entity.active = true;
+		
+		// TODO add spawn entity packet to notify the clients
 		
 		return true;
 	}
@@ -94,11 +81,12 @@ public class WorldServer implements IWorld {
 		int maxChunkY = area.maxY >> CHUNK_SHIFT;
 		
 		Set<WorldEntity> nearby = new HashSet<>();
-		for (int cx = minChunkX; cx < maxChunkX; ++cx) {
-			for (int cy = minChunkY; cy < maxChunkY; ++cy) {
+		// broadphase culling
+		for (int cx = minChunkX; cx <= maxChunkX; ++cx) {
+			for (int cy = minChunkY; cy <= maxChunkY; ++cy) {
 				LevelChunk chunk = getChunkAt(cx, cy);
 				if (chunk == null) continue;
-				
+				// narrowphase filtering
 				for (WorldEntity e : chunk.getEntities()) {
 					if (!e.getBoundingBox().intersects(area)) continue;
 					nearby.add(e);

@@ -15,12 +15,12 @@ public class EntityWreckingBall extends EntityDynamic {
 
 	@Override
 	public int getWidth() {
-		return 36;
+		return 64;
 	}
 
 	@Override
 	public int getHeight() {
-		return 36;
+		return 64;
 	}
 
 }

@@ -33,10 +33,17 @@ public class AABB {
 	 * Create a centered-AABB from a {@link Location} and size (width, height).
 	 */
 	public static AABB fromCenteredLocWithSize(Location loc, int width, int height) {
+		return fromCenteredPositionWithSize(loc.getX(), loc.getY(), width, height);
+	}
+	
+	/**
+	 * Create a centered-AABB from a position (x, y) and size (width, height).
+	 */
+	public static AABB fromCenteredPositionWithSize(int x, int y, int width, int height) {
 		int halfX = width >> 1, halfY = height >> 1;
 		return new AABB(
-			loc.getX() - halfX, loc.getY() - halfY,
-			loc.getX() + halfX, loc.getY() + halfY
+			x - halfX, y - halfY,
+			x + halfX, y + halfY
 		);
 	}
 
