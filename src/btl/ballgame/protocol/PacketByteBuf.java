@@ -52,7 +52,7 @@ public class PacketByteBuf {
 		int length = in.readInt();
 		byte[] data = new byte[length];
 		in.readFully(data);
-		return new PacketByteBuf(ByteBuffer.wrap(data), true);
+		return new PacketByteBuf(ByteBuffer.wrap(data), false);
 	}
 	
 	private boolean dynamicLength;
@@ -63,8 +63,8 @@ public class PacketByteBuf {
 		this.dynamicLength = dynaLen;
 	}
 	
-	private PacketByteBuf(ByteBuffer bytes, boolean fixed) {
-		this.dynamicLength = fixed;
+	private PacketByteBuf(ByteBuffer bytes, boolean dynaLen) {
+		this.dynamicLength = dynaLen;
 		this.backend = bytes;
 	}
 	
@@ -110,6 +110,8 @@ public class PacketByteBuf {
 	 * <pre>
 	 * [bool isNotNull][int length][char... data]
 	 * </pre>
+	 * 
+	 * @apiNote this method is slower than {@link writeU8String}
 	 */
 	public void writeU16String(String str) {
 		if (str == null) {
@@ -197,6 +199,9 @@ public class PacketByteBuf {
 	/**
 	 * Dumps the written portion of the buffer into a byte array. This resets the
 	 * position to the beginning.
+	 * 
+	 * @apiNote You cannot write to this instance of {@link PacketByteBuf} after
+	 * this function call.
 	 *
 	 * @return byte array containing all written data
 	 */
