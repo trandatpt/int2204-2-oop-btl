@@ -13,9 +13,15 @@ public abstract class WorldEntity {
 	protected boolean active = false;
 	
 	private Set<LevelChunk> occupiedChunks = new HashSet<>();
-	private int x, y, rot;
-	private WorldServer world;	
 	
+	private WorldServer world;	
+	private int x, y, rot; // NOTE: the location stored here is the center of the entity
+	// to compute the upper left corner, use x - width / 2
+    protected int width; 
+    protected int height;
+    
+	private AABB boundingBox;
+    
 	public WorldEntity(int id, Location location) {
 		this.id = id;
 		this.world = (WorldServer) location.getWorld();
@@ -42,13 +48,14 @@ public abstract class WorldEntity {
 		this.x = loc.getX();
 		this.y = loc.getY();
 		this.rot = loc.getRotation();
-
+		
+		// the most stupid broadphase check ever
 		if (oldX != x || oldY != y) {
 			this.computeOccupiedChunks();
 		}
 		
 		// TODO send location update packet
-		
+		this.computeBoundingBox();
 		
 		return this;
 	}
@@ -81,7 +88,20 @@ public abstract class WorldEntity {
 	}
 	
 	public AABB getBoundingBox() {
-		return AABB.fromCenteredPositionWithSize(
+		if (this.boundingBox == null) {
+			this.computeBoundingBox();
+		}
+		return this.boundingBox;
+	}
+	
+	public void setBoundingBox(int width, int height) {
+		this.width = width;
+		this.height = height;
+		this.computeBoundingBox();
+	}
+	
+	private void computeBoundingBox() {
+		this.boundingBox = AABB.fromCenteredPositionWithSize(
 			x, y, getWidth(), getHeight()
 		);
 	}
@@ -113,8 +133,9 @@ public abstract class WorldEntity {
 		    ws.removeEntityFromRegistry(this);
 		}
 	}
-
+	
+	public int getWidth() { return this.width; }
+	public int getHeight() { return this.height; }
+	
 	public abstract void tick();
-	public abstract int getWidth();
-	public abstract int getHeight();
 }

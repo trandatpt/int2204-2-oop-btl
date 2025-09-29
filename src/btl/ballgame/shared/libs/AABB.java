@@ -130,7 +130,8 @@ public class AABB {
 	@Override
 	public String toString() {
 		return "AABB{minX=" 
-			+ minX + ",minY=" + minY 
+			+ minX 
+			+ ",minY=" + minY 
 			+ ",maxX," + maxX 
 			+ ",maxY" + maxY
 		+ "}";

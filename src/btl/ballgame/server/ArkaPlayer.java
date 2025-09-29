@@ -2,12 +2,15 @@ package btl.ballgame.server;
 
 import java.util.UUID;
 
+import btl.ballgame.server.game.match.ArkanoidMatch;
 import btl.ballgame.server.net.PlayerConnection;
 
 public class ArkaPlayer {
 	public final PlayerConnection playerConnection;
 	private final UUID uuid;
 	private final String userName;
+	
+	private ArkanoidMatch currentGame = null;
 	
 	protected ArkaPlayer(String userName, PlayerConnection conn) {
 		this.playerConnection = conn;
@@ -18,6 +21,14 @@ public class ArkaPlayer {
 	public void onPlayerConnectionClose() {
 		ArkanoidServer.getServer().getPlayerManager().removePlayer(this.getUniqueId());
 		System.out.println(userName + " left");
+	}
+	
+	public ArkanoidMatch getCurrentGame() {
+		return currentGame;
+	}
+	
+	public void joinGame(ArkanoidMatch currentGame) {
+		this.currentGame = currentGame;
 	}
 	
 	public UUID getUniqueId() {
