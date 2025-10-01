@@ -1,6 +1,9 @@
 package btl.ballgame.server.game;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import btl.ballgame.shared.libs.AABB;
@@ -34,6 +37,9 @@ public abstract class WorldEntity {
 
 	protected int width;
 	protected int height;
+	
+	/** mark this entity as a collider object */
+	protected boolean collidable = true;
 
 	/** the current bounding box of this entity, dependent on location and size */
 	private AABB boundingBox;
@@ -79,10 +85,10 @@ public abstract class WorldEntity {
 	 * Uses a broadphase culling via spatial partitioning (chunks) and a narrowphase
 	 * AABB intersection check. Excludes itself from the results.
 	 *
-	 * @return Set of WorldEntities currently colliding with this entity.
+	 * @return List of WorldEntities currently colliding with this entity.
 	 */
-	public Set<WorldEntity> queryCollisions() {
-		Set<WorldEntity> collided = new HashSet<>();
+	public List<WorldEntity> queryCollisions() {
+		List<WorldEntity> collided = new ArrayList<>();
 		// broadphase check, get all entities around the box
 		Set<WorldEntity> nearby = getWorld().getNearbyEntities(boundingBox.expand(128));
 		nearby.remove(this); // exclude SELF as a potential collider
@@ -251,6 +257,8 @@ public abstract class WorldEntity {
 	public int getWidth() { return this.width; }
 	/** @return Height of the entity. */
 	public int getHeight() { return this.height; }
+	/** @return true if this entity should be collidable by other entities (just a suggestion). */
+	public boolean isCollidable() { return this.collidable; };
 	
 	/** Called every server tick to update entity logic. */
 	public abstract void tick();

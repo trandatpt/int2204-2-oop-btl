@@ -8,6 +8,10 @@ public class Location {
 		setWorld(world); setX(x); setY(y); setRotation(rot);
 	}
 	
+	public Location(IWorld world, int x, int y, Vector2f rot) {
+		setWorld(world); setX(x); setY(y); setDirection(rot);
+	}
+	
 	public Location setWorld(IWorld world) {
 		this.world = world;
 		return this;

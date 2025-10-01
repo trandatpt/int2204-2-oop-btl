@@ -60,7 +60,7 @@ public class AABB {
 	public float getHeight() {
 		return maxY - minY;
 	}
-
+	
 	/**
 	 * Get center X.
 	 */
@@ -111,12 +111,12 @@ public class AABB {
 	}
 
 	/**
-	 * Get the intersection depth vector (overlap) with another AABB. Returns a
-	 * float[2] = {dx, dy}. If no intersection, returns {0, 0}.
+	 * Get the intersection depth (overlap) with another AABB. Returns a
+	 * Vector2f{dx, dy}. If no intersection, returns zero vector.
 	 */
-	public float[] getIntersectionDepth(AABB other) {
+	public Vector2f getIntersectionDepth(AABB other) {
 		if (!intersects(other)) {
-			return new float[] { 0, 0 };
+			return Vector2f.ZERO;
 		}
 		float dx1 = other.maxX - this.minX;
 		float dx2 = other.minX - this.maxX;
@@ -124,7 +124,7 @@ public class AABB {
 		float dy2 = other.minY - this.maxY;
 		float dx = Math.abs(dx1) < Math.abs(dx2) ? dx1 : dx2;
 		float dy = Math.abs(dy1) < Math.abs(dy2) ? dy1 : dy2;
-		return new float[] { dx, dy };
+		return new Vector2f(dx, dy);
 	}
 
 	@Override

@@ -1,7 +1,9 @@
 package btl.ballgame.server.game;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,7 +25,7 @@ public class WorldServer implements IWorld {
 	private Map<Long, LevelChunk> chunks = new HashMap<>();
 	
 	/** entity registry, mapped by the entity ID */
-	private Map<Integer, WorldEntity> entities = new HashMap<>();
+	private LinkedHashMap<Integer, WorldEntity> entities = new LinkedHashMap<>();
 	
 	/** world metadata */
 	private int width, height;
@@ -39,6 +41,18 @@ public class WorldServer implements IWorld {
 		this.width = width;
 		this.height = height;
 		this.populateDefaultChunks();
+	}
+	
+	public Collection<WorldEntity> getEntities() {
+		return entities.values();
+	}
+	
+	public int getHeight() {
+		return height;
+	}
+	
+	public int getWidth() {
+		return width;
 	}
 	
 	/**

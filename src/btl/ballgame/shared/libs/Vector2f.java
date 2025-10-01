@@ -1,8 +1,10 @@
 package btl.ballgame.shared.libs;
 
 public class Vector2f {
-	private float x;
-	private float y;
+	public static final Vector2f ZERO = new Vector2f();
+	
+	public float x;
+	public float y;
 
 	public Vector2f() {
 		this(0, 0);
