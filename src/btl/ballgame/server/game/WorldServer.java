@@ -1,9 +1,12 @@
 package btl.ballgame.server.game;
 
+import java.awt.Color;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -162,6 +165,7 @@ public class WorldServer implements IWorld {
 		entities.remove(entity.getId());
 	}
 	
+	public static List<AABB> toVisualize = new ArrayList<>();
 	/**
 	 * Returns all entities in chunks overlapping a given area.
 	 * <p>
@@ -172,6 +176,8 @@ public class WorldServer implements IWorld {
 	 * @return Set of nearby entities intersecting the area.
 	 */
 	public Set<WorldEntity> getNearbyEntities(AABB area) {
+		toVisualize.add(area);
+		
 		int minChunkX = area.minX >> CHUNK_SHIFT;
 		int maxChunkX = area.maxX >> CHUNK_SHIFT;
 		

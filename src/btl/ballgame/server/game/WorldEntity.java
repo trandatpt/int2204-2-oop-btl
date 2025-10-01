@@ -90,7 +90,7 @@ public abstract class WorldEntity {
 	public List<WorldEntity> queryCollisions() {
 		List<WorldEntity> collided = new ArrayList<>();
 		// broadphase check, get all entities around the box
-		Set<WorldEntity> nearby = getWorld().getNearbyEntities(boundingBox.expand(128));
+		Set<WorldEntity> nearby = getWorld().getNearbyEntities(getBoundingBox().expand(64));
 		nearby.remove(this); // exclude SELF as a potential collider
 		
 		// skip since there's nothing around it

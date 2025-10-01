@@ -1,11 +1,14 @@
 package btl.ballgame.server.game;
 
+import btl.ballgame.server.game.entities.dynamic.EntityPaddle;
 import btl.ballgame.server.game.entities.dynamic.EntityWreckingBall;
 import btl.ballgame.shared.libs.AABB;
 import btl.ballgame.shared.libs.Location;
 import btl.ballgame.shared.libs.Vector2f;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +19,8 @@ public class WorldVisualizer extends JPanel {
 	private static final Map<Integer, Vector2f> vectorVisualizers = new HashMap<>();
 	private final WorldServer world;
 	private final int scale = 1; // 1 world unit = 1 pixel
-
+	
+	static EntityPaddle pad;
 	public WorldVisualizer(WorldServer world) {
 		this.world = world;
 		setPreferredSize(new Dimension(world.getWidth() * scale, world.getHeight() * scale));
@@ -24,7 +28,7 @@ public class WorldVisualizer extends JPanel {
 		Random rand = new Random();
 		int worldWidth = 1280;
 		int worldHeight = 720;
-		int ballCount = 100;
+		int ballCount = 1;
 
 		for (int i = 0; i < ballCount; i++) {
 			int x = rand.nextInt(32, worldWidth - 128); // -32 so ball fits
@@ -36,6 +40,9 @@ public class WorldVisualizer extends JPanel {
 			ball.setSpeed(5f);
 			world.addEntity(ball);
 		}
+		
+		pad = new EntityPaddle(1236, new Location(world, 100, 800, 0));
+		world.addEntity(pad);
 	}
 
 	public static void addVectorVisualizer(int id) {
@@ -47,24 +54,38 @@ public class WorldVisualizer extends JPanel {
 			vectorVisualizers.put(id, vector);
 		}
 	}
-
+	
+	public static Graphics2D g2;
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		Graphics2D g2 = (Graphics2D) g;
+		g2 = (Graphics2D) g;
 		g2.setColor(Color.BLACK);
 		g2.fillRect(0, 0, getWidth(), getHeight());
-
+		
+		if (drawAABB) {
+			WorldServer.toVisualize.forEach(aabb -> {
+				g2.setColor(Color.YELLOW);
+				g2.fillRect(aabb.minX, aabb.minY, (int) aabb.getWidth(), (int) aabb.getHeight());				
+			});
+			if (!pause) WorldServer.toVisualize.clear();
+		}
+		
 		Collection<WorldEntity> entities = world.getEntities();
+		
 		for (WorldEntity e : entities) {
-			int x = e.getBoundingBox().minX * scale;
-			int y = 900 - e.getBoundingBox().minY * scale;
-			int w = (e.getBoundingBox().maxX - e.getBoundingBox().minX) * scale;
-			int h = (e.getBoundingBox().maxY - e.getBoundingBox().minY) * scale;
-
+			AABB aabb = e.getBoundingBox();
+			
+			int x = aabb.minX * scale;
+			int y = aabb.minY * scale;
+			int w = e.getWidth();
+			int h = e.getHeight();
+			
+			if (drawAABB) {
+				g2.setColor(new Color(255, 102, 102, 74));
+				g2.fillRect(aabb.minX, aabb.minY, (int) aabb.getWidth(), (int) aabb.getHeight());
+			}
 			if (e instanceof EntityWreckingBall) {
-//                g2.setColor(Color.RED);
-//                g2.fillRect(x, y, w, h);
 				g2.setColor(new Color(Integer.hashCode(e.getLocation().getX() * e.getLocation().getY())));
 				g2.fillOval(x, y, w, h);
 			} else {
@@ -72,8 +93,8 @@ public class WorldVisualizer extends JPanel {
 				g2.fillRect(x, y, w, h);
 			}
 
-			if (vectorVisualizers.containsKey(e.getId())) {
-				Vector2f v = vectorVisualizers.get(e.getId());
+			if (visualizeVec && vectorVisualizers.containsKey(e.getId())) {
+				Vector2f v = vectorVisualizers.get(e.getId()).clone();
 				Vector2f visualVec = v.multiply(2.0f);
 				int cx = x + w / 2;
 				int cy = y + h / 2;
@@ -94,7 +115,7 @@ public class WorldVisualizer extends JPanel {
 		for (int cx = 0; cx < world.getWidth(); cx += chunkSize) {
 			g2.drawLine(cx, 0, cx, world.getHeight());
 		}
-		for (int cy = 0; cy < world.getHeight(); cy += chunkSize) {
+		for (int cy = world.getHeight(); cy >= 0; cy -= chunkSize) {
 			g2.drawLine(0, cy, world.getWidth(), cy);
 		}
 	}
@@ -103,6 +124,9 @@ public class WorldVisualizer extends JPanel {
 		return new AABB(0, 0, world.getWidth(), world.getHeight());
 	}
 
+	static boolean visualizeVec = true;
+	static boolean pause = false;
+	static boolean drawAABB = false;
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(() -> {
 			WorldServer world = new WorldServer(1920, 900);
@@ -116,9 +140,25 @@ public class WorldVisualizer extends JPanel {
 			frame.setVisible(true);
 
 			new Timer(15, e -> {
-				world.tick();
+				if (!pause) world.tick();
 				viz.repaint();
 			}).start();
+			
+			frame.addKeyListener(new KeyAdapter() {
+				@Override
+				public void keyPressed(KeyEvent e) {
+					switch (e.getKeyCode()) {
+					case KeyEvent.VK_LEFT -> pad.moveLeft();
+					case KeyEvent.VK_RIGHT -> pad.moveRight();
+					case KeyEvent.VK_P -> pause = !pause;
+					case KeyEvent.VK_A -> drawAABB = !drawAABB;
+					case KeyEvent.VK_V -> visualizeVec = !visualizeVec;
+					case KeyEvent.VK_S -> world.tick();
+					}
+				}
+			});
+
+			
 		});
 	}
 }

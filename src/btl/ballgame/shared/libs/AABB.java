@@ -128,6 +128,11 @@ public class AABB {
 	}
 
 	@Override
+	public AABB clone() {
+		return new AABB(minX, minY, maxX, maxY);
+	}
+	
+	@Override
 	public String toString() {
 		return "AABB{minX=" 
 			+ minX 
