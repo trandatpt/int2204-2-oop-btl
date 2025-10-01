@@ -75,10 +75,7 @@ public class Location {
 	}
 	
 	public Vector2f getDirection() {
-		double theta = Math.toRadians(rot);
-		// x = cos(theta), y = sin(theta)
-		float dx = (float) Math.cos(theta), dy = (float) Math.sin(theta);
-		return new Vector2f(dx, dy).normalize();
+		return Vector2f.fromTheta(Math.toRadians(rot));
 	}
 	
 	public Vector2f toVector() {

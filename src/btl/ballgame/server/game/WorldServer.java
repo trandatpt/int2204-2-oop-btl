@@ -8,8 +8,10 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
+import btl.ballgame.server.ArkanoidServer;
 import btl.ballgame.shared.libs.AABB;
 import btl.ballgame.shared.libs.IWorld;
 import btl.ballgame.shared.libs.Location;
@@ -29,9 +31,30 @@ public class WorldServer implements IWorld {
 	
 	/** entity registry, mapped by the entity ID */
 	private LinkedHashMap<Integer, WorldEntity> entities = new LinkedHashMap<>();
+	private List<WorldEntity> entitiesToBeRemoved = new ArrayList<>();
 	
 	/** world metadata */
 	private int width, height;
+	
+	/** the random generator */
+	public final Random random;
+	
+	/**
+	 * Constructs a new WorldServer (default random seed) with the specified dimensions. 
+	 * Automatically populates the default chunk grid.
+	 *
+	 * @param width  Width of the world in units.
+	 * @param height Height of the world in units.
+	 */
+	public WorldServer(int width, int height) {
+		// well goodluck explaining that thing 
+		this(width, height, (
+			System.currentTimeMillis() * 953 
+			^ height * 439 
+			^ ArkanoidServer.VERSION_NUMERIC * 797
+			^ height * 7)
+		);
+	}
 	
 	/**
 	 * Constructs a new WorldServer with the specified dimensions. Automatically
@@ -39,10 +62,12 @@ public class WorldServer implements IWorld {
 	 *
 	 * @param width  Width of the world in units.
 	 * @param height Height of the world in units.
+	 * @param seed   The world's seed (for random stuff)
 	 */
-	public WorldServer(int width, int height) {
+	public WorldServer(int width, int height, long seed) {
 		this.width = width;
 		this.height = height;
+		this.random = new Random(seed);
 		this.populateDefaultChunks();
 	}
 	
@@ -67,12 +92,14 @@ public class WorldServer implements IWorld {
 		entities.forEach((id, entity) -> {
 			entity.tick();
 		});
+		entitiesToBeRemoved.forEach(entity -> entities.remove(entity.getId()));
+		entitiesToBeRemoved.clear();
 	}
 	
 	/** Populates all chunks that cover the world initially. */
 	private void populateDefaultChunks() {
-		for (int cx = 0; cx < width >> CHUNK_SHIFT; ++cx) {
-			for (int cy = 0; cy < height >> CHUNK_SHIFT; ++cy) {
+		for (int cx = 0; cx <= width >> CHUNK_SHIFT; ++cx) {
+			for (int cy = 0; cy <= height >> CHUNK_SHIFT; ++cy) {
 				this.getOrCreateChunkAt(cx, cy);
 			}
 		}
@@ -162,7 +189,7 @@ public class WorldServer implements IWorld {
 	 * @param entity Entity to remove.
 	 */
 	protected void removeEntityFromRegistry(WorldEntity entity) {
-		entities.remove(entity.getId());
+		entitiesToBeRemoved.add(entity);
 	}
 	
 	public static List<AABB> toVisualize = new ArrayList<>();

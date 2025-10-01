@@ -15,6 +15,7 @@ import btl.ballgame.protocol.packets.in.PacketPlayInClientHello;
 import btl.ballgame.protocol.packets.in.PacketPlayInDisconnect;
 
 public class ArkanoidServer {
+	public static final int VERSION_NUMERIC = 1;
 	private static ArkanoidServer server = null;
 	
 	public static void main(String[] args) {

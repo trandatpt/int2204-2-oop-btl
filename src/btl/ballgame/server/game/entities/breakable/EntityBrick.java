@@ -1,9 +1,8 @@
 package btl.ballgame.server.game.entities.breakable;
 
-import btl.ballgame.server.game.entities.dynamic.EntityDynamic;
 import btl.ballgame.shared.libs.Location;
 
-public class EntityBrick extends EntityDynamic implements IBreakableEntity {
+public class EntityBrick extends BreakableEntity {
 
 	public EntityBrick(int id, Location location) {
 		super(id, location);
@@ -11,17 +10,26 @@ public class EntityBrick extends EntityDynamic implements IBreakableEntity {
 
 	@Override
 	public void tick() {
-		
 	}
 
 	@Override
 	public int getWidth() {
-		return 36;
+		return 48;
 	}
 
 	@Override
 	public int getHeight() {
-		return 36;
+		return 18;
+	}
+	
+	@Override
+	public int hitsTakeToBreak() {
+		return 1;
+	}
+
+	@Override
+	void onObjectBroken() {
+		this.remove();		
 	}
 
 }

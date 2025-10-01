@@ -3,6 +3,12 @@ package btl.ballgame.shared.libs;
 public class Vector2f {
 	public static final Vector2f ZERO = new Vector2f();
 	
+	public static Vector2f fromTheta(double radians) {
+		// x = cos(theta), y = sin(theta)
+		float dx = (float) Math.cos(radians), dy = (float) Math.sin(radians);
+		return new Vector2f(dx, dy).normalize();
+	}
+	
 	public float x;
 	public float y;
 

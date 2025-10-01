@@ -9,11 +9,11 @@ public class EntityPaddle extends EntityDynamic {
 	}
 	
 	public void moveRight() {
-		setLocation(getLocation().setX(getLocation().getX() + 10));
+		setLocation(getLocation().setX(getLocation().getX() + 20));
 	}
 	
 	public void moveLeft() {
-		setLocation(getLocation().setX(getLocation().getX() - 10));
+		setLocation(getLocation().setX(getLocation().getX() - 20));
 	}
 
 	@Override

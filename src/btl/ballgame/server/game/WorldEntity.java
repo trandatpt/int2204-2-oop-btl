@@ -31,8 +31,8 @@ public abstract class WorldEntity {
 	private Set<LevelChunk> occupiedChunks = new HashSet<>();
 	
 	/** entity location and size metadata */
-	private WorldServer world;	
-	private int x, y, rot; // NOTE: the location stored here is the center of the entity
+	protected WorldServer world;	
+	protected int x, y, rot; // NOTE: the location stored here is the center of the entity
 	// to compute the upper left corner, use x - width / 2
 
 	protected int width;

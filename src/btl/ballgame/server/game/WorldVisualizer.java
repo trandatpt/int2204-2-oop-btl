@@ -1,5 +1,6 @@
 package btl.ballgame.server.game;
 
+import btl.ballgame.server.game.entities.breakable.EntityBrick;
 import btl.ballgame.server.game.entities.dynamic.EntityPaddle;
 import btl.ballgame.server.game.entities.dynamic.EntityWreckingBall;
 import btl.ballgame.shared.libs.AABB;
@@ -26,9 +27,9 @@ public class WorldVisualizer extends JPanel {
 		setPreferredSize(new Dimension(world.getWidth() * scale, world.getHeight() * scale));
 
 		Random rand = new Random();
-		int worldWidth = 1280;
-		int worldHeight = 720;
-		int ballCount = 1;
+		int worldWidth = world.getWidth();
+		int worldHeight = world.getHeight();
+		int ballCount = 4;
 
 		for (int i = 0; i < ballCount; i++) {
 			int x = rand.nextInt(32, worldWidth - 128); // -32 so ball fits
@@ -39,6 +40,14 @@ public class WorldVisualizer extends JPanel {
 			EntityWreckingBall ball = new EntityWreckingBall(i + 1, new Location(world, x, y, dir));
 			ball.setSpeed(5f);
 			world.addEntity(ball);
+		}
+		
+		int cc = 128;
+		for (int j = 0; j < 20; j++) {
+			for (int i = 0; i < 10; i++) {
+				EntityBrick brick = new EntityBrick(cc++, new Location(world, 30 + (i * 49), 100 + (j * 19), 0));
+				world.addEntity(brick);
+			}
 		}
 		
 		pad = new EntityPaddle(1236, new Location(world, 100, 800, 0));
@@ -129,7 +138,7 @@ public class WorldVisualizer extends JPanel {
 	static boolean drawAABB = false;
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(() -> {
-			WorldServer world = new WorldServer(1920, 900);
+			WorldServer world = new WorldServer(500, 900);
 			WorldVisualizer viz = new WorldVisualizer(world);
 
 			JFrame frame = new JFrame("btl.ballgame.server.game.WorldServer ICSP System");
