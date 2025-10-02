@@ -9,11 +9,19 @@ public class EntityPaddle extends EntityDynamic {
 	}
 	
 	public void moveRight() {
+		Location oldLoc = getLocation();
 		setLocation(getLocation().setX(getLocation().getX() + 20));
+		if (queryCollisions().size() >= 1) {
+			setLocation(oldLoc);
+		}
 	}
 	
 	public void moveLeft() {
+		Location oldLoc = getLocation();
 		setLocation(getLocation().setX(getLocation().getX() - 20));
+		if (queryCollisions().size() >= 1) {
+			setLocation(oldLoc);
+		}
 	}
 
 	@Override

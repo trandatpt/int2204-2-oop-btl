@@ -29,7 +29,7 @@ public class WorldVisualizer extends JPanel {
 		Random rand = new Random();
 		int worldWidth = world.getWidth();
 		int worldHeight = world.getHeight();
-		int ballCount = 4;
+		int ballCount = 1;
 
 		for (int i = 0; i < ballCount; i++) {
 			int x = rand.nextInt(32, worldWidth - 128); // -32 so ball fits

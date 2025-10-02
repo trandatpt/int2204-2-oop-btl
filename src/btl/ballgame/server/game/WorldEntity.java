@@ -17,7 +17,7 @@ import static btl.ballgame.server.game.LevelChunk.CHUNK_SHIFT;
  * Each WorldEntity knows its location, size, and which chunks it occupies.
  * Supports server-side collision detection, chunk management, and
  * tick-based updates. This is an abstract base class for entities like
- * balls, paddles, bricks, and other dynamic objects.
+ * balls, paddles, bricks, and other static/dynamic objects.
  * <p>
  */
 public abstract class WorldEntity {
@@ -80,17 +80,18 @@ public abstract class WorldEntity {
 	}
 	
 	/**
-	 * Queries all entities this entity is currently colliding with.
-	 * <p>
-	 * Uses a broadphase culling via spatial partitioning (chunks) and a narrowphase
-	 * AABB intersection check. Excludes itself from the results.
+	 * Performs a collision query within a given axis-aligned bounding box (AABB).
+	 * The entity itself is excluded from the result set.
 	 *
-	 * @return List of WorldEntities currently colliding with this entity.
+	 * @param aabb the axis-aligned bounding box to check for collisions inside
+	 * @return a list of {@link WorldEntity} instances whose bounding boxes
+	 *         intersect with the given AABB
 	 */
-	public List<WorldEntity> queryCollisions() {
+	protected List<WorldEntity> queryCollisionsInsideAABB(AABB aabb) {
 		List<WorldEntity> collided = new ArrayList<>();
-		// broadphase check, get all entities around the box
-		Set<WorldEntity> nearby = getWorld().getNearbyEntities(getBoundingBox().expand(64));
+		// broadphase check, get all entities around the expanded region (64 units)
+		// so we dont need to check EVERY entity in the scene
+		Set<WorldEntity> nearby = getWorld().getNearbyEntities(aabb.expand(64));
 		nearby.remove(this); // exclude SELF as a potential collider
 		
 		// skip since there's nothing around it
@@ -99,15 +100,28 @@ public abstract class WorldEntity {
 		}
 		
 		// narrowphase check, filter out exactly which entity collided with this one
-		AABB thisBox = this.getBoundingBox();
 		for (WorldEntity entity : nearby) {
-			if (!thisBox.intersects(entity.getBoundingBox())) { // this is cheap
+			if (!aabb.intersects(entity.getBoundingBox())) { // this is cheap
 				continue;
 			}
 			collided.add(entity);
 		}
 		
 		return collided;
+	}
+	
+	/**
+	 * Queries all entities this entity is currently colliding with.
+	 * <p>
+	 * Uses a broadphase culling via spatial partitioning (chunks) and a narrowphase
+	 * AABB intersection check. Excludes itself from the results.
+	 * </p>
+	 *
+	 * @see {@link WorldEntity#queryCollisionsInsideAABB(AABB)}
+	 * @return List of WorldEntities currently colliding with this entity.
+	 */
+	public List<WorldEntity> queryCollisions() {
+		return this.queryCollisionsInsideAABB(getBoundingBox());
 	}
 	
 	/**

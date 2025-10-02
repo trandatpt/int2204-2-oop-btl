@@ -1,7 +1,6 @@
 package btl.ballgame.server.game.entities.dynamic;
 
 import java.util.List;
-import java.util.Random;
 
 import btl.ballgame.server.game.WorldEntity;
 import btl.ballgame.server.game.WorldServer;
@@ -12,12 +11,22 @@ import btl.ballgame.shared.libs.Location;
 import btl.ballgame.shared.libs.Vector2f;
 
 public class EntityWreckingBall extends EntityDynamic {
-	public static final float DEFAULT_SPEED = 5.0f; // units per tick 
+	public static final float DEFAULT_SPEED = 5.0f; // units per tick
+	public static final int DEFAULT_BALL_RADIUS = 32;
+	
 	private float speed = DEFAULT_SPEED;
 	
 	public EntityWreckingBall(int id, Location location) {
 		super(id, location);
+		setBallScale(1);
 		WorldVisualizer.addVectorVisualizer(id);
+	}
+	
+	public void setBallScale(float scale) {
+		this.setBoundingBox(
+			(int) (DEFAULT_BALL_RADIUS * scale), 
+			(int) (DEFAULT_BALL_RADIUS * scale)
+		);
 	}
 	
 	public void setSpeed(float speed) {
@@ -105,11 +114,11 @@ public class EntityWreckingBall extends EntityDynamic {
 			    // offset from center, range [-1, 1]
 			    // the more titled the ball is to the sides (upon contact), the steeper the refl angle gets
 			    float relative = (x - paddleCenter) / (paddleBox.getWidth() / 2f);
-			    if (relative < -1 || relative > 1) {
-			    	setLocation(newPos.add(0, direction.y > 0 ? -10 : 10));
-			    	relative = getWorld().random.nextFloat(-.1f, .1f);
-			    }
-			   // relative = Math.max(-1f, Math.min(1f, relative)); // clamp
+//			    if (relative < -1 || relative > 1) {
+//			    	setLocation(newPos.add(0, direction.y > 0 ? -15 : 15));
+//			    	relative = getWorld().random.nextFloat(-.5f, .5f);
+//			    }
+			    relative = Math.max(-1f, Math.min(1f, relative)); // clamp
 			    Vector2f newDir = Vector2f.fromTheta(Math.toRadians(90 - 75 * relative));
 			    if (direction.y > 0) { // large Y -> lower, smaller == higher
 			    	newDir.y *= -1; // if the ball is coming down, force it to fly up
@@ -150,15 +159,4 @@ public class EntityWreckingBall extends EntityDynamic {
 	private void setDirection(Vector2f lookVector) {
 		setLocation(getLocation().clone().setDirection(lookVector));
 	}
-	
-	@Override
-	public int getWidth() {
-		return 32 / 1;
-	}
-
-	@Override
-	public int getHeight() {
-		return 32 / 1;
-	}
-
 }
