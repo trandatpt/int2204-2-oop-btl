@@ -8,25 +8,26 @@ public class EntityPaddle extends EntityDynamic {
 		super(id, location);
 	}
 	
+	private int toMove = 0;
 	public void moveRight() {
-		Location oldLoc = getLocation();
-		setLocation(getLocation().setX(getLocation().getX() + 20));
-		if (queryCollisions().size() >= 1) {
-			setLocation(oldLoc);
-		}
+		toMove = 50;
 	}
 	
 	public void moveLeft() {
-		Location oldLoc = getLocation();
-		setLocation(getLocation().setX(getLocation().getX() - 20));
-		if (queryCollisions().size() >= 1) {
-			setLocation(oldLoc);
-		}
+		toMove = -50;
 	}
 
 	@Override
 	public void tick() {
-		
+		if (toMove != 0) {
+			Location oldLoc = getLocation();
+			setLocation(getLocation().setX(getLocation().getX() + (toMove < 0 ? -5 : 5)));
+			if (toMove < 0) {
+				toMove += 5;
+			} else {
+				toMove -= 5;
+			}
+		}
 	}
 
 	@Override

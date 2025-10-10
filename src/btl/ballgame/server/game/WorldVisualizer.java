@@ -38,7 +38,7 @@ public class WorldVisualizer extends JPanel {
 			float dy = rand.nextFloat() * 2f - 1f;
 			Vector2f dir = new Vector2f(dx, dy).normalize();
 			EntityWreckingBall ball = new EntityWreckingBall(i + 1, new Location(world, x, y, dir));
-			ball.setSpeed(5f);
+			ball.setSpeed(6f);
 			world.addEntity(ball);
 		}
 		

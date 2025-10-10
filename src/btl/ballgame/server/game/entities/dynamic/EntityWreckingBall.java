@@ -75,21 +75,21 @@ public class EntityWreckingBall extends EntityDynamic {
 		}
 		
 		// DEMO code, wont be used in prod
-//		if (getBoundingBox().minY < 0) {
-//			separation.y = -getBoundingBox().minY;
-//			worldNormal = Math.abs(separation.x) > Math.abs(separation.y) 
-//				? new Vector2f(Math.signum(separation.x), 0)
-//				: new Vector2f(0, 1)
-//			;
-//			bouncedFromWorld = true;
-//		} else if (getBoundingBox().maxY > worldHeight) {
-//			separation.y = getBoundingBox().maxY - worldHeight;
-//			worldNormal = Math.abs(separation.x) > Math.abs(separation.y) 
-//				? new Vector2f(Math.signum(separation.x), 0)
-//				: new Vector2f(0, -1)
-//			;
-//			bouncedFromWorld = true;
-//		}
+		if (getBoundingBox().minY < 0) {
+			pushWorld.y = -getBoundingBox().minX;
+			worldNormal = Math.abs(pushWorld.x) > Math.abs(pushWorld.y) 
+				? new Vector2f(Math.signum(pushWorld.x), 0)
+				: new Vector2f(0, 1)
+			;
+			bouncedFromWorld = true;
+		} else if (getBoundingBox().maxY > worldHeight) {
+			pushWorld.y = getBoundingBox().maxY - worldHeight;
+			worldNormal = Math.abs(pushWorld.x) > Math.abs(pushWorld.y) 
+				? new Vector2f(Math.signum(pushWorld.x), 0)
+				: new Vector2f(0, -1)
+			;
+			bouncedFromWorld = true;
+		}
 		
 		// if the ball interacted with the world, apply the force
 		if (bouncedFromWorld) {
@@ -110,7 +110,12 @@ public class EntityWreckingBall extends EntityDynamic {
 			// if the ball points straight up
 			if (collider instanceof EntityPaddle paddle) {
 			    AABB paddleBox = paddle.getBoundingBox();
-			    float paddleCenter = paddle.getBoundingBox().getCenterX();
+			    float paddleCenter = paddleBox.getCenterX();
+			    if (getBoundingBox().getCenterY() > paddleBox.minY) {
+			    	System.out.println("phase through");
+			    	break;
+			    }
+			    
 			    // offset from center, range [-1, 1]
 			    // the more titled the ball is to the sides (upon contact), the steeper the refl angle gets
 			    float relative = (x - paddleCenter) / (paddleBox.getWidth() / 2f);
