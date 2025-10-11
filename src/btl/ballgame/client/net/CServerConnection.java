@@ -1,4 +1,4 @@
-package btl.ballgame.server.net;
+package btl.ballgame.client.net;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -11,26 +11,33 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import btl.ballgame.client.ArkanoidClient;
 import btl.ballgame.protocol.ConnectionCtx;
+import btl.ballgame.protocol.PacketCodec;
+import btl.ballgame.protocol.PacketRegistry;
 import btl.ballgame.protocol.packets.NetworkPacket;
 import btl.ballgame.protocol.packets.PacketHandler;
+import btl.ballgame.protocol.packets.in.IPacketPlayIn;
+import btl.ballgame.protocol.packets.in.PacketPlayInDisconnect;
 import btl.ballgame.protocol.packets.out.IPacketPlayOut;
 import btl.ballgame.protocol.packets.out.PacketPlayOutCloseSocket;
-import btl.ballgame.server.ArkanoidServer;
-import btl.ballgame.server.ArkaPlayer;
 
 /**
- * Represents a connection between the server and a single player client.
- * Handles both receiving packets from the client and sending packets to the client.
+ * Represents an active network connection from the client to the game server.
+ * Handles both sending packets to the server and receiving packets from the server.
  * <p>
  * Each connection spawns two background threads:
  * <ul>
- *     <li>Packet Listener Thread: Reads incoming packets from the client.</li>
- *     <li>Packet Dispatcher Thread: Sends queued outgoing packets to the client.</li>
+ *     <li>Packet Listener Thread: Continuously reads incoming packets from the server.</li>
+ *     <li>Packet Dispatcher Thread: Sends queued outgoing packets to the server.</li>
  * </ul>
+ * <p>
+ * Manages the underlying socket and I/O streams, queues outgoing packets for batch sending,
+ * and handles graceful or forced disconnection. Also manages network exceptions, closing
+ * the connection automatically when unrecoverable errors occur.
  */
-public class PlayerConnection implements ConnectionCtx {
-	private Socket clientSocket;
+public class CServerConnection implements ConnectionCtx {
+	private Socket socket;
 	private DataInputStream receiveStream;
 	private DataOutputStream sendStream;
 	
@@ -38,39 +45,37 @@ public class PlayerConnection implements ConnectionCtx {
 	
 	private boolean closed = false;
 	
-	private ArkanoidServer server;
-	private ArkaPlayer owner;
-	
 	private Thread packetListenerThread;
 	private Thread packetDispatcherThread;
 	
+	private ArkanoidClient client;
+	
 	@SuppressWarnings("unchecked")    
 	/**
-	 * Creates a new {@link PlayerConnection} for the given client socket and
-	 * server. Initializes streams and spawns packet listener and dispatcher
-	 * threads.
-	 * 
-	 * @param server the game server managing this connection
-	 * @param socket the client socket representing the connection
-	 * @throws IOException if an I/O error occurs when creating the input/output
-	 *                     streams
-	 */
-	public PlayerConnection(ArkanoidServer server, Socket socket) throws IOException {
-		this.server = server;
-		this.clientSocket = socket;
+     * Creates a new {@link CServerConnection} representing the client's active connection to a server.
+     * Initializes input/output streams and spawns the packet listener and dispatcher threads.
+     *
+     * @param socket the socket connected to the server
+     * @param client the {@link ArkanoidClient} instance providing packet handling and codec utilities
+     * @throws IOException if an I/O error occurs while creating the input/output streams
+     */
+	public CServerConnection(Socket socket, ArkanoidClient client) throws IOException {
+		this.socket = socket;
+		this.client = client;
+		
 		this.sendStream = new DataOutputStream(socket.getOutputStream());
 		this.receiveStream = new DataInputStream(socket.getInputStream());
 		
 		// packet listening thread
 		this.packetListenerThread = new Thread(() -> {
-			Thread.currentThread().setName("PlayerConnection: Packet Listener Thread");
+			Thread.currentThread().setName("CServerConnection: Packet Listener Thread");
 			while (!closed) {
 				try {
-					// read the next packet from the stream
-					NetworkPacket packet = server.codec().readPacket(receiveStream);
-					// find the handle of the packet and then invoke it
-					PacketHandler<?, ?> handler = server.getRegistry().getHandle(packet.getClass());
-					((PacketHandler<NetworkPacket, PlayerConnection>) handler).handle(packet, this);
+					// read the next packet from the server stream
+					NetworkPacket packet = client.codec().readPacket(receiveStream);
+					// find the handle of this packet (client bound) and then invoke it
+					PacketHandler<?, ?> handler = client.getRegistry().getHandle(packet.getClass());
+					((PacketHandler<NetworkPacket, CServerConnection>) handler).handle(packet, this);
 				} catch (Exception e) {
 					handleConnectionException(e);
 				}
@@ -79,7 +84,7 @@ public class PlayerConnection implements ConnectionCtx {
 		
 		// packet dispatching thread
 		this.packetDispatcherThread = new Thread(() -> {
-			Thread.currentThread().setName("PlayerConnection: Packet Dispatcher Thread");
+			Thread.currentThread().setName("CServerConnection: Packet Dispatcher Thread");
 			while (true) {
 				try {
 					NetworkPacket first = dispatchQueue.take(); // this blocks until there's something to pick up
@@ -88,7 +93,7 @@ public class PlayerConnection implements ConnectionCtx {
 					dispatchQueue.drainTo(batch); // grab any other queued packets immediately
 					synchronized (sendStream) {
 						for (NetworkPacket p : batch) {
-							server.codec().writePacket(sendStream, p);
+							client.codec().writePacket(sendStream, p);
 						}
 						sendStream.flush();
 					}
@@ -105,85 +110,63 @@ public class PlayerConnection implements ConnectionCtx {
 		this.packetListenerThread.start();
 	}
 	
-	/**
-	 * Associates this connection with a Arkanoid player.
-	 * 
-	 * @param player the {@link ArkaPlayer} that owns this connection
-	 */
-	public void attachTo(ArkaPlayer p) {
-		this.owner = p;
-	}
-	
-	/**
-	 * Returns the player associated with this connection.
-	 * 
-	 * @return the {@link ArkaPlayer} owning this connection, or {@code null} if not
-	 *         attached
-	 */
-	public ArkaPlayer getPlayer() {
-		return this.owner;
-	}
-	
-	/**
-	 * Queues a packet for sending to the client.
-	 * 
-	 * @param packet the packet to send
-	 * @throws IllegalArgumentException if the packet is not an instance of
-	 *                                  {@link NetworkPacket}
-	 */
-	public void sendPacket(IPacketPlayOut packet) {
+    /**
+     * Queues a packet to be sent to the server.
+     *
+     * @param packet the outgoing packet to send
+     * @throws IllegalArgumentException if the packet is not an instance of {@link NetworkPacket}
+     */
+	public void sendPacket(IPacketPlayIn packet) {
 		if (!(packet instanceof NetworkPacket)) {
 			throw new IllegalArgumentException("Cannot dispatch " + packet.getClass().getName() + "! Malformed blueprint.");
 		}
 		dispatchQueue.add((NetworkPacket) packet);
 	}
 	
-	/**
-	 * Closes the connection gracefully with an optional reason. 
-	 * This should notifies the client before closing.
-	 * 
-	 * @param reason the reason for closing the connection
-	 */
+    /**
+     * Gracefully closes the connection to the server
+     *
+     * @param reason the reason for disconnecting
+     */
 	public void closeWithNotify(String reason) {
 		if (closed) return;
-		// dispatch a disconnect reason immediately, this bypasses the queue
+		// dispatch a disconnect immediately, this bypasses the queue
 		synchronized (sendStream) {
 			try {
-				server.codec().writePacket(sendStream, new PacketPlayOutCloseSocket(reason));
+				client.codec().writePacket(sendStream, new PacketPlayInDisconnect());
 				sendStream.flush();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 		closeConnection();
+		System.out.println("dc'ed: " + reason);
 	}
 	
 	/**
-	 * Immediately destroys this player connection without notifying the client.
-	 * Closes the underlying socket, marks the connection as closed, and notifies
-	 * the associated player (if any) that the connection has been terminated.
+	 * Immediately closes the connection to the server without sending a
+	 * notification. Closes the socket and marks the connection as closed. Stops the
+	 * dispatcher thread.
 	 */
 	public void closeConnection() {
 		if (closed) return;
 		this.closed = true;
-		// only do this if the client socket is still open
-		if (!clientSocket.isClosed()) {
+		// only do this if the server socket is still open
+		if (!socket.isClosed()) {
 			try { 
 				receiveStream.close();
 				sendStream.close();
-				clientSocket.close(); 
+				socket.close(); 
 			} catch (IOException ignored) {}
 		}
 		// stop the dispatcher thread
 		this.packetDispatcherThread.interrupt();
-		// untrack this instance
-		server.getNetworkManager().untrack(this);
-		// notify the internal server impl to handle quit event
-		if (owner == null) return;
-		owner.onPlayerConnectionClose();
-		attachTo(null);
 	}
 	
+	/**
+	 * Handles a graceful disconnect initiated by the server or the client. Simply
+	 * closes the connection and cleans up resources.
+	 */
 	public void handleGracefulDisconnect() {
 		closeConnection();
 	}

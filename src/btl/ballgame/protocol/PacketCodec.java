@@ -7,7 +7,6 @@ import java.io.IOException;
 import btl.ballgame.protocol.packets.NetworkPacket;
 import btl.ballgame.shared.UnknownPacketException;
 
-
 /**
  * {@code PacketCodec} is the core encoder/decoder for the
  * <b>PennyWort Protocol (PWP)</b>, the network protocol used by

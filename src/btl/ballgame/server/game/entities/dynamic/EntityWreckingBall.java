@@ -19,7 +19,7 @@ public class EntityWreckingBall extends EntityDynamic {
 	public EntityWreckingBall(int id, Location location) {
 		super(id, location);
 		setBallScale(1);
-		WorldVisualizer.addVectorVisualizer(id);
+		//WorldVisualizer.addVectorVisualizer(id);
 	}
 	
 	public void setBallScale(float scale) {
@@ -111,10 +111,6 @@ public class EntityWreckingBall extends EntityDynamic {
 			if (collider instanceof EntityPaddle paddle) {
 			    AABB paddleBox = paddle.getBoundingBox();
 			    float paddleCenter = paddleBox.getCenterX();
-			    if (getBoundingBox().getCenterY() > paddleBox.minY) {
-			    	System.out.println("phase through");
-			    	break;
-			    }
 			    
 			    // offset from center, range [-1, 1]
 			    // the more titled the ball is to the sides (upon contact), the steeper the refl angle gets

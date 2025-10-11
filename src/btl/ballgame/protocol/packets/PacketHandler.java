@@ -12,7 +12,7 @@ import btl.ballgame.protocol.ConnectionCtx;
  * <h2>Generic Type Parameters</h2>
  * <ul>
  *   <li><b>T</b> – The specific {@link NetworkPacket} type this handler processes.</li>
- *   <li><b>U</b> – The type of {@link ConnectionCtx} providing connection-specific context (for the server-side, its {@link PlayerConnection}).</li>
+ *   <li><b>U</b> – The type of {@link ConnectionCtx} providing connection-specific context (for the server-side, its {@link CServerConnection}).</li>
  * </ul>
  */
 public interface PacketHandler<T extends NetworkPacket, U extends ConnectionCtx> {

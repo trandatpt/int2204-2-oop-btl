@@ -29,6 +29,12 @@ public class WorldServer implements IWorld {
 	/** chunk registry, mapped by the coordinate hash as the key */
 	private Map<Long, LevelChunk> chunks = new HashMap<>();
 	
+	private int idRegistry = 0;
+	
+	public int nextEntityId() {
+		return idRegistry++;
+	}
+	
 	/** entity registry, mapped by the entity ID */
 	private LinkedHashMap<Integer, WorldEntity> entities = new LinkedHashMap<>();
 	private List<WorldEntity> entitiesToBeRemoved = new ArrayList<>();
