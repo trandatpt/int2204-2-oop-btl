@@ -5,15 +5,15 @@ import btl.ballgame.protocol.packets.NetworkPacket;
 import btl.ballgame.shared.libs.DataWatcher;
 import btl.ballgame.shared.libs.Location;
 
-public class PacketPlayOutSpawnEntity extends NetworkPacket implements IPacketPlayOut {
+public class PacketPlayOutEntitySpawn extends NetworkPacket implements IPacketPlayOut {
 	private byte entityTypeId;
 	private int entityId;
 	private DataWatcher metadata;
 	private Location spawnLocation;
 	
-	public PacketPlayOutSpawnEntity() {};
+	public PacketPlayOutEntitySpawn() {};
 	
-	public PacketPlayOutSpawnEntity(
+	public PacketPlayOutEntitySpawn(
 		byte entityTypeId, int entityId, 
 		DataWatcher dataWatcher, Location location
 	) {

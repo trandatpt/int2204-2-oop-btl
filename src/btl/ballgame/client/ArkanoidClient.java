@@ -13,13 +13,12 @@ import btl.ballgame.protocol.ProtoUtils;
 import btl.ballgame.protocol.packets.in.PacketPlayInClientHello;
 import btl.ballgame.protocol.packets.out.PacketPlayOutCloseSocket;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntityMetadata;
-import btl.ballgame.protocol.packets.out.PacketPlayOutEntityPosition;
 import btl.ballgame.protocol.packets.out.PacketPlayOutLoginAck;
 
 public class ArkanoidClient {
 	public static void main(String[] args) throws IOException {
 		ArkanoidClient client = new ArkanoidClient("localhost", 3636);
-		client.connection.sendPacket(new PacketPlayInClientHello("sex", 0));
+		client.connection.sendPacket(new PacketPlayInClientHello("generic_user", 0));
 	}
 	
 	private CServerConnection connection;
