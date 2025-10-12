@@ -135,9 +135,7 @@ public class CServerConnection implements ConnectionCtx {
 			try {
 				client.codec().writePacket(sendStream, new PacketPlayInDisconnect());
 				sendStream.flush();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			} catch (IOException e) {}
 		}
 		closeConnection();
 		System.out.println("dc'ed: " + reason);
@@ -196,6 +194,6 @@ public class CServerConnection implements ConnectionCtx {
 			closeWithNotify("Network error");
 			return;
 		}
-		closeWithNotify(e.getClass().getPackageName() + "." + e.getClass().getName() + ": " + e.getMessage());
+		closeWithNotify(e.getClass().getName() + ": " + e.getMessage());
 	}
 }

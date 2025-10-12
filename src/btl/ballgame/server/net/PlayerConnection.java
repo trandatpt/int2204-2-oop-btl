@@ -151,9 +151,7 @@ public class PlayerConnection implements ConnectionCtx {
 			try {
 				server.codec().writePacket(sendStream, new PacketPlayOutCloseSocket(reason));
 				sendStream.flush();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			} catch (IOException e) {}
 		}
 		closeConnection();
 	}
@@ -213,6 +211,6 @@ public class PlayerConnection implements ConnectionCtx {
 			closeWithNotify("Network error");
 			return;
 		}
-		closeWithNotify(e.getClass().getPackageName() + "." + e.getClass().getName() + ": " + e.getMessage());
+		closeWithNotify(e.getClass().getName() + ": " + e.getMessage());
 	}
 }

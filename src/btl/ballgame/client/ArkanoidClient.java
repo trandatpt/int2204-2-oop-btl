@@ -4,15 +4,19 @@ import java.io.IOException;
 import java.net.Socket;
 
 import btl.ballgame.client.net.CServerConnection;
+import btl.ballgame.client.net.handle.ServerLoginAckHandle;
 import btl.ballgame.client.net.handle.ServerSocketCloseHandle;
 import btl.ballgame.protocol.PacketCodec;
 import btl.ballgame.protocol.PacketRegistry;
 import btl.ballgame.protocol.ProtoUtils;
+import btl.ballgame.protocol.packets.in.PacketPlayInClientHello;
 import btl.ballgame.protocol.packets.out.PacketPlayOutCloseSocket;
+import btl.ballgame.protocol.packets.out.PacketPlayOutLoginAck;
 
 public class ArkanoidClient {
 	public static void main(String[] args) throws IOException {
-		new ArkanoidClient("localhost", 3636);
+		ArkanoidClient client = new ArkanoidClient("localhost", 3636);
+		client.connection.sendPacket(new PacketPlayInClientHello("sex", 0));
 	}
 	
 	private CServerConnection connection;
@@ -32,6 +36,7 @@ public class ArkanoidClient {
 	
 	private void onClientInit() {
 		this.registry.registerHandler(PacketPlayOutCloseSocket.class, new ServerSocketCloseHandle());
+		this.registry.registerHandler(PacketPlayOutLoginAck.class, new ServerLoginAckHandle());
 		// more to add
 	}
 	
