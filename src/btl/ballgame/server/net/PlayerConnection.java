@@ -16,7 +16,11 @@ import btl.ballgame.protocol.packets.NetworkPacket;
 import btl.ballgame.protocol.packets.PacketHandler;
 import btl.ballgame.protocol.packets.out.IPacketPlayOut;
 import btl.ballgame.protocol.packets.out.PacketPlayOutCloseSocket;
+import btl.ballgame.protocol.packets.out.PacketPlayOutEntityMetadata;
+import btl.ballgame.protocol.packets.out.PacketPlayOutEntityPosition;
 import btl.ballgame.server.ArkanoidServer;
+import btl.ballgame.shared.libs.DataWatcher;
+import btl.ballgame.shared.libs.Location;
 import btl.ballgame.server.ArkaPlayer;
 
 /**
@@ -112,6 +116,11 @@ public class PlayerConnection implements ConnectionCtx {
 	 */
 	public void attachTo(ArkaPlayer p) {
 		this.owner = p;
+		DataWatcher dWatcher = new DataWatcher();
+		dWatcher.watch(0x36, "thanh hoa");
+		dWatcher.watch(0x18, 3618);
+		dWatcher.watch(0x00, "ba sau manh dat anh hung, muoi hai doi dep mat cung mot dem");
+		this.sendPacket(new PacketPlayOutEntityMetadata(36, dWatcher));
 	}
 	
 	/**

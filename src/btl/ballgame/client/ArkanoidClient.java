@@ -6,11 +6,14 @@ import java.net.Socket;
 import btl.ballgame.client.net.CServerConnection;
 import btl.ballgame.client.net.handle.ServerLoginAckHandle;
 import btl.ballgame.client.net.handle.ServerSocketCloseHandle;
+import btl.ballgame.client.net.handle.TestHandle;
 import btl.ballgame.protocol.PacketCodec;
 import btl.ballgame.protocol.PacketRegistry;
 import btl.ballgame.protocol.ProtoUtils;
 import btl.ballgame.protocol.packets.in.PacketPlayInClientHello;
 import btl.ballgame.protocol.packets.out.PacketPlayOutCloseSocket;
+import btl.ballgame.protocol.packets.out.PacketPlayOutEntityMetadata;
+import btl.ballgame.protocol.packets.out.PacketPlayOutEntityPosition;
 import btl.ballgame.protocol.packets.out.PacketPlayOutLoginAck;
 
 public class ArkanoidClient {
@@ -38,6 +41,7 @@ public class ArkanoidClient {
 		this.registry.registerHandler(PacketPlayOutCloseSocket.class, new ServerSocketCloseHandle());
 		this.registry.registerHandler(PacketPlayOutLoginAck.class, new ServerLoginAckHandle());
 		// more to add
+		this.registry.registerHandler(PacketPlayOutEntityMetadata.class, new TestHandle());
 	}
 	
 	public PacketRegistry getRegistry() {

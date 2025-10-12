@@ -104,6 +104,12 @@ public class PacketByteBuf {
 		backend.putLong(l);
 	}
 	
+	/** Writes a 32-bit floating point number. */
+	public void writeFloat32(float f) {
+		ensureCapacity(Float.BYTES);
+		backend.putFloat(f);
+	}
+	
 	/**
 	 * Writes a UTF-16 string with a null flag and length prefix. Format:
 	 * 
@@ -175,6 +181,11 @@ public class PacketByteBuf {
 	/** Reads a 64-bit signed integer. */
 	public long readInt64() {
 		return backend.getLong();
+	}
+	
+	/** Reads a 32-bit floating point number. */
+	public float readFloat32() {
+		return backend.getFloat();
 	}
 	
 	/** Reads a UTF-16 string (null-safe). */

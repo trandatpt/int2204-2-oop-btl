@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import btl.ballgame.shared.libs.AABB;
+import btl.ballgame.shared.libs.DataWatcher;
 import btl.ballgame.shared.libs.Location;
 
 import static btl.ballgame.server.game.LevelChunk.CHUNK_SHIFT;
@@ -34,6 +35,7 @@ public abstract class WorldEntity {
 	protected WorldServer world;	
 	protected int x, y, rot; // NOTE: the location stored here is the center of the entity
 	// to compute the upper left corner, use x - width / 2
+	protected DataWatcher dataWatcher;
 
 	protected int width;
 	protected int height;
@@ -56,11 +58,17 @@ public abstract class WorldEntity {
 		this.x = location.getX();
 		this.y = location.getY();
 		this.rot = location.getRotation();
+		this.dataWatcher = new DataWatcher();
 	}
 	
 	/** @return Unique ID of the entity. */
 	public int getId() {
 		return id;
+	}
+	
+	/** @return The internal datawatcher of the entity. */
+	public DataWatcher getDataWatcher() {
+		return dataWatcher;
 	}
 	
 	/**

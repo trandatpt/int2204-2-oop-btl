@@ -116,7 +116,7 @@ public class Location {
 	
 	@Override
 	public String toString() {
-		return "ArkaLocation{world=" + world.toString() 
+		return "ArkaLocation{world=" + (world == null ? "NONE" : world.toString()) 
 			+ ",x=" + getX() 
 			+ ",y=" + getY() 
 			+ ",rot=" + getRotation() 
