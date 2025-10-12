@@ -33,10 +33,10 @@ public class ArkanoidMatch {
 	}
 	
 	private void spawnPaddleFor(ArkaPlayer p, int y) {
-		EntityPaddle paddle = new EntityPaddle(p, world.nextEntityId(), 
-			new Location(world, world.getWidth() / 2, y, 0)
-		);
-		world.addEntity(paddle);
+//		EntityPaddle paddle = new EntityPaddle(p, world.nextEntityId(), 
+//		new Location(world, world.getWidth() / 2, y, 0)
+//	);
+	//world.addEntity(paddle);
 	}
 	
 	public void start() {

@@ -3,34 +3,34 @@ package btl.ballgame.protocol.packets.in;
 import btl.ballgame.protocol.PacketByteBuf;
 import btl.ballgame.protocol.packets.NetworkPacket;
 
-public class PacketPlayInClientHello extends NetworkPacket implements IPacketPlayIn {
+public class PacketPlayInClientUserCreation extends NetworkPacket implements IPacketPlayIn {
 	private String userName;
-	private int protocolVersion;
+	private String passwordHash;
 	
-	public PacketPlayInClientHello() {}; /* for packet decoding */
+	public PacketPlayInClientUserCreation() {}; /* for packet decoding */
 	
-	public PacketPlayInClientHello(String username, int protocolVersion) {
+	public PacketPlayInClientUserCreation(String username, String passwordHash) {
 		this.userName = username;
-		this.protocolVersion = protocolVersion;
+		this.passwordHash = passwordHash;
 	}
 	
 	public String who() {
 		return this.userName;
 	}
 	
-	public int whatVersion() {
-		return this.protocolVersion;
+	public String getPasswordHash() {
+		return passwordHash;
 	}
 
 	@Override
 	public void write(PacketByteBuf buffer) {
 		buffer.writeU8String(this.userName);
-		buffer.writeInt32(this.protocolVersion);
+		buffer.writeU8String(this.passwordHash);
 	}
 
 	@Override
 	public void read(PacketByteBuf buffer) {
 		this.userName = buffer.readU8String();
-		this.protocolVersion = buffer.readInt32();
+		this.passwordHash = buffer.readU8String();
 	}
 }

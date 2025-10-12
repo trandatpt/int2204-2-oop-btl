@@ -12,6 +12,8 @@ import btl.ballgame.protocol.packets.out.*;
  * agree on the protocol structure.
  */
 public class ProtoUtils {
+	public static final int PROTOCOL_VERSION = 0x1836;
+	
 	public static final int 
 		// inbound packets (client -> server)
 		PLAYIN_CLIENT_HELLO  	   = 0x000,
@@ -19,8 +21,11 @@ public class ProtoUtils {
 		// outbound packets (server -> client)
 		PLAYOUT_LOGIN_ACK 		   = 0xC00,
 		PLAYOUT_CLOSE_SOCKET 	   = 0xC01,
-		PLAYOUT_ENTITY_POSITION    = 0xC02,
-		PLAYOUT_ENTITY_METADATA    = 0xC03
+		PLAYOUT_ENTITY_SPAWN       = 0xC02,
+		PLAYOUT_ENTITY_POSITION    = 0xC03,
+		PLAYOUT_ENTITY_METADATA    = 0xC04,
+		PLAYOUT_ENTITY_AABB        = 0xC05,
+		PLAYOUT_ENTITY_DESTROY     = 0xC06
 	;
 	
 	/**
@@ -32,7 +37,7 @@ public class ProtoUtils {
 	 * @param registry The {@link PacketRegistry} to register all packets into.
 	 */
 	public static void registerMutualPackets(PacketRegistry registry) {
-		registry.registerPacket(PLAYIN_CLIENT_HELLO, PacketPlayInClientHello.class, PacketPlayInClientHello::new);
+		registry.registerPacket(PLAYIN_CLIENT_HELLO, PacketPlayInClientLogin.class, PacketPlayInClientLogin::new);
 		registry.registerPacket(PLAYIN_DISCONNECT, PacketPlayInDisconnect.class, PacketPlayInDisconnect::new);
 		registry.registerPacket(PLAYOUT_CLOSE_SOCKET, PacketPlayOutCloseSocket.class, PacketPlayOutCloseSocket::new);
 		registry.registerPacket(PLAYOUT_LOGIN_ACK, PacketPlayOutLoginAck.class, PacketPlayOutLoginAck::new);

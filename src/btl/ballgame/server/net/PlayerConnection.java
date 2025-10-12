@@ -134,6 +134,14 @@ public class PlayerConnection implements ConnectionCtx {
 	}
 	
 	/**
+	 * @return true if there is a {@link ArkaPlayer} owning this connection,
+	 * false otherwise
+	 */
+	public boolean hasPlayer() {
+		return getPlayer() != null;
+	}
+	
+	/**
 	 * Queues a packet for sending to the client.
 	 * 
 	 * @param packet the packet to send
@@ -145,6 +153,10 @@ public class PlayerConnection implements ConnectionCtx {
 			throw new IllegalArgumentException("Cannot dispatch " + packet.getClass().getName() + "! Malformed blueprint.");
 		}
 		dispatchQueue.add((NetworkPacket) packet);
+	}
+	
+	public void closeForViolation() {
+		this.closeWithNotify("Invalid packet order!");
 	}
 	
 	/**

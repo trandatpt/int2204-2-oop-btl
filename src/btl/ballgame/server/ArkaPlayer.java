@@ -46,4 +46,8 @@ public class ArkaPlayer {
 	public void disconnect(String reason) {
 		this.playerConnection.closeWithNotify(reason);
 	}
+	
+	public static UUID fromName(String userName) {
+		return UUID.nameUUIDFromBytes(("ArkaPlayer:" + userName.toLowerCase()).getBytes());
+	}
 }

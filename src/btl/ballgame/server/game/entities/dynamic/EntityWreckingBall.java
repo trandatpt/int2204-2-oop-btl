@@ -154,7 +154,7 @@ public class EntityWreckingBall extends EntityDynamic {
 			}
 		}
 		
-		WorldVisualizer.updateVV(getId(), direction.clone().multiply(5));
+		//WorldVisualizer.updateVV(getId(), direction.clone().multiply(5));
 	}
 	
 	private void setDirection(Vector2f lookVector) {

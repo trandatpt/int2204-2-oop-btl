@@ -1,6 +1,7 @@
 package btl.ballgame.server.game;
 
-import java.awt.Color;
+import static btl.ballgame.server.game.LevelChunk.CHUNK_SHIFT;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -14,9 +15,7 @@ import java.util.Set;
 import btl.ballgame.server.ArkanoidServer;
 import btl.ballgame.shared.libs.AABB;
 import btl.ballgame.shared.libs.IWorld;
-import btl.ballgame.shared.libs.Location;
-
-import static btl.ballgame.server.game.LevelChunk.CHUNK_SHIFT; 
+import btl.ballgame.shared.libs.Location; 
 
 /**
  * Represents a server-side game world for Arkanoid.
@@ -81,10 +80,12 @@ public class WorldServer implements IWorld {
 		return entities.values();
 	}
 	
+	@Override
 	public int getHeight() {
 		return height;
 	}
 	
+	@Override
 	public int getWidth() {
 		return width;
 	}

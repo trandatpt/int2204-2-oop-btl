@@ -10,15 +10,17 @@ import btl.ballgame.client.net.handle.TestHandle;
 import btl.ballgame.protocol.PacketCodec;
 import btl.ballgame.protocol.PacketRegistry;
 import btl.ballgame.protocol.ProtoUtils;
-import btl.ballgame.protocol.packets.in.PacketPlayInClientHello;
+import btl.ballgame.protocol.packets.in.PacketPlayInClientLogin;
+import btl.ballgame.protocol.packets.in.PacketPlayInClientUserCreation;
 import btl.ballgame.protocol.packets.out.PacketPlayOutCloseSocket;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntityMetadata;
 import btl.ballgame.protocol.packets.out.PacketPlayOutLoginAck;
+import btl.ballgame.shared.libs.Utils;
 
 public class ArkanoidClient {
 	public static void main(String[] args) throws IOException {
 		ArkanoidClient client = new ArkanoidClient("localhost", 3636);
-		client.connection.sendPacket(new PacketPlayInClientHello("generic_user", 0));
+		
 	}
 	
 	private CServerConnection connection;
@@ -29,11 +31,30 @@ public class ArkanoidClient {
 		this.registry = new PacketRegistry();
 		this.codec = new PacketCodec(this.registry);
 		ProtoUtils.registerMutualPackets(this.registry); // ensure that the client & server share the same understanding of packet types
+		this.onClientInit();
 		
 		this.connection = new CServerConnection(
 			new Socket(serverAddress, port), this
 		);
-		this.onClientInit();
+	}
+	
+	public void login(String username, String password) {
+		connection.sendPacket(new PacketPlayInClientLogin(
+			username, // Login credentials
+			Utils.SHA256(password), // 
+			ProtoUtils.PROTOCOL_VERSION
+		));
+	}
+	
+	public void registerUser(String username, String password, String repeatPassword) {
+		if (!password.equals(repeatPassword)) {
+			throw new IllegalArgumentException("Passwords do not match.");
+		}
+		
+		connection.sendPacket(new PacketPlayInClientUserCreation(
+			username, // Login credentials
+			Utils.SHA256(password) // 
+		));
 	}
 	
 	private void onClientInit() {
