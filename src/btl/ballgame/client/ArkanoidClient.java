@@ -20,7 +20,6 @@ import btl.ballgame.shared.libs.Utils;
 public class ArkanoidClient {
 	public static void main(String[] args) throws IOException {
 		ArkanoidClient client = new ArkanoidClient("localhost", 3636);
-		
 	}
 	
 	private CServerConnection connection;

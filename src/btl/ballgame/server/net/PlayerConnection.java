@@ -116,11 +116,6 @@ public class PlayerConnection implements ConnectionCtx {
 	 */
 	public void attachTo(ArkaPlayer p) {
 		this.owner = p;
-		DataWatcher dWatcher = new DataWatcher();
-		dWatcher.watch(0x36, "thanh hoa");
-		dWatcher.watch(0x18, 3618);
-		dWatcher.watch(0x00, "ba sau manh dat anh hung, muoi hai doi dep mat cung mot dem");
-		this.sendPacket(new PacketPlayOutEntityMetadata(36, dWatcher));
 	}
 	
 	/**
@@ -139,6 +134,19 @@ public class PlayerConnection implements ConnectionCtx {
 	 */
 	public boolean hasPlayer() {
 		return getPlayer() != null;
+	}
+	
+	/**
+	 * Queues a sequence of packets for sending to the client.
+	 * 
+	 * @param packets the sequence of packets to send
+	 * @throws IllegalArgumentException if the packet is not an instance of
+	 *                                  {@link NetworkPacket}
+	 */
+	public void sendPackets(IPacketPlayOut... packets) {
+		for (IPacketPlayOut packetPlayOut : packets) {
+			this.sendPacket(packetPlayOut);
+		}
 	}
 	
 	/**

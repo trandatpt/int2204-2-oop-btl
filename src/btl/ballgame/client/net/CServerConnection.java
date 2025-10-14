@@ -17,6 +17,7 @@ import btl.ballgame.protocol.packets.NetworkPacket;
 import btl.ballgame.protocol.packets.PacketHandler;
 import btl.ballgame.protocol.packets.in.IPacketPlayIn;
 import btl.ballgame.protocol.packets.in.PacketPlayInDisconnect;
+import btl.ballgame.protocol.packets.out.IPacketPlayOut;
 
 /**
  * Represents an active network connection from the client to the game server.
@@ -104,6 +105,19 @@ public class CServerConnection implements ConnectionCtx {
 		
 		this.packetDispatcherThread.start();
 		this.packetListenerThread.start();
+	}
+	
+	/**
+	 * Queues a sequence of packets for sending to the server.
+	 * 
+	 * @param packets the sequence of packets to send
+	 * @throws IllegalArgumentException if the packet is not an instance of
+	 *                                  {@link NetworkPacket}
+	 */
+	public void sendPackets(IPacketPlayIn... packets) {
+		for (IPacketPlayIn packetPlayIn : packets) {
+			this.sendPacket(packetPlayIn);
+		}
 	}
 	
     /**

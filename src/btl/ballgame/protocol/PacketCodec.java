@@ -47,7 +47,7 @@ public class PacketCodec {
 	 * @throws IOException if an I/O error occurs while writing.
 	 */
 	public void writePacket(DataOutputStream out, NetworkPacket packet) throws IOException {
-		PacketByteBuf buf = PacketByteBuf.malloc(64); // initial, dynamic buffer of 64 bytes
+		PacketByteBuf buf = PacketByteBuf.malloc(36); // initial, dynamic buffer of 32 + 4 bytes
 		
 		buf.writeInt32(registry.packetToId(packet.getClass())); // the packet ID
 		packet.write(buf); // the packet payload
