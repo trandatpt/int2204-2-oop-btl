@@ -12,8 +12,13 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import btl.ballgame.protocol.packets.out.IPacketPlayOut;
+import btl.ballgame.protocol.packets.out.PacketPlayOutEntitySpawn;
+import btl.ballgame.server.ArkaPlayer;
 import btl.ballgame.server.ArkanoidServer;
+import btl.ballgame.server.net.PlayerConnection;
 import btl.ballgame.shared.libs.AABB;
+import btl.ballgame.shared.libs.EntityType;
 import btl.ballgame.shared.libs.IWorld;
 import btl.ballgame.shared.libs.Location; 
 
@@ -43,6 +48,8 @@ public class WorldServer implements IWorld {
 	
 	/** the random generator */
 	public final Random random;
+	
+	private List<ArkaPlayer> worldPlayers = new ArrayList<>();
 	
 	/**
 	 * Constructs a new WorldServer (default random seed) with the specified dimensions. 
@@ -101,6 +108,12 @@ public class WorldServer implements IWorld {
 		});
 		entitiesToBeRemoved.forEach(entity -> entities.remove(entity.getId()));
 		entitiesToBeRemoved.clear();
+	}
+	
+	public void broadcastPackets(IPacketPlayOut... packets) {
+		worldPlayers.forEach((player) -> {
+			player.playerConnection.sendPackets(packets);
+		});
 	}
 	
 	/** Populates all chunks that cover the world initially. */
@@ -178,14 +191,29 @@ public class WorldServer implements IWorld {
 	 * @return True if successfully added, false if entity is out of world bounds.
 	 */
 	public boolean addEntity(WorldEntity entity) {
+		EntityType type = ArkanoidServer.getServer().getEntityRegistry().getRegisteredType(entity.getClass());
+		if (type == null) {
+			throw new IllegalArgumentException(entity.getClass() + " is not registered as an entity!");
+		}
+		
 		if (isEntirelyOutOfWorld(entity.getBoundingBox())) {
 			return false;
 		}
+		
 		entity.computeOccupiedChunks();
 		entities.put(entity.getId(), entity);
+		entity.entityType = type;
 		entity.active = true;
 		
-		// TODO add spawn entity packet to notify the clients
+		// send the spawn packet to notify clients that
+		// are members of this world
+		this.broadcastPackets(new PacketPlayOutEntitySpawn(
+			(byte) type.ordinal(), 
+			entity.getId(), 
+			entity.getDataWatcher(), 
+			entity.getLocation(),
+			entity.getBoundingBox()
+		));
 		
 		return true;
 	}
@@ -199,7 +227,6 @@ public class WorldServer implements IWorld {
 		entitiesToBeRemoved.add(entity);
 	}
 	
-	public static List<AABB> toVisualize = new ArrayList<>();
 	/**
 	 * Returns all entities in chunks overlapping a given area.
 	 * <p>
@@ -210,8 +237,6 @@ public class WorldServer implements IWorld {
 	 * @return Set of nearby entities intersecting the area.
 	 */
 	public Set<WorldEntity> getNearbyEntities(AABB area) {
-		toVisualize.add(area);
-		
 		int minChunkX = area.minX >> CHUNK_SHIFT;
 		int maxChunkX = area.maxX >> CHUNK_SHIFT;
 		

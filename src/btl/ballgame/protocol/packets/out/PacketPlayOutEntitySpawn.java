@@ -11,7 +11,7 @@ public class PacketPlayOutEntitySpawn extends NetworkPacket implements IPacketPl
 	private int entityId;
 	private DataWatcher metadata;
 	private Location spawnLocation;
-	private AABB boundingBox;
+	private int entityWidth, entityHeight;
 	
 	public PacketPlayOutEntitySpawn() {};
 	
@@ -24,7 +24,8 @@ public class PacketPlayOutEntitySpawn extends NetworkPacket implements IPacketPl
 		this.entityId = entityId;
 		this.metadata = dataWatcher;
 		this.spawnLocation = location;
-		this.boundingBox = boundingBox;
+		this.entityWidth = (int) boundingBox.getWidth();
+		this.entityHeight = (int) boundingBox.getHeight();
 	}
 	
 	public byte getEntityTypeId() {
@@ -43,8 +44,12 @@ public class PacketPlayOutEntitySpawn extends NetworkPacket implements IPacketPl
 		return spawnLocation;
 	}
 	
-	public AABB getBoundingBox() {
-		return boundingBox;
+	public int getEntityWidth() {
+		return entityWidth;
+	}
+	
+	public int getEntityHeight() {
+		return entityHeight;
 	}
 	
 	@Override
@@ -56,11 +61,9 @@ public class PacketPlayOutEntitySpawn extends NetworkPacket implements IPacketPl
 		buffer.writeInt16((short) this.spawnLocation.getX());
 		buffer.writeInt16((short) this.spawnLocation.getY());
 		buffer.writeInt16((short) this.spawnLocation.getRotation());
-		// write AABB bounds
-		buffer.writeInt16((short) this.boundingBox.minX);
-		buffer.writeInt16((short) this.boundingBox.minY);
-		buffer.writeInt16((short) this.boundingBox.maxX);
-		buffer.writeInt16((short) this.boundingBox.maxY);
+		// write entity W/H
+		buffer.writeInt16((short) this.entityWidth);
+		buffer.writeInt16((short) this.entityHeight);
 	}
 
 	@Override
@@ -74,11 +77,7 @@ public class PacketPlayOutEntitySpawn extends NetworkPacket implements IPacketPl
 			(int) buffer.readInt16(), // read Y position
 			(int) buffer.readInt16() // read rotation
 		);
-		this.boundingBox = new AABB(
-			buffer.readInt16(), // read minX
-			buffer.readInt16(), // read minY
-			buffer.readInt16(), // read maxX
-			buffer.readInt16() // read maxY
-		);
+		this.entityWidth = buffer.readInt16();
+		this.entityHeight = buffer.readInt16();
 	}
  }

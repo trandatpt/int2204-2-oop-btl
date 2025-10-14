@@ -24,7 +24,7 @@ public class ProtoUtils {
 		PLAYOUT_ENTITY_SPAWN       = 0xC02,
 		PLAYOUT_ENTITY_POSITION    = 0xC03,
 		PLAYOUT_ENTITY_METADATA    = 0xC04,
-		PLAYOUT_ENTITY_AABB        = 0xC05,
+		PLAYOUT_ENTITY_BB_SIZE     = 0xC05,
 		PLAYOUT_ENTITY_DESTROY     = 0xC06
 	;
 	
@@ -39,11 +39,14 @@ public class ProtoUtils {
 	public static void registerMutualPackets(PacketRegistry registry) {
 		registry.registerPacket(PLAYIN_CLIENT_HELLO, PacketPlayInClientLogin.class, PacketPlayInClientLogin::new);
 		registry.registerPacket(PLAYIN_DISCONNECT, PacketPlayInDisconnect.class, PacketPlayInDisconnect::new);
+		
 		registry.registerPacket(PLAYOUT_CLOSE_SOCKET, PacketPlayOutCloseSocket.class, PacketPlayOutCloseSocket::new);
 		registry.registerPacket(PLAYOUT_LOGIN_ACK, PacketPlayOutLoginAck.class, PacketPlayOutLoginAck::new);
-	
+		
+		registry.registerPacket(PLAYOUT_ENTITY_SPAWN, PacketPlayOutEntitySpawn.class, PacketPlayOutEntitySpawn::new);
 		registry.registerPacket(PLAYOUT_ENTITY_POSITION, PacketPlayOutEntityPosition.class, PacketPlayOutEntityPosition::new);
 		registry.registerPacket(PLAYOUT_ENTITY_METADATA, PacketPlayOutEntityMetadata.class, PacketPlayOutEntityMetadata::new);
-
+		registry.registerPacket(PLAYOUT_ENTITY_BB_SIZE, PacketPlayOutEntityBBSizeUpdate.class, PacketPlayOutEntityBBSizeUpdate::new);
+		registry.registerPacket(PLAYOUT_ENTITY_DESTROY, PacketPlayOutEntityDestroy.class, PacketPlayOutEntityDestroy::new);
 	}
 }

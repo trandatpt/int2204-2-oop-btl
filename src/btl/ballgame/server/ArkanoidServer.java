@@ -4,10 +4,15 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import btl.ballgame.server.game.EntityRegistry;
+import btl.ballgame.server.game.entities.breakable.EntityBrick;
+import btl.ballgame.server.game.entities.dynamic.EntityPaddle;
+import btl.ballgame.server.game.entities.dynamic.EntityWreckingBall;
 import btl.ballgame.server.net.NetworkManager;
 import btl.ballgame.server.net.PlayerConnection;
 import btl.ballgame.server.net.handle.ClientDisconnectHandle;
 import btl.ballgame.server.net.handle.ClientLoginHandle;
+import btl.ballgame.shared.libs.EntityType;
 import btl.ballgame.protocol.PacketCodec;
 import btl.ballgame.protocol.PacketRegistry;
 import btl.ballgame.protocol.ProtoUtils;
@@ -34,6 +39,8 @@ public class ArkanoidServer {
 	private NetworkManager netMan;
 	private PlayerManager playerManager;
 	
+	private EntityRegistry entityRegistry;
+	
 	public ArkanoidServer(int port) {
 		try {
 			this.serverSocket = new ServerSocket(port);
@@ -44,7 +51,8 @@ public class ArkanoidServer {
 			this.netMan = new NetworkManager();
 			this.playerManager = new PlayerManager();
 			
-			this.onServerInit();
+			this.registerServerEntities();
+			this.registerPacketHandlers();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -64,10 +72,23 @@ public class ArkanoidServer {
 			}
 		}
 	}
+	
+	private void registerServerEntities() {
+		// active participants
+		this.entityRegistry.registerEntity(EntityType.ENTITY_PADDLE, EntityPaddle.class);
+		this.entityRegistry.registerEntity(EntityType.ENTITY_BALL, EntityWreckingBall.class);
+		
+		// static world entities (bricks)
+		this.entityRegistry.registerEntity(EntityType.ENTITY_BRICK_NORMAL, EntityBrick.class);
+	}
 
-	private void onServerInit() {
+	private void registerPacketHandlers() {
 		this.registry.registerHandler(PacketPlayInClientLogin.class, new ClientLoginHandle());
 		this.registry.registerHandler(PacketPlayInDisconnect.class, new ClientDisconnectHandle());
+	}
+	
+	public EntityRegistry getEntityRegistry() {
+		return this.entityRegistry;
 	}
 	
 	public PacketRegistry getRegistry() {

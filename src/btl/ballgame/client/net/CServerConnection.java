@@ -45,7 +45,7 @@ public class CServerConnection implements ConnectionCtx {
 	private Thread packetListenerThread;
 	private Thread packetDispatcherThread;
 	
-	private ArkanoidClient client;
+	public final ArkanoidClient client;
 	
 	@SuppressWarnings("unchecked")    
 	/**

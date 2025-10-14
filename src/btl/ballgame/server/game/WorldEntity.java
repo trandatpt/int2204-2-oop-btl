@@ -6,8 +6,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import btl.ballgame.protocol.packets.out.PacketPlayOutEntityBBSizeUpdate;
+import btl.ballgame.protocol.packets.out.PacketPlayOutEntityDestroy;
+import btl.ballgame.protocol.packets.out.PacketPlayOutEntityMetadata;
+import btl.ballgame.protocol.packets.out.PacketPlayOutEntityPosition;
 import btl.ballgame.shared.libs.AABB;
 import btl.ballgame.shared.libs.DataWatcher;
+import btl.ballgame.shared.libs.EntityType;
 import btl.ballgame.shared.libs.Location;
 
 import static btl.ballgame.server.game.LevelChunk.CHUNK_SHIFT;
@@ -36,16 +41,18 @@ public abstract class WorldEntity {
 	protected int x, y, rot; // NOTE: the location stored here is the center of the entity
 	// to compute the upper left corner, use x - width / 2
 	protected DataWatcher dataWatcher;
-
-	protected int width;
-	protected int height;
+	// dimensions
+	protected int width, height;
 	
 	/** mark this entity as a collider object */
 	protected boolean collidable = true;
 
 	/** the current bounding box of this entity, dependent on location and size */
 	private AABB boundingBox;
-
+	
+	/** the spawned type of this entity, simply NULL if not spawned yet */
+	protected EntityType entityType = null;
+	
 	/**
 	 * Constructs a new WorldEntity with a given ID and initial location.
 	 *
@@ -61,6 +68,11 @@ public abstract class WorldEntity {
 		this.dataWatcher = new DataWatcher();
 	}
 	
+	/** @return The type of this entity, {@code null} if not yet added to a WorldServer */
+	public EntityType getType() {
+		return entityType;
+	}
+	
 	/** @return Unique ID of the entity. */
 	public int getId() {
 		return id;
@@ -69,6 +81,12 @@ public abstract class WorldEntity {
 	/** @return The internal datawatcher of the entity. */
 	public DataWatcher getDataWatcher() {
 		return dataWatcher;
+	}
+	
+	public void updateMetadata() {
+		this.getWorld().broadcastPackets(
+			new PacketPlayOutEntityMetadata(getId(), this.dataWatcher)
+		);
 	}
 	
 	/**
@@ -154,9 +172,14 @@ public abstract class WorldEntity {
 			this.computeOccupiedChunks();
 		}
 		
-		// TODO send location update packet
-		this.computeBoundingBox();
+		// send location update packet
+		if (oldX != x || oldY != y || oldRot != rot) {
+			this.getWorld().broadcastPackets(
+				new PacketPlayOutEntityPosition(getId(), loc)
+			);
+		}
 		
+		this.computeBoundingBox();
 		return this;
 	}
 	
@@ -217,6 +240,11 @@ public abstract class WorldEntity {
 		this.width = width;
 		this.height = height;
 		this.computeBoundingBox();
+		
+		// broadcast the dimensions change
+		this.getWorld().broadcastPackets(new PacketPlayOutEntityBBSizeUpdate(
+			getId(), this.width, this.height
+		));
 	}
 	
 	/** Recomputes the bounding box centered on the entity's current location. */
@@ -273,6 +301,9 @@ public abstract class WorldEntity {
 		if (getLocation().getWorld() instanceof WorldServer ws) {
 			ws.removeEntityFromRegistry(this);
 		}
+		
+		// notifies clients to despawn the entity
+		this.getWorld().broadcastPackets(new PacketPlayOutEntityDestroy(getId()));
 	}
 	
 	/** @return Width of the entity. */
