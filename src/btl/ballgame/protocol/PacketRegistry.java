@@ -57,6 +57,9 @@ public class PacketRegistry {
 	void registerHandler(
 		Class<T> packetClass, PacketHandler<T, U> handler
 	) {
+		if (packetHandlers.containsKey(packetClass)) {
+			throw new IllegalArgumentException("Handler already registered for: " + packetClass);
+		}
 		packetHandlers.put(packetClass, handler);
 	}
 	
