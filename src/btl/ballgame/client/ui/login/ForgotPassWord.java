@@ -24,6 +24,7 @@ public class ForgotPassWord extends Window{
         this.userField = new TextField();
         this.userField.setPromptText("username");
         setwindowId("forgotpasswordid");
+        setTitle("Forgot");
         initUI();
     }
 

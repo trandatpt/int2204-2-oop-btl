@@ -12,49 +12,99 @@ import btl.ballgame.client.ui.menu.*;
 
 
 public class CreateAccount extends Window {
+    private TextField name;
     private WindowManager manager;
     private final Label label;
+    private Label checknewaccount;
     private final Button createbtn;
     private final Button backtologin;
     private TextField usernameField;
     private PasswordField passwordField;
+    private PasswordField rPasswordField;
     
     public CreateAccount(WindowManager manager) {
         this.manager = manager;
         this.label = new Label("Create Account");
+        this.checknewaccount = new Label("");
         this.createbtn = new Button("Create");
         this.backtologin = new Button("Back To Login");
+
+        this.name = new TextField();
+        name.setPromptText("Name");
 
         this.usernameField = new TextField();
         usernameField.setPromptText("Username");
 
         this.passwordField = new PasswordField();
         passwordField.setPromptText("Password");
+
+        this.rPasswordField = new PasswordField();
+        rPasswordField.setPromptText("re-enter the password");
+
         setwindowId("createaccountid");
+        setTitle("Create Account");
         initUI();
     }
+
+    private void set_size_user_and_password(int size) {
+        usernameField.setPrefWidth(size);
+        passwordField.setPrefWidth(size);
+        usernameField.setMaxWidth(size);
+        passwordField.setMaxWidth(size);
+        name.setPrefWidth(size);
+        name.setMaxWidth(size);
+        rPasswordField.setPrefWidth(size);
+        rPasswordField.setMaxWidth(size);
+    }
+
     @Override
     public void initUI() {
+        set_size_user_and_password(150);
         createbtn.setOnAction(e -> {
             String user = usernameField.getText();
             String pass = passwordField.getText();
+            String name_ = name.getText();
+            String remindPassword = rPasswordField.getText();
             /*
              * code send to server
              */
-            AccountManager.addAccount(user, pass);
-            AccountManager.saveAccounts();
-            Menu menu = new Menu(manager);
-            manager.show(menu, "Menu", menu.getwindowId());
+            int check_account = -1;
+
+            if (!remindPassword.equals(pass)) {
+                check_account = 0;
+            }
+            else {
+                for (Account x : AccountManager.getAllAccounts()) {
+                    if (x.getUsername().equals(user)) {
+                        check_account = 1;
+                        break;
+                    }
+                }
+            }
+
+            if (check_account == -1) {
+                checknewaccount.setText("Account created successfully");
+                AccountManager.addAccount(user, pass, name_);
+                AccountManager.saveAccounts();
+                Menu menu = new Menu(manager);
+                delay(2, () -> manager.show(menu, menu.getTitle(), menu.getwindowId()));
+            }
+            else if (check_account == 1) {
+                checknewaccount.setText("The account already exists | Account creation failed");
+            }
+            else {
+                checknewaccount.setText("inconsistent password");
+            }
         });
 
         backtologin.setOnAction(e -> {
             manager.back();
         });
 
-        VBox buttons = new VBox(10, usernameField, passwordField, createbtn, backtologin);
+        VBox buttons = new VBox(10, checknewaccount, name, usernameField, passwordField, rPasswordField, createbtn, backtologin);
         buttons.setAlignment(Pos.CENTER);
 
-        VBox create = new VBox(100, label, buttons);
+        VBox create = new VBox(50, label, buttons);
         create.setAlignment(Pos.CENTER);
 
         this.getChildren().add(create);

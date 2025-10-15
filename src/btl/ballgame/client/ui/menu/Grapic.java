@@ -23,6 +23,7 @@ public class Grapic extends Window {
         this.back = new Button("Back to Settings");
 
         setwindowId("grapicid");
+        setTitle("Grapic");
         initUI();
     }
 

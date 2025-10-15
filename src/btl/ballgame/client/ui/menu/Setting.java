@@ -24,7 +24,9 @@ public class Setting extends Window {
         Grapic = new Button("Grapics");
         Language = new Button("Language");
         Exit = new Button("Back to Menu");
+        
         setwindowId("settingid");
+        setTitle("Settings");
         initUI();
     }
     @Override
@@ -39,7 +41,7 @@ public class Setting extends Window {
 
         Grapic.setOnAction(e -> {
             Grapic grapic = new Grapic(manager);
-            manager.show(grapic, "Grapic", grapic.getwindowId());
+            manager.show(grapic, grapic.getTitle(), grapic.getwindowId());
         });
 
         Language.setOnAction(e -> {

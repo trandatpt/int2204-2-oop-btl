@@ -8,6 +8,8 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import btl.ballgame.client.ui.multi.ModeMulti;
+import btl.ballgame.client.ui.single.ModeSingle;
 import btl.ballgame.client.ui.window.*;
 
 
@@ -33,6 +35,7 @@ public class Menu extends Window {
         backlogin    = new Button("Back to Login");
         exit         = new Button("Exit");
         setwindowId("menuid");
+        setTitle("Menu");
         initUI();
 }
 
@@ -53,17 +56,17 @@ public class Menu extends Window {
         // Thiết lập sự kiện
         singlePlayer.setOnAction(e -> {
             ModeSingle single = new ModeSingle(manager);
-            manager.show(single, "Single", single.getwindowId());
+            manager.show(single, single.getTitle(), single.getwindowId());
         });
 
         multiPlayer.setOnAction(e -> {
             ModeMulti multi = new ModeMulti(manager);
-            manager.show(multi, "Multi Player", multi.getwindowId());
+            manager.show(multi, multi.getTitle() , multi.getwindowId());
         });
 
         settings.setOnAction(e -> {
             Setting setting = new Setting(manager);
-            manager.show(setting, "Settings", setting.getwindowId());
+            manager.show(setting, setting.getTitle() , setting.getwindowId());
         });
 
         link.setOnAction(e -> {

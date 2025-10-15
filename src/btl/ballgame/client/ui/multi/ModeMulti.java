@@ -1,34 +1,38 @@
-package btl.ballgame.client.ui.menu;
+package btl.ballgame.client.ui.multi;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import btl.ballgame.client.ui.menu.ResponsiveText;
 import btl.ballgame.client.ui.window.*;
 
-/*
- * 1p gameplay
+
+/**
+ * 2P gameplay
  */
-public class ModeSingle extends Window{
+public class ModeMulti extends Window {
     private final WindowManager manager;
     private final Label label;
     private final Button adventure;
     private final Button online;
     private final Button boss;
     private final Button back;
-    
-    public ModeSingle(WindowManager manager) {
+
+    public ModeMulti(WindowManager manager) {
         this.manager = manager;
-        label = new Label("Single Player");
+        label = new Label("Multi Player");
         adventure = new Button("Adventure");
-        online = new Button("Online 1 vs 1");
-        boss = new Button("Boss one player");
+        online = new Button("Online 2 vs 2");
+        boss = new Button("Boss two player");
         back = new Button("Back to Menu");
 
-        setwindowId("singleid");
+        setwindowId("multiid");
+        setTitle("Multi Player");
         initUI();
     }
 
@@ -45,16 +49,18 @@ public class ModeSingle extends Window{
     @Override
     public void initUI() {
         back.setOnAction(e -> {
-            manager.back();
+            Stack<WindowEntry> window = manager.getHistory();
+            while(!window.peek().getWindow().getwindowId().equals("menuid")) {
+                manager.back();
+            }
         });
-        VBox root = new VBox(15, adventure, online, boss, back);
+        VBox buttonMenu = new VBox(15, adventure, online, boss, back);
+        buttonMenu.setAlignment(Pos.CENTER);
+
+        VBox root = new VBox(30, label, buttonMenu);
         root.setAlignment(Pos.CENTER);
 
-        VBox single = new VBox(100, label, root);
-        single.setAlignment(Pos.CENTER);
-
-        this.getChildren().add(single);
+        this.getChildren().add(root);
         this.ResText();
     }
-    
 }

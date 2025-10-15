@@ -39,6 +39,7 @@ public class LoginMenu extends Window{
         this.exit = new Button("Exit");
 
         setwindowId("loginid");
+        setTitle("Login");
         initUI();
     }
 
@@ -83,7 +84,7 @@ public class LoginMenu extends Window{
                 label.setText("Login Completed \u2714");
 
                 Menu menu = new Menu(manager);
-                delay(3, () -> manager.show(menu, "Menu Game", menu.getwindowId()));
+                delay(2, () -> manager.show(menu, menu.getTitle() , menu.getwindowId()));
             }
             else {
                 label.setText("Username or Password is incorrect \u2718");
@@ -92,12 +93,12 @@ public class LoginMenu extends Window{
 
         create.setOnAction(e -> {
             CreateAccount create = new CreateAccount(manager);
-            manager.show(create, "Create Account", create.getwindowId());
+            manager.show(create, create.getTitle() , create.getwindowId());
         });
 
         forgot.setOnAction(e -> {
             ForgotPassWord fPassWord = new ForgotPassWord(manager);
-            manager.show(fPassWord, "Forgot", fPassWord.getwindowId());
+            manager.show(fPassWord, fPassWord.getTitle(), fPassWord.getwindowId());
         });
 
         clearall.setOnAction(e -> {
@@ -116,12 +117,5 @@ public class LoginMenu extends Window{
         loginBox.setAlignment(Pos.CENTER);
 
         this.getChildren().add(loginBox);
-    }
-
-    private void delay(double seconds, Runnable action) {
-        javafx.animation.PauseTransition d =
-            new javafx.animation.PauseTransition(javafx.util.Duration.seconds(seconds));
-        d.setOnFinished(e -> action.run());
-        d.play();
     }
 }

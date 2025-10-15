@@ -9,8 +9,9 @@ import edu.princeton.cs.algs4.Out;
 public class AccountManager {
     private static List<Account> accounts = new ArrayList<>();
     private static final String file = "int2204-2-oop-btl/src/btl/ballgame/client/ui/resources/Accounts.txt";
-    public static void addAccount(String account, String pass) {
-        accounts.add(new Account(account, pass));
+
+    public static void addAccount(String account, String pass, String name) {
+        accounts.add(new Account(account, pass, name));
     }
 
     public static List<Account> getAllAccounts() {
@@ -22,9 +23,9 @@ public class AccountManager {
      */
     public static void saveAccounts() {
         Out out = new Out(file);
-        out.println("Username*****Password");
+        out.println("Username*****Password*****Name");
         for (Account a : accounts) {
-            out.println(a.getUsername() + "*****" + a.getPassword());
+            out.println(a.getUsername() + "*****" + a.getPassword() + "*****" + a.getName());
         }
         out.close();
     }
@@ -38,15 +39,15 @@ public class AccountManager {
         while (!in.isEmpty()) {
             String line = in.readLine();
             String[] parts = line.split("\\*\\*\\*\\*\\*");
-            if (parts.length == 2) {
-                addAccount(parts[0], parts[1]);
+            if (parts.length == 3) {
+                addAccount(parts[0], parts[1], parts[2]);
             }
         }
     }
 
     public static void clearAccounts() {
         accounts.clear();
-        Out out = new Out("src/resources/Accounts.txt");
+        Out out = new Out(file);
         out.close();
     }
 }

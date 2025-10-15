@@ -41,9 +41,4 @@ public class WindowManager {
     public Stack<WindowEntry> getHistory() {
         return this.history;
     }
-
-    public static void clear() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'clear'");
-    }
 }
