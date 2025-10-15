@@ -183,7 +183,7 @@ public class CServerConnection implements ConnectionCtx {
 	 * Handles exceptions occurring in packet listener or dispatcher threads.
 	 * Automatically closes or destroys the connection depending on the exception
 	 * type.
-	 * 
+	 *
 	 * @param e the exception that occurred
 	 */
 	private void handleConnectionException(Throwable e) {
