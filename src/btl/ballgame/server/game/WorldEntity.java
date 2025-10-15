@@ -79,7 +79,7 @@ public abstract class WorldEntity {
 	}
 	
 	/** @return The internal datawatcher of the entity. */
-	public DataWatcher getDataWatcher() {
+	public DataWatcher getWatcher() {
 		return dataWatcher;
 	}
 	

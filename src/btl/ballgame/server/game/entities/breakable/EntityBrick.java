@@ -23,7 +23,7 @@ public class EntityBrick extends BreakableEntity {
 	}
 	
 	@Override
-	public int hitsTakeToBreak() {
+	public int getMaxHealth() {
 		return 1;
 	}
 

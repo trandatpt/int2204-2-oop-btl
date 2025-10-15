@@ -10,6 +10,7 @@ public class EntityPaddle extends EntityDynamic {
 	
 	public EntityPaddle(ArkaPlayer p, int id, Location location) {
 		super(id, location);
+		this.player = p;
 	}
 	
 	public void moveRight() {

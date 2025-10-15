@@ -11,9 +11,9 @@ import btl.ballgame.client.net.handle.ServerEntityPositionUpdateHandle;
 import btl.ballgame.client.net.handle.ServerEntitySpawnHandle;
 import btl.ballgame.client.net.handle.ServerLoginAckHandle;
 import btl.ballgame.client.net.handle.ServerSocketCloseHandle;
-import btl.ballgame.client.net.handle.TestHandle;
 import btl.ballgame.client.net.systems.CSEntityRegistry;
 import btl.ballgame.client.net.systems.CSWorld;
+import btl.ballgame.client.net.systems.entities.CEntityBrickNormal;
 import btl.ballgame.client.net.systems.entities.CEntityWreckingBall;
 import btl.ballgame.protocol.PacketCodec;
 import btl.ballgame.protocol.PacketRegistry;
@@ -88,8 +88,9 @@ public class ArkanoidClient {
 		this.registry.registerHandler(PacketPlayOutEntityDestroy.class, new ServerEntityDestroyHandle());
 	}
 	
-	private void registerEntities() {
+	private void registerEntities() {		
 		this.entityRegistry.registerEntity(EntityType.ENTITY_BALL, CEntityWreckingBall::new);
+		this.entityRegistry.registerEntity(EntityType.ENTITY_BRICK_NORMAL, CEntityBrickNormal::new);
 	}
 	
 	public CSEntityRegistry getEntityRegistry() {

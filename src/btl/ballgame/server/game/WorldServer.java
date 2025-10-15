@@ -16,7 +16,6 @@ import btl.ballgame.protocol.packets.out.IPacketPlayOut;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntitySpawn;
 import btl.ballgame.server.ArkaPlayer;
 import btl.ballgame.server.ArkanoidServer;
-import btl.ballgame.server.net.PlayerConnection;
 import btl.ballgame.shared.libs.AABB;
 import btl.ballgame.shared.libs.EntityType;
 import btl.ballgame.shared.libs.IWorld;
@@ -100,7 +99,7 @@ public class WorldServer implements IWorld {
 	/**
 	 * Performs a single server tick, updating all entities in the world.
 	 * <p>
-	 * This should be called at a 64 tick/s rate by the Arkanoid executor.
+	 * This should be called at a 64 tick/s rate by the Arkanoid world executor.
 	 */
 	public void tick() {
 		entities.forEach((id, entity) -> {
@@ -196,7 +195,11 @@ public class WorldServer implements IWorld {
 			throw new IllegalArgumentException(entity.getClass() + " is not registered as an entity!");
 		}
 		
-		if (isEntirelyOutOfWorld(entity.getBoundingBox())) {
+		if (!this.equals(entity.getWorld())) {
+			throw new IllegalArgumentException("Entity must belong to this world instance, the provided entity is linked to a different world or has no world assigned!");
+		}
+		
+		if (this.isEntirelyOutOfWorld(entity.getBoundingBox())) {
 			return false;
 		}
 		
@@ -210,7 +213,7 @@ public class WorldServer implements IWorld {
 		this.broadcastPackets(new PacketPlayOutEntitySpawn(
 			(byte) type.ordinal(), 
 			entity.getId(), 
-			entity.getDataWatcher(), 
+			entity.getWatcher(), 
 			entity.getLocation(),
 			entity.getBoundingBox()
 		));

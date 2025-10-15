@@ -18,14 +18,16 @@ public class ProtoUtils {
 		// inbound packets (client -> server)
 		PLAYIN_CLIENT_HELLO  	   = 0x000,
 		PLAYIN_DISCONNECT		   = 0x001,
+		PLAYIN_PONG                = 0x003,
 		// outbound packets (server -> client)
 		PLAYOUT_LOGIN_ACK 		   = 0xC00,
 		PLAYOUT_CLOSE_SOCKET 	   = 0xC01,
-		PLAYOUT_ENTITY_SPAWN       = 0xC02,
-		PLAYOUT_ENTITY_POSITION    = 0xC03,
-		PLAYOUT_ENTITY_METADATA    = 0xC04,
-		PLAYOUT_ENTITY_BB_SIZE     = 0xC05,
-		PLAYOUT_ENTITY_DESTROY     = 0xC06
+		PLAYOUT_PING               = 0xC02,
+		PLAYOUT_ENTITY_SPAWN       = 0xC03,
+		PLAYOUT_ENTITY_POSITION    = 0xC04,
+		PLAYOUT_ENTITY_METADATA    = 0xC05,
+		PLAYOUT_ENTITY_BB_SIZE     = 0xC06,
+		PLAYOUT_ENTITY_DESTROY     = 0xC07
 	;
 	
 	/**
@@ -39,9 +41,11 @@ public class ProtoUtils {
 	public static void registerMutualPackets(PacketRegistry registry) {
 		registry.registerPacket(PLAYIN_CLIENT_HELLO, PacketPlayInClientLogin.class, PacketPlayInClientLogin::new);
 		registry.registerPacket(PLAYIN_DISCONNECT, PacketPlayInDisconnect.class, PacketPlayInDisconnect::new);
+		registry.registerPacket(PLAYIN_PONG, PacketPlayInPong.class, PacketPlayInPong::new);
 		
 		registry.registerPacket(PLAYOUT_CLOSE_SOCKET, PacketPlayOutCloseSocket.class, PacketPlayOutCloseSocket::new);
 		registry.registerPacket(PLAYOUT_LOGIN_ACK, PacketPlayOutLoginAck.class, PacketPlayOutLoginAck::new);
+		registry.registerPacket(PLAYOUT_PING, PacketPlayOutPing.class, PacketPlayOutPing::new);
 		
 		registry.registerPacket(PLAYOUT_ENTITY_SPAWN, PacketPlayOutEntitySpawn.class, PacketPlayOutEntitySpawn::new);
 		registry.registerPacket(PLAYOUT_ENTITY_POSITION, PacketPlayOutEntityPosition.class, PacketPlayOutEntityPosition::new);

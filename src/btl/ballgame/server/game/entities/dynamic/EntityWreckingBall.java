@@ -150,7 +150,7 @@ public class EntityWreckingBall extends EntityDynamic {
 		
 		for (WorldEntity collider : collided) {
 			if (collider instanceof BreakableEntity ib) {
-				ib.onHit(1);
+				ib.damage(1);
 			}
 		}
 		

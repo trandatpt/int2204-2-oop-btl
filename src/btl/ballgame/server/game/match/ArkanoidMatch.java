@@ -11,11 +11,15 @@ import btl.ballgame.server.game.entities.dynamic.EntityPaddle;
 import btl.ballgame.shared.libs.Location;
 
 public class ArkanoidMatch {
-	ArkanoidMode gameMode;
-	WorldServer world;
+	private ArkanoidMode gameMode;
+	private WorldServer world;
 	
-	Map<TeamColor, List<ArkaPlayer>> players = new HashMap<>();
-	Map<ArkaPlayer, TeamColor> teamMap = new HashMap<>();
+	// team/players related mappings
+	private Map<TeamColor, List<ArkaPlayer>> players = new HashMap<>();
+	private Map<ArkaPlayer, TeamColor> teamMap = new HashMap<>();
+	
+	// paddle ownership
+	Map<ArkaPlayer, EntityPaddle> paddlesMap = new HashMap<>();
 	
 	public ArkanoidMatch(ArkanoidMode mode) {
 		this.gameMode = mode;
@@ -28,27 +32,53 @@ public class ArkanoidMatch {
 		player.joinGame(this);
 	}
 	
+	public TeamColor getTeamOf(ArkaPlayer player) {
+		return teamMap.get(player);
+	}
+	
 	public ArkanoidMode getGameMode() {
 		return this.gameMode;
 	}
 	
-	private void spawnPaddleFor(ArkaPlayer p, int y) {
-//		EntityPaddle paddle = new EntityPaddle(p, world.nextEntityId(), 
-//		new Location(world, world.getWidth() / 2, y, 0)
-//	);
-	//world.addEntity(paddle);
+	private void spawnPaddleFor(ArkaPlayer owner, int y) {
+		EntityPaddle paddle = new EntityPaddle(owner, world.nextEntityId(), 
+			new Location(world, world.getWidth() / 2, y, 0)
+		);
+		world.addEntity(paddle);
+		paddlesMap.put(owner, paddle);
 	}
 	
-	public void start() {
+	public EntityPaddle paddleOf(ArkaPlayer player) {
+		return paddlesMap.get(player);
+	}
+	
+	static final int PADDLE_SPACING = 40;
+	static final int BASE_MARGIN = 60;
+	
+	public void prepareMatch() {
 		// if the gamemode is a single player
 		// spawn paddles based on team
 		for (TeamColor team : players.keySet()) {
 			List<ArkaPlayer> teamPlayers = players.get(team);
-			int yPosition = team == TeamColor.RED ? world.getHeight() - 20 : 20;
-			for (ArkaPlayer p : teamPlayers) {
-				spawnPaddleFor(p, yPosition);
+			
+			boolean isBottomTeam = (team == TeamColor.RED);
+			int baseY = isBottomTeam ? world.getHeight() - BASE_MARGIN : BASE_MARGIN;
+			
+			for (int i = 0; i < teamPlayers.size(); i++) {
+	            // calculate the Y-position offset for this paddle
+	            // RED team paddles are stacked upward (-1),
+	            // BLUE team paddles are stacked downward (+1)
+				this.spawnPaddleFor(teamPlayers.get(i),
+					baseY + (isBottomTeam ? -1 : 1) * (i * PADDLE_SPACING)
+				);
 			}
 		}
+		
+		// spawn the bricks
+		// NOTE: THẰNG ĐẠT CODE THUẬT TOÁN SINH GẠCH RA
+		
+		// spawn the static geometries
+		// NOTE: THẰNG ĐẠT CODE THUẬT TOÁN SINH KHỐI CỨNG (WORLD GEOMETRIES) RA
 	}
 	
 	public static enum TeamColor {
