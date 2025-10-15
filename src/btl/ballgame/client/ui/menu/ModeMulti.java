@@ -28,6 +28,8 @@ public class ModeMulti extends Window {
         online = new Button("Online 2 vs 2");
         boss = new Button("Boss two player");
         back = new Button("Back to Menu");
+
+        setwindowId("multiid");
         initUI();
     }
 

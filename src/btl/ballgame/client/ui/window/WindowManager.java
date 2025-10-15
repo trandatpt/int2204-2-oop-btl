@@ -19,9 +19,9 @@ public class WindowManager {
      * @param window
      * @param title
      */
-    public void show(Window window, String title) {
+    public void show(Window window, String title, String id) {
         stage.setTitle(title);
-        history.push(new WindowEntry(window, title));
+        history.push(new WindowEntry(window, title, id));
         stage.setScene(window.getWindowScene());
         stage.show();
     }

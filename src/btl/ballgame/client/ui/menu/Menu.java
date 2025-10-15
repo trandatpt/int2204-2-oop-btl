@@ -32,6 +32,7 @@ public class Menu extends Window {
         score        = new Button("History Score");
         backlogin    = new Button("Back to Login");
         exit         = new Button("Exit");
+        setwindowId("menuid");
         initUI();
 }
 
@@ -52,17 +53,17 @@ public class Menu extends Window {
         // Thiết lập sự kiện
         singlePlayer.setOnAction(e -> {
             ModeSingle single = new ModeSingle(manager);
-            manager.show(single, "Single");
+            manager.show(single, "Single", single.getwindowId());
         });
 
         multiPlayer.setOnAction(e -> {
             ModeMulti multi = new ModeMulti(manager);
-            manager.show(multi, "Multi Player");
+            manager.show(multi, "Multi Player", multi.getwindowId());
         });
 
         settings.setOnAction(e -> {
             Setting setting = new Setting(manager);
-            manager.show(setting, "Settings");
+            manager.show(setting, "Settings", setting.getwindowId());
         });
 
         link.setOnAction(e -> {
@@ -81,7 +82,7 @@ public class Menu extends Window {
 
         backlogin.setOnAction(e -> {
             Stack<WindowEntry> window = manager.getHistory();
-            while(!window.peek().getTitle().equals("Login")) {
+            while(!window.peek().getWindow().getwindowId().equals("loginid")) {
                 manager.back();
             }
         });

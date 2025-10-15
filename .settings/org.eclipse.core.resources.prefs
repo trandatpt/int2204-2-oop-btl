@@ -1,4 +1,5 @@
 eclipse.preferences.version=1
 encoding//src/btl/ballgame/client/net/systems/CSEntity.java=UTF-8
 encoding//src/btl/ballgame/server/game/entities/dynamic/EntityWreckingBall.java=UTF-8
-encoding/<project>=windows-1252
+encoding/<project>=UTF-8
+encoding/src=UTF-8

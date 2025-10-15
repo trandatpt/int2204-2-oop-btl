@@ -23,6 +23,7 @@ public class ForgotPassWord extends Window{
         this.backtologin = new Button("Back To Login");
         this.userField = new TextField();
         this.userField.setPromptText("username");
+        setwindowId("forgotpasswordid");
         initUI();
     }
 

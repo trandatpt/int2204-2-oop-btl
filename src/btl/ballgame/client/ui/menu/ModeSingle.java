@@ -27,6 +27,8 @@ public class ModeSingle extends Window{
         online = new Button("Online 1 vs 1");
         boss = new Button("Boss one player");
         back = new Button("Back to Menu");
+
+        setwindowId("singleid");
         initUI();
     }
 

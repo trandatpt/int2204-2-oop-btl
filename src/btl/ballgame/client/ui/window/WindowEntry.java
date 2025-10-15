@@ -6,9 +6,10 @@ public class WindowEntry {
     private Window window;
     private String title;
 
-    public WindowEntry(Window window, String title) {
+    public WindowEntry(Window window, String title, String id) {
         this.window = window;
         this.title = title;
+        this.window.setwindowId(id);
     }
 
     public Window getWindow() {

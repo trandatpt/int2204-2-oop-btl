@@ -30,7 +30,7 @@ public class CreateAccount extends Window {
 
         this.passwordField = new PasswordField();
         passwordField.setPromptText("Password");
-
+        setwindowId("createaccountid");
         initUI();
     }
     @Override
@@ -44,7 +44,7 @@ public class CreateAccount extends Window {
             AccountManager.addAccount(user, pass);
             AccountManager.saveAccounts();
             Menu menu = new Menu(manager);
-            manager.show(menu, "Menu");
+            manager.show(menu, "Menu", menu.getwindowId());
         });
 
         backtologin.setOnAction(e -> {

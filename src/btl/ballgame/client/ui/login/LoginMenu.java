@@ -37,6 +37,8 @@ public class LoginMenu extends Window{
         this.forgot = new Button("Forget Password");
         this.clearall = new Button("Clear All Accounts");
         this.exit = new Button("Exit");
+
+        setwindowId("loginid");
         initUI();
     }
 
@@ -46,7 +48,7 @@ public class LoginMenu extends Window{
         usernameField.setMaxWidth(size);
         passwordField.setMaxWidth(size);
     }
-
+    
     @Override
     public void initUI() {
         set_size_user_and_password(150);
@@ -81,7 +83,7 @@ public class LoginMenu extends Window{
                 label.setText("Login Completed \u2714");
 
                 Menu menu = new Menu(manager);
-                delay(3, () -> manager.show(menu, "Menu Game"));
+                delay(3, () -> manager.show(menu, "Menu Game", menu.getwindowId()));
             }
             else {
                 label.setText("Username or Password is incorrect \u2718");
@@ -90,12 +92,12 @@ public class LoginMenu extends Window{
 
         create.setOnAction(e -> {
             CreateAccount create = new CreateAccount(manager);
-            manager.show(create, "Create Account");
+            manager.show(create, "Create Account", create.getwindowId());
         });
 
         forgot.setOnAction(e -> {
             ForgotPassWord fPassWord = new ForgotPassWord(manager);
-            manager.show(fPassWord, "Forgot");
+            manager.show(fPassWord, "Forgot", fPassWord.getwindowId());
         });
 
         clearall.setOnAction(e -> {

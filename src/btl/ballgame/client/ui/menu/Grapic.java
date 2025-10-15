@@ -21,6 +21,8 @@ public class Grapic extends Window {
         this.medium = new Button("Medium");
         this.high = new Button("High");
         this.back = new Button("Back to Settings");
+
+        setwindowId("grapicid");
         initUI();
     }
 
