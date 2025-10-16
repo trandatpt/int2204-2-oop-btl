@@ -8,7 +8,9 @@ import java.util.Map;
 import btl.ballgame.server.ArkaPlayer;
 import btl.ballgame.server.game.WorldServer;
 import btl.ballgame.server.game.entities.dynamic.EntityPaddle;
+import btl.ballgame.server.game.entities.dynamic.EntityWreckingBall;
 import btl.ballgame.shared.libs.Location;
+import btl.ballgame.shared.libs.Vector2f;
 
 public class ArkanoidMatch {
 	private ArkanoidMode gameMode;
@@ -56,7 +58,16 @@ public class ArkanoidMatch {
 	static final int BASE_MARGIN = 60;
 	
 	public void prepareMatch() {
-		// if the gamemode is a single player
+		if (gameMode.isSinglePlayer()) {
+			world.setCeiling(true);
+		}
+		
+		// spawn the bricks
+		// NOTE: THẰNG ĐẠT CODE THUẬT TOÁN SINH GẠCH RA
+		
+		// spawn the static geometries
+		// NOTE: THẰNG ĐẠT CODE THUẬT TOÁN SINH KHỐI CỨNG (WORLD GEOMETRIES) RA		
+		
 		// spawn paddles based on team
 		for (TeamColor team : players.keySet()) {
 			List<ArkaPlayer> teamPlayers = players.get(team);
@@ -72,13 +83,20 @@ public class ArkanoidMatch {
 					baseY + (isBottomTeam ? -1 : 1) * (i * PADDLE_SPACING)
 				);
 			}
+			
+			// the ball falls into the respective paddle
+			// the ball will fall down (+1) if the team is the upper one
+			// and fly up (-1) if lower 
+			Vector2f initial = isBottomTeam ? new Vector2f(0, -1) : new Vector2f(0, 1);
+			EntityWreckingBall ball = new EntityWreckingBall(world.nextEntityId(), 
+				new Location(world, 
+					world.getWidth() / 2, // middle the screen
+					(isBottomTeam ? -1 : 1) * 120, // a little higher than the base
+					initial // initial flying vector
+				)
+			);
+			world.addEntity(ball);
 		}
-		
-		// spawn the bricks
-		// NOTE: THẰNG ĐẠT CODE THUẬT TOÁN SINH GẠCH RA
-		
-		// spawn the static geometries
-		// NOTE: THẰNG ĐẠT CODE THUẬT TOÁN SINH KHỐI CỨNG (WORLD GEOMETRIES) RA
 	}
 	
 	public static enum TeamColor {

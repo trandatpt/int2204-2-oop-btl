@@ -14,7 +14,7 @@ public enum ArkanoidMode {
 		this.sp = singlePlayer;
 	}
 	
-	private boolean isSinglePlayer() {
+	public boolean isSinglePlayer() {
 		return sp;
 	}
 }

@@ -48,6 +48,9 @@ public class WorldServer implements IWorld {
 	/** the random generator */
 	public final Random random;
 	
+	/** true if the world has a ceiling (implementation specific, entities should respect this value) */
+	private boolean hasCeiling = true;
+	
 	private List<ArkaPlayer> worldPlayers = new ArrayList<>();
 	
 	/**
@@ -65,6 +68,14 @@ public class WorldServer implements IWorld {
 			^ ArkanoidServer.VERSION_NUMERIC * 797
 			^ height * 7)
 		);
+	}
+	
+	public void setCeiling(boolean hasCeiling) {
+		this.hasCeiling = hasCeiling;
+	}
+	
+	public boolean hasCeiling() {
+		return hasCeiling;
 	}
 	
 	/**

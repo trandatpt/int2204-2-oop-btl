@@ -111,7 +111,7 @@ public abstract class CSEntity {
 	}
 	
 	public Location getServerLocation() {
-		return serverLocation;
+		return serverLocation.clone();
 	}
 	
 	public AABB getBoundingBox() {

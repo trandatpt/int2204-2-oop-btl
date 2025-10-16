@@ -14,11 +14,11 @@ public class EntityPaddle extends EntityDynamic {
 	}
 	
 	public void moveRight() {
-		
+		setLocation(getLocation().add(20, 0));
 	}
 	
 	public void moveLeft() {
-		
+		setLocation(getLocation().add(-20, 0));
 	}
 
 	@Override
