@@ -4,6 +4,8 @@ import btl.ballgame.server.ArkanoidServer;
 import btl.ballgame.server.game.entities.breakable.EntityBrick;
 import btl.ballgame.server.game.entities.dynamic.EntityPaddle;
 import btl.ballgame.server.game.entities.dynamic.EntityWreckingBall;
+import btl.ballgame.server.game.match.ArkanoidMatch;
+import btl.ballgame.server.game.match.ArkanoidMode;
 import btl.ballgame.shared.libs.AABB;
 import btl.ballgame.shared.libs.Location;
 import btl.ballgame.shared.libs.Vector2f;
@@ -51,7 +53,7 @@ public class WorldVisualizer extends JPanel {
 			}
 		}
 		
-		pad = new EntityPaddle(null, 1236, new Location(world, 100, 500, 0));
+		pad = new EntityPaddle(null, 1236, new Location(world, 100, 40, 0));
 		world.addEntity(pad);
 	}
 
@@ -140,7 +142,7 @@ public class WorldVisualizer extends JPanel {
 	public static void main(String[] args) {
 		ArkanoidServer.main(args);
 		SwingUtilities.invokeLater(() -> {
-			WorldServer world = new WorldServer(600, 700);
+			WorldServer world = new WorldServer(new ArkanoidMatch(ArkanoidMode.ONE_VERSUS_ONE), 600, 700);
 			WorldVisualizer viz = new WorldVisualizer(world);
 
 			JFrame frame = new JFrame("btl.ballgame.server.game.WorldServer ICSP System");

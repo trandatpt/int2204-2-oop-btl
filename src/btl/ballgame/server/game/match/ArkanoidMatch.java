@@ -1,6 +1,7 @@
 package btl.ballgame.server.game.match;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,7 @@ public class ArkanoidMatch {
 	
 	public ArkanoidMatch(ArkanoidMode mode) {
 		this.gameMode = mode;
-		this.world = new WorldServer(800, 600);
+		this.world = new WorldServer(this, 800, 600);
 	}
 	
 	public void assignPlayerTo(TeamColor team, ArkaPlayer player) {
@@ -38,14 +39,19 @@ public class ArkanoidMatch {
 		return teamMap.get(player);
 	}
 	
+	public Collection<ArkaPlayer> getPlayers() {
+		return teamMap.keySet();
+	}
+	
 	public ArkanoidMode getGameMode() {
 		return this.gameMode;
 	}
 	
-	private void spawnPaddleFor(ArkaPlayer owner, int y) {
+	private void spawnPaddleFor(ArkaPlayer owner, boolean isLowerPaddle, int y) {
 		EntityPaddle paddle = new EntityPaddle(owner, world.nextEntityId(), 
 			new Location(world, world.getWidth() / 2, y, 0)
 		);
+		paddle.setLowerPaddle(isLowerPaddle);
 		world.addEntity(paddle);
 		paddlesMap.put(owner, paddle);
 	}
@@ -58,10 +64,6 @@ public class ArkanoidMatch {
 	static final int BASE_MARGIN = 60;
 	
 	public void prepareMatch() {
-		if (gameMode.isSinglePlayer()) {
-			world.setCeiling(true);
-		}
-		
 		// spawn the bricks
 		// NOTE: THẰNG ĐẠT CODE THUẬT TOÁN SINH GẠCH RA
 		
@@ -79,7 +81,7 @@ public class ArkanoidMatch {
 	            // calculate the Y-position offset for this paddle
 	            // RED team paddles are stacked upward (-1),
 	            // BLUE team paddles are stacked downward (+1)
-				this.spawnPaddleFor(teamPlayers.get(i),
+				this.spawnPaddleFor(teamPlayers.get(i), isBottomTeam,
 					baseY + (isBottomTeam ? -1 : 1) * (i * PADDLE_SPACING)
 				);
 			}
@@ -97,6 +99,15 @@ public class ArkanoidMatch {
 			);
 			world.addEntity(ball);
 		}
+	}
+	
+	// events fired by subclasses
+	public void onBallFallIntoVoid(EntityWreckingBall ball, VoidSide side) {
+		ball.remove();
+	}
+	
+	public static enum VoidSide {
+		FLOOR, CEILING
 	}
 	
 	public static enum TeamColor {

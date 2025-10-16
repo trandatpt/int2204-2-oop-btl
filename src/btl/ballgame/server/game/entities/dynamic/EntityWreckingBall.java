@@ -4,31 +4,67 @@ import java.util.List;
 
 import btl.ballgame.server.game.WorldEntity;
 import btl.ballgame.server.game.entities.breakable.BreakableEntity;
+import btl.ballgame.server.game.match.ArkanoidMatch.VoidSide;
 import btl.ballgame.shared.libs.AABB;
 import btl.ballgame.shared.libs.Location;
 import btl.ballgame.shared.libs.Vector2f;
 
+/**
+ * Represents the Wrecking Ball entity in the Arkanoid world.
+ * <p>
+ * Handles ball physics, including movement, bouncing against walls, collision
+ * response with paddles and breakable blocks, and out-of-bounds (void)
+ * handling.
+ */
 public class EntityWreckingBall extends EntityDynamic {
-	public static final float DEFAULT_SPEED = 5.0f; // units per tick
+	/** Default movement speed (units per tick). */
+	public static final float DEFAULT_SPEED = 5.0f;
+
+	/** Default ball radius (in pixels/units). */
 	public static final int DEFAULT_BALL_RADIUS = 32;
-	
+
+	/** Current movement speed. */
 	private float speed = DEFAULT_SPEED;
 	
+	/**
+	 * Constructs a new Wrecking Ball entity at the specified location.
+	 *
+	 * @param id       Entity ID.
+	 * @param location Initial world location.
+	 */
 	public EntityWreckingBall(int id, Location location) {
 		super(id, location);
-		setBallScale(1);
-		//WorldVisualizer.addVectorVisualizer(id);
+		this.setBallScale(1);
 	}
 	
+	/**
+	 * Sets the ball’s size scale.
+	 *
+	 * @param scale Scale factor applied to {@link #DEFAULT_BALL_RADIUS}.
+	 */
 	public void setBallScale(float scale) {
 		this.setBoundingBox(
 			(int) (DEFAULT_BALL_RADIUS * scale), 
 			(int) (DEFAULT_BALL_RADIUS * scale)
 		);
 	}
-	
+
+	/**
+	 * Sets the current movement speed.
+	 *
+	 * @param speed Speed in units per tick.
+	 */
 	public void setSpeed(float speed) {
 		this.speed = speed;
+	}
+	
+	/**
+	 * Updates the facing direction of the ball.
+	 *
+	 * @param lookVector New normalized direction vector.
+	 */
+	private void setDirection(Vector2f lookVector) {
+		setLocation(getLocation().clone().setDirection(lookVector));
 	}
 	
 	/**
@@ -47,7 +83,7 @@ public class EntityWreckingBall extends EntityDynamic {
 	
 	@Override
 	public void tick() {
-		// move the ball every tick by "speed" (constant velocity)
+		// move the ball forward
 		Location currentLoc = getLocation();
 		Vector2f direction = currentLoc.getDirection().normalize();
 		setLocation(currentLoc.clone().add(direction.multiply(speed)));
@@ -59,40 +95,47 @@ public class EntityWreckingBall extends EntityDynamic {
 		boolean bouncedFromWorld = false;
 		Vector2f worldNormal = new Vector2f(0, 0);
 		Vector2f pushWorld = new Vector2f(0, 0); // correctional vector
-
-		if (getBoundingBox().minX < 0) { // ball touches left wall
+		
+		// left wall
+		if (getBoundingBox().minX < 0) {
 			pushWorld.x = -getBoundingBox().minX;
-			worldNormal = new Vector2f(1, 0); // e
+			worldNormal = new Vector2f(1, 0);
 			bouncedFromWorld = true;
-		} else if (getBoundingBox().maxX > worldWidth) { // ball touches right wall
+		} 
+		// right wall
+		else if (getBoundingBox().maxX > worldWidth) {
 			pushWorld.x = getBoundingBox().maxX - worldWidth;
-			worldNormal = new Vector2f(-1, 0); // normal of the left wall
+			worldNormal = new Vector2f(-1, 0);
 			bouncedFromWorld = true;
 		}
 		
+		// ceiling handle
 		if (getBoundingBox().minY < 0) {
-			pushWorld.y = -getBoundingBox().minX;
-			worldNormal = Math.abs(pushWorld.x) > Math.abs(pushWorld.y) 
-				? new Vector2f(Math.signum(pushWorld.x), 0)
-				: new Vector2f(0, 1)
-			;
-			bouncedFromWorld = true;
-		} else if (getBoundingBox().maxY > worldHeight) {
-			pushWorld.y = getBoundingBox().maxY - worldHeight;
-			worldNormal = Math.abs(pushWorld.x) > Math.abs(pushWorld.y) 
-				? new Vector2f(Math.signum(pushWorld.x), 0)
-				: new Vector2f(0, -1)
-			;
-			bouncedFromWorld = true;
+			// if the world has a ceiling, bounces down
+			if (world.hasCeiling()) {
+				pushWorld.y = -getBoundingBox().minX;
+				worldNormal = Math.abs(pushWorld.x) > Math.abs(pushWorld.y) 
+					? new Vector2f(Math.signum(pushWorld.x), 0)
+					: new Vector2f(0, 1)
+				;
+				bouncedFromWorld = true;
+			} else {
+				// if the world has no ceiling, the user just lost a ball
+				this.world.getHandle().onBallFallIntoVoid(this, VoidSide.CEILING);
+			}
+		} 
+		// floor handle (there's no floor, so the ball is lost)
+		else if (getBoundingBox().maxY > worldHeight) {
+			this.world.getHandle().onBallFallIntoVoid(this, VoidSide.FLOOR);
 		}
 		
-		// if the ball interacted with the world, apply the force
+		// apply bounce response for world collisions
 		if (bouncedFromWorld) {
 			setLocation(currentLoc.clone().add(pushWorld));
 			bounce(worldNormal);
 		}
 		
-		// make the ball reacts to collisions by other entities
+		// check collisions with other entities
 		List<WorldEntity> collided = queryCollisions();
 		for (WorldEntity collider : collided) {
 			if (!collider.isCollidable()) {
@@ -104,12 +147,13 @@ public class EntityWreckingBall extends EntityDynamic {
 			Vector2f normal; // the normal of the contact surface (everything is a axis-aligned)
 			Vector2f push = Vector2f.ZERO; // correctional vector, prevent entity from being stuck in another
 			
+			// overlap on the X axis (horizontal)
 			if (Math.abs(overlap.getX()) < Math.abs(overlap.getY())) {
-				// overlap on the X axis
 				normal = new Vector2f(Math.signum(overlap.getX()), 0);
 				push.x = overlap.getX();
-			} else {
-				// overlap on the Y axis
+			}
+			// overlap on the Y axis (vertical)
+			else {
 				normal = new Vector2f(0, Math.signum(overlap.getY()));
 				push.y = overlap.getY();
 			}
@@ -119,10 +163,9 @@ public class EntityWreckingBall extends EntityDynamic {
 			// just another physics prop, it will softlock the game gradually 
 			// if the ball points straight up
 			if (collider instanceof EntityPaddle paddle) {
-				System.out.println(normal);
-				if (normal.x != 0) { // ball cannot bounce on the edge of the paddle
+				if (normal.x != 0) { // SPECIAL CASE: ball bounces on the edge
 					setLocation(currentLoc.add(push));
-					setDirection(new Vector2f(0, -1));
+					setDirection(paddle.isLowerPaddle() ? new Vector2f(0, -1) : new Vector2f(0, 1));
 					break;
 				}
 				
@@ -134,7 +177,7 @@ public class EntityWreckingBall extends EntityDynamic {
 			    float relative = (x - paddleCenter) / (paddleBox.getWidth() / 2f);
 			    relative = Math.max(-1f, Math.min(1f, relative)); // clamp
 			    Vector2f newDir = Vector2f.fromTheta(Math.toRadians(90 - 75 * relative));
-			    if (direction.y > 0) { // large Y -> lower, smaller == higher
+			    if (direction.y > 0) {
 			    	newDir.y *= -1; // if the ball is coming down, force it to fly up
 			    }
 			    setDirection(newDir.normalize());
@@ -147,6 +190,7 @@ public class EntityWreckingBall extends EntityDynamic {
 			break;
 		}
 		
+		// apply damage to breakable entities
 		for (WorldEntity collider : collided) {
 			if (collider instanceof BreakableEntity ib) {
 				ib.damage(1);
@@ -154,9 +198,5 @@ public class EntityWreckingBall extends EntityDynamic {
 		}
 		
 		//WorldVisualizer.updateVV(getId(), direction.clone().multiply(5));
-	}
-	
-	private void setDirection(Vector2f lookVector) {
-		setLocation(getLocation().clone().setDirection(lookVector));
 	}
 }

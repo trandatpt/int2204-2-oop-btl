@@ -16,6 +16,7 @@ import btl.ballgame.protocol.packets.out.IPacketPlayOut;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntitySpawn;
 import btl.ballgame.server.ArkaPlayer;
 import btl.ballgame.server.ArkanoidServer;
+import btl.ballgame.server.game.match.ArkanoidMatch;
 import btl.ballgame.shared.libs.AABB;
 import btl.ballgame.shared.libs.EntityType;
 import btl.ballgame.shared.libs.IWorld;
@@ -48,21 +49,19 @@ public class WorldServer implements IWorld {
 	/** the random generator */
 	public final Random random;
 	
-	/** true if the world has a ceiling (implementation specific, entities should respect this value) */
-	private boolean hasCeiling = true;
-	
-	private List<ArkaPlayer> worldPlayers = new ArrayList<>();
+	private ArkanoidMatch match;
 	
 	/**
 	 * Constructs a new WorldServer (default random seed) with the specified dimensions. 
 	 * Automatically populates the default chunk grid.
 	 *
+	 * @param match  The Arkanoid match that owns this instance
 	 * @param width  Width of the world in units.
 	 * @param height Height of the world in units.
 	 */
-	public WorldServer(int width, int height) {
-		// well goodluck explaining that thing 
-		this(width, height, (
+	public WorldServer(ArkanoidMatch match, int width, int height) {
+		// well goodluck explaining that thing
+		this(match, width, height, (
 			System.currentTimeMillis() * 953 
 			^ height * 439 
 			^ ArkanoidServer.VERSION_NUMERIC * 797
@@ -70,31 +69,36 @@ public class WorldServer implements IWorld {
 		);
 	}
 	
-	public void setCeiling(boolean hasCeiling) {
-		this.hasCeiling = hasCeiling;
-	}
-	
-	public boolean hasCeiling() {
-		return hasCeiling;
-	}
-	
 	/**
 	 * Constructs a new WorldServer with the specified dimensions. Automatically
 	 * populates the default chunk grid.
 	 *
+	 * @param match  The Arkanoid match that owns this instance
 	 * @param width  Width of the world in units.
 	 * @param height Height of the world in units.
 	 * @param seed   The world's seed (for random stuff)
 	 */
-	public WorldServer(int width, int height, long seed) {
+	public WorldServer(ArkanoidMatch match, int width, int height, long seed) {
+		this.match = match;
 		this.width = width;
 		this.height = height;
 		this.random = new Random(seed);
 		this.populateDefaultChunks();
 	}
 	
+	/** @return The match instance that owns this world. */
+	public ArkanoidMatch getHandle() {
+		return match;
+	}
+	
+	/** @return A collection view of all currently loaded entities. */
 	public Collection<WorldEntity> getEntities() {
 		return entities.values();
+	}
+	
+	/** @return true if this world has a ceiling (balls wont fly through the upper of the board) */
+	public boolean hasCeiling() {
+		return this.match.getGameMode().isSinglePlayer();
 	}
 	
 	@Override
@@ -114,14 +118,19 @@ public class WorldServer implements IWorld {
 	 */
 	public void tick() {
 		entities.forEach((id, entity) -> {
-			entity.tick();
+			entity.entityTick();
 		});
 		entitiesToBeRemoved.forEach(entity -> entities.remove(entity.getId()));
 		entitiesToBeRemoved.clear();
 	}
 	
+	/**
+	 * Broadcasts one or more packets to all connected players in the match.
+	 *
+	 * @param packets The packets to send.
+	 */
 	public void broadcastPackets(IPacketPlayOut... packets) {
-		worldPlayers.forEach((player) -> {
+		match.getPlayers().forEach((player) -> {
 			player.playerConnection.sendPackets(packets);
 		});
 	}

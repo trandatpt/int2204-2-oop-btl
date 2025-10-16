@@ -47,6 +47,7 @@ public abstract class BreakableEntity extends EntityDynamic {
 	public void setHealth(int health) {
 		this.remainingHealth = Math.min(getMaxHealth(), Math.max(0, health));
 		this.dataWatcher.watch(0xA, this.remainingHealth);
+		this.updateMetadata();
 	}
 	
 	public final int getHealth() {

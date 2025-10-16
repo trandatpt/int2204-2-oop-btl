@@ -5,6 +5,8 @@ import btl.ballgame.server.game.match.ArkanoidMatch.TeamColor;
 import btl.ballgame.shared.libs.Location;
 
 public class EntityPaddle extends EntityDynamic {
+	private boolean lowerPaddle;
+	
 	private ArkaPlayer player;
 	private TeamColor team;
 	
@@ -13,12 +15,20 @@ public class EntityPaddle extends EntityDynamic {
 		this.player = p;
 	}
 	
+	public void setLowerPaddle(boolean lowerPaddle) {
+		this.lowerPaddle = lowerPaddle;
+	}
+	
+	public boolean isLowerPaddle() {
+		return lowerPaddle;
+	}
+	
 	public void moveRight() {
-		setLocation(getLocation().add(20, 0));
+		teleport(getLocation().add(20, 0));
 	}
 	
 	public void moveLeft() {
-		setLocation(getLocation().add(-20, 0));
+		teleport(getLocation().add(-20, 0));
 	}
 
 	@Override

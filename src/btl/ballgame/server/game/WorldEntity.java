@@ -1,7 +1,6 @@
 package btl.ballgame.server.game;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -78,15 +77,33 @@ public abstract class WorldEntity {
 		return id;
 	}
 	
+	/** @return {@code true} if the entity has been removed or is inactive. */
+	public boolean isDead() {
+		return !active;
+	}
+	
 	/** @return The internal datawatcher of the entity. */
 	public DataWatcher getWatcher() {
 		return dataWatcher;
 	}
 	
+	/** Broadcasts metadata updates to all clients in the world. */
 	public void updateMetadata() {
 		this.getWorld().broadcastPackets(
 			new PacketPlayOutEntityMetadata(getId(), this.dataWatcher)
 		);
+	}
+	
+	/** Tracks whether a location update should be broadcasted. */
+	private boolean shouldUpdate = false;
+	
+	/** Sends a position update packet if the entity moved/rotated this tick. */
+	private void dispatchLocationUpdate() {
+		if (!this.shouldUpdate) return;
+		this.getWorld().broadcastPackets(
+			new PacketPlayOutEntityPosition(getId(), this.getLocation())
+		);
+		this.shouldUpdate = false;
 	}
 	
 	/**
@@ -149,18 +166,17 @@ public abstract class WorldEntity {
 	public List<WorldEntity> queryCollisions() {
 		return this.queryCollisionsInsideAABB(getBoundingBox());
 	}
-	
 	/**
 	 * Updates the entity's location.
 	 * <p>
 	 * Automatically recomputes occupied chunks and 
-	 * bounding box if the position has changed. Also send (an)
-	 * update packet(s)
+	 * bounding box if the position has changed.
+	 * </p>
+	 * Marks the entity for position update broadcast if anything changed.
 	 *
 	 * @param loc New location.
-	 * @return This entity, for chaining.
 	 */
-	public WorldEntity setLocation(Location loc) {
+	protected void setLocation(Location loc) {
 		int oldX = this.x, oldY = this.y, oldRot = this.rot;
 		
 		this.x = loc.getX();
@@ -171,16 +187,20 @@ public abstract class WorldEntity {
 		if (oldX != x || oldY != y) {
 			this.computeOccupiedChunks();
 		}
-		
-		// send location update packet
-		if (oldX != x || oldY != y || oldRot != rot) {
-			this.getWorld().broadcastPackets(
-				new PacketPlayOutEntityPosition(getId(), loc)
-			);
-		}
-		
 		this.computeBoundingBox();
-		return this;
+		
+		this.shouldUpdate = (oldX != x || oldY != y || oldRot != rot);
+	}
+	
+	/**
+	 * Teleports this entity instantly to a new location 
+	 * and syncs it to clients.
+	 * 
+	 * @param location New world location.
+	 */
+	public void teleport(Location location) {
+		this.setLocation(location);
+		this.dispatchLocationUpdate();
 	}
 	
 	/**
@@ -304,6 +324,18 @@ public abstract class WorldEntity {
 		
 		// notifies clients to despawn the entity
 		this.getWorld().broadcastPackets(new PacketPlayOutEntityDestroy(getId()));
+	}
+	
+	/**
+	 * Called every server tick to update this entity.
+	 * <p>
+	 * Invokes subclass logic via {@link #tick()}, then dispatches any pending
+	 * position updates to clients.
+	 * </p>
+	 */
+	public final void entityTick() {
+		this.tick();
+		this.dispatchLocationUpdate();
 	}
 	
 	/** @return Width of the entity. */
