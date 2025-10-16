@@ -21,6 +21,11 @@ import btl.ballgame.protocol.packets.in.PacketPlayInDisconnect;
 
 public class ArkanoidServer {
 	public static final int VERSION_NUMERIC = 1;
+	
+	/** Each Arkanoid world ticks at a fixed 30 TPS */
+	public static final int TICKS_PER_SECOND = 30;
+	public static final int MS_PER_TICK = (int) (1000.f / TICKS_PER_SECOND);
+	
 	private static ArkanoidServer server = null;
 	
 	public static void main(String[] args) {

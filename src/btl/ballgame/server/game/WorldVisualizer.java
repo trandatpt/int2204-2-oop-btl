@@ -41,7 +41,7 @@ public class WorldVisualizer extends JPanel {
 			float dy = rand.nextFloat() * 2f - 1f;
 			Vector2f dir = new Vector2f(dx, dy).normalize();
 			EntityWreckingBall ball = new EntityWreckingBall(i + 1, new Location(world, x, y, dir));
-			ball.setSpeed(6f);
+			ball.setSpeed(320f);
 			world.addEntity(ball);
 		}
 		
@@ -152,7 +152,8 @@ public class WorldVisualizer extends JPanel {
 			frame.setLocationRelativeTo(null);
 			frame.setVisible(true);
 
-			new Timer(15, e -> {
+			System.out.println(ArkanoidServer.MS_PER_TICK);
+			new Timer(ArkanoidServer.MS_PER_TICK, e -> {
 				if (!pause) world.tick();
 				viz.repaint();
 			}).start();

@@ -114,7 +114,7 @@ public class WorldServer implements IWorld {
 	/**
 	 * Performs a single server tick, updating all entities in the world.
 	 * <p>
-	 * This should be called at a 64 tick/s rate by the Arkanoid world executor.
+	 * This should be called at a 30 tick/s rate by the Arkanoid world executor.
 	 */
 	public void tick() {
 		entities.forEach((id, entity) -> {

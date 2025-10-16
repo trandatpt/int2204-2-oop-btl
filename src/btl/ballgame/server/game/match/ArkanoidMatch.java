@@ -26,7 +26,7 @@ public class ArkanoidMatch {
 	
 	public ArkanoidMatch(ArkanoidMode mode) {
 		this.gameMode = mode;
-		this.world = new WorldServer(this, 800, 600);
+		this.world = new WorldServer(this, 600, 800);
 	}
 	
 	public void assignPlayerTo(TeamColor team, ArkaPlayer player) {

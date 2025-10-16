@@ -2,8 +2,10 @@ package btl.ballgame.server.game.entities.dynamic;
 
 import java.util.List;
 
+import btl.ballgame.server.ArkanoidServer;
 import btl.ballgame.server.game.WorldEntity;
 import btl.ballgame.server.game.entities.breakable.BreakableEntity;
+import btl.ballgame.server.game.match.ArkanoidMatch;
 import btl.ballgame.server.game.match.ArkanoidMatch.VoidSide;
 import btl.ballgame.shared.libs.AABB;
 import btl.ballgame.shared.libs.Location;
@@ -18,13 +20,13 @@ import btl.ballgame.shared.libs.Vector2f;
  */
 public class EntityWreckingBall extends EntityDynamic {
 	/** Default movement speed (units per tick). */
-	public static final float DEFAULT_SPEED = 5.0f;
+	public static final float DEFAULT_SPEED = 150.0f;
 
 	/** Default ball radius (in pixels/units). */
 	public static final int DEFAULT_BALL_RADIUS = 32;
 
 	/** Current movement speed. */
-	private float speed = DEFAULT_SPEED;
+	private float speed;
 	
 	/**
 	 * Constructs a new Wrecking Ball entity at the specified location.
@@ -35,6 +37,7 @@ public class EntityWreckingBall extends EntityDynamic {
 	public EntityWreckingBall(int id, Location location) {
 		super(id, location);
 		this.setBallScale(1);
+		this.setSpeed(DEFAULT_SPEED);
 	}
 	
 	/**
@@ -55,7 +58,7 @@ public class EntityWreckingBall extends EntityDynamic {
 	 * @param speed Speed in units per tick.
 	 */
 	public void setSpeed(float speed) {
-		this.speed = speed;
+		this.speed = speed / ArkanoidServer.TICKS_PER_SECOND;
 	}
 	
 	/**
