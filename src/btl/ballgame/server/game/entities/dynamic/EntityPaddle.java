@@ -1,7 +1,8 @@
 package btl.ballgame.server.game.entities.dynamic;
 
 import btl.ballgame.server.ArkaPlayer;
-import btl.ballgame.server.game.match.ArkanoidMatch.TeamColor;
+import btl.ballgame.shared.libs.Constants;
+import btl.ballgame.shared.libs.Constants.TeamColor;
 import btl.ballgame.shared.libs.Location;
 
 public class EntityPaddle extends EntityDynamic {
@@ -13,6 +14,7 @@ public class EntityPaddle extends EntityDynamic {
 	public EntityPaddle(ArkaPlayer p, int id, Location location) {
 		super(id, location);
 		this.player = p;
+		setBoundingBox(36 * 2, 18);
 	}
 	
 	public void setLowerPaddle(boolean lowerPaddle) {
@@ -23,27 +25,31 @@ public class EntityPaddle extends EntityDynamic {
 		return lowerPaddle;
 	}
 	
+	private void move(int relX) {
+		if (getBoundingBox().minX + relX <= 0 
+		 || getBoundingBox().maxX + relX > world.getWidth()) {
+			return;
+		}
+		teleport(getLocation().add(relX, 0));
+	}
+	
 	public void moveRight() {
-		teleport(getLocation().add(20, 0));
+		this.move(20);
 	}
 	
 	public void moveLeft() {
-		teleport(getLocation().add(-20, 0));
+		this.move(-20);
 	}
-
+	
 	@Override
-	public void tick() {
-		
+	public void onSpawn() {
+		if (player == null) return;
+		this.dataWatcher.watch(
+			Constants.PADDLE_OWNER_MKEY,
+			player.getUniqueId().toString()
+		);
 	}
-
+	
 	@Override
-	public int getWidth() {
-		return 36 * 2;
-	}
-
-	@Override
-	public int getHeight() {
-		return 36 / 2;
-	}
-
+	public void tick() {}
 }

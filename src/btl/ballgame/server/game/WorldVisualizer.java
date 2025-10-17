@@ -25,6 +25,7 @@ public class WorldVisualizer extends JPanel {
 	private final int scale = 1; // 1 world unit = 1 pixel
 	
 	static EntityPaddle pad;
+	static EntityPaddle pad2;
 	public WorldVisualizer(WorldServer world) {
 		this.world = world;
 		setPreferredSize(new Dimension(world.getWidth() * scale, world.getHeight() * scale));
@@ -32,7 +33,7 @@ public class WorldVisualizer extends JPanel {
 		Random rand = new Random();
 		int worldWidth = world.getWidth();
 		int worldHeight = world.getHeight();
-		int ballCount = 36;
+		int ballCount = 5;
 
 		for (int i = 0; i < ballCount; i++) {
 			int x = rand.nextInt(32, worldWidth - 128); // -32 so ball fits
@@ -41,7 +42,6 @@ public class WorldVisualizer extends JPanel {
 			float dy = rand.nextFloat() * 2f - 1f;
 			Vector2f dir = new Vector2f(dx, dy).normalize();
 			EntityWreckingBall ball = new EntityWreckingBall(i + 1, new Location(world, x, y, dir));
-			ball.setSpeed(320f);
 			world.addEntity(ball);
 		}
 		
@@ -55,6 +55,9 @@ public class WorldVisualizer extends JPanel {
 		
 		pad = new EntityPaddle(null, 1236, new Location(world, 100, 40, 0));
 		world.addEntity(pad);
+		
+		pad2 = new EntityPaddle(null, 1836, new Location(world, 100, 650, 0));
+		world.addEntity(pad2);
 	}
 
 	public static void addVectorVisualizer(int id) {
@@ -164,6 +167,8 @@ public class WorldVisualizer extends JPanel {
 					switch (e.getKeyCode()) {
 					case KeyEvent.VK_LEFT -> pad.moveLeft();
 					case KeyEvent.VK_RIGHT -> pad.moveRight();
+					case KeyEvent.VK_Z -> pad2.moveLeft();
+					case KeyEvent.VK_C -> pad2.moveRight();
 					case KeyEvent.VK_P -> pause = !pause;
 					case KeyEvent.VK_A -> drawAABB = !drawAABB;
 					case KeyEvent.VK_V -> visualizeVec = !visualizeVec;
@@ -171,8 +176,6 @@ public class WorldVisualizer extends JPanel {
 					}
 				}
 			});
-
-			
 		});
 	}
 }

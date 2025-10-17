@@ -82,6 +82,11 @@ public abstract class WorldEntity {
 		return !active;
 	}
 	
+	/** @return {@code true} if the entity is active. */
+	public boolean isActive() {
+		return active;
+	}
+	
 	/** @return The internal datawatcher of the entity. */
 	public DataWatcher getWatcher() {
 		return dataWatcher;
@@ -89,6 +94,7 @@ public abstract class WorldEntity {
 	
 	/** Broadcasts metadata updates to all clients in the world. */
 	public void updateMetadata() {
+		if (!this.isActive()) return;
 		this.getWorld().broadcastPackets(
 			new PacketPlayOutEntityMetadata(getId(), this.dataWatcher)
 		);
@@ -345,6 +351,8 @@ public abstract class WorldEntity {
 	/** @return true if this entity should be collidable by other entities (just a suggestion). */
 	public boolean isCollidable() { return this.collidable; };
 	
+	/** Called on entity spawn (to a specific WorldServer) */
+	public void onSpawn() {};
 	/** Called every server tick to update entity logic. */
 	public abstract void tick();
 }

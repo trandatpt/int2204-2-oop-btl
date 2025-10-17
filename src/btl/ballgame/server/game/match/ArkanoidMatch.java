@@ -10,6 +10,7 @@ import btl.ballgame.server.ArkaPlayer;
 import btl.ballgame.server.game.WorldServer;
 import btl.ballgame.server.game.entities.dynamic.EntityPaddle;
 import btl.ballgame.server.game.entities.dynamic.EntityWreckingBall;
+import btl.ballgame.shared.libs.Constants.*;
 import btl.ballgame.shared.libs.Location;
 import btl.ballgame.shared.libs.Vector2f;
 
@@ -104,13 +105,5 @@ public class ArkanoidMatch {
 	// events fired by subclasses
 	public void onBallFallIntoVoid(EntityWreckingBall ball, VoidSide side) {
 		ball.remove();
-	}
-	
-	public static enum VoidSide {
-		FLOOR, CEILING
-	}
-	
-	public static enum TeamColor {
-		RED, BLUE
 	}
 }

@@ -1,6 +1,7 @@
 package btl.ballgame.server.game.entities.breakable;
 
 import btl.ballgame.server.game.entities.dynamic.EntityDynamic;
+import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.Location;
 
 /**
@@ -46,7 +47,7 @@ public abstract class BreakableEntity extends EntityDynamic {
      */
 	public void setHealth(int health) {
 		this.remainingHealth = Math.min(getMaxHealth(), Math.max(0, health));
-		this.dataWatcher.watch(0xA, this.remainingHealth);
+		this.dataWatcher.watch(Constants.HP_META_KEY, this.remainingHealth);
 		this.updateMetadata();
 	}
 	

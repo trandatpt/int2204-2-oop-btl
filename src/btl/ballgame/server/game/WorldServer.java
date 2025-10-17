@@ -228,6 +228,9 @@ public class WorldServer implements IWorld {
 		entity.entityType = type;
 		entity.active = true;
 		
+		// call the event
+		entity.onSpawn();
+		
 		// send the spawn packet to notify clients that
 		// are members of this world
 		this.broadcastPackets(new PacketPlayOutEntitySpawn(
