@@ -11,4 +11,22 @@ public class Constants {
 	public static enum TeamColor {
 		RED, BLUE
 	}
+	
+	public static enum ArkanoidMode {
+		SOLO_ENDLESS(true),
+		
+		ONE_VERSUS_ONE(false),
+		TWO_VERSUS_TWO(false),
+		
+		BOSS_RAID(false); // TODO
+		
+		private boolean sp;
+		ArkanoidMode(boolean singlePlayer) {
+			this.sp = singlePlayer;
+		}
+		
+		public boolean isSinglePlayer() {
+			return sp;
+		}
+	}
 }
