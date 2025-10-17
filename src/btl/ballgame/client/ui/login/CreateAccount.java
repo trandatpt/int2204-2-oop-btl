@@ -12,6 +12,7 @@ import btl.ballgame.client.ui.menu.*;
 
 
 public class CreateAccount extends Window {
+    private Account account;
     private TextField name;
     private WindowManager manager;
     private final Label label;
@@ -23,6 +24,7 @@ public class CreateAccount extends Window {
     private PasswordField rPasswordField;
     
     public CreateAccount(WindowManager manager) {
+        account = null;
         this.manager = manager;
         this.label = new Label("Create Account");
         this.checknewaccount = new Label("");
@@ -86,7 +88,8 @@ public class CreateAccount extends Window {
                 checknewaccount.setText("Account created successfully");
                 AccountManager.addAccount(user, pass, name_);
                 AccountManager.saveAccounts();
-                Menu menu = new Menu(manager);
+                account = new Account(user, pass, name_);
+                MenuOnline menu = new MenuOnline(manager, account);
                 delay(2, () -> manager.show(menu, menu.getTitle(), menu.getwindowId()));
             }
             else if (check_account == 1) {
@@ -109,5 +112,4 @@ public class CreateAccount extends Window {
 
         this.getChildren().add(create);
     }
-    
 }

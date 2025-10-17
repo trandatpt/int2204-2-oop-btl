@@ -46,6 +46,7 @@ public abstract class Window extends StackPane {
         d.setOnFinished(e -> action.run());
         d.play();
     }
+    
     public abstract void initUI();
 }
 

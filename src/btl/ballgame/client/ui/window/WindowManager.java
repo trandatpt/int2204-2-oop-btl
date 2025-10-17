@@ -20,8 +20,10 @@ public class WindowManager {
      * @param title
      */
     public void show(Window window, String title, String id) {
+        window.setwindowId(id);
         stage.setTitle(title);
         history.push(new WindowEntry(window, title, id));
+        System.out.println(">>> pushed: " + id + " | size = " + history.size());
         stage.setScene(window.getWindowScene());
         stage.show();
     }
@@ -40,5 +42,13 @@ public class WindowManager {
 
     public Stack<WindowEntry> getHistory() {
         return this.history;
+    }
+
+    public void print() {
+        Stack<WindowEntry> checkwindow = (Stack<WindowEntry>) history.clone(); // clone để không ảnh hưởng history
+        for (WindowEntry entry : checkwindow) {
+            System.out.print(entry.getWindow().getwindowId() + " ");
+        }
+        System.out.println();
     }
 }
