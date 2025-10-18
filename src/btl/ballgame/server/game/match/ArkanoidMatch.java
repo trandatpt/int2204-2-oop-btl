@@ -3,13 +3,17 @@ package btl.ballgame.server.game.match;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import btl.ballgame.server.ArkaPlayer;
 import btl.ballgame.server.game.WorldServer;
 import btl.ballgame.server.game.entities.dynamic.EntityPaddle;
 import btl.ballgame.server.game.entities.dynamic.EntityWreckingBall;
+import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.Constants.*;
 import btl.ballgame.shared.libs.Location;
 import btl.ballgame.shared.libs.Vector2f;
@@ -19,25 +23,27 @@ public class ArkanoidMatch {
 	private WorldServer world;
 	
 	// team/players related mappings
-	private Map<TeamColor, List<ArkaPlayer>> players = new HashMap<>();
+	private Map<TeamColor, TeamInfo> teams = new HashMap<>();
 	private Map<ArkaPlayer, TeamColor> teamMap = new HashMap<>();
 	
 	// paddle ownership
-	Map<ArkaPlayer, EntityPaddle> paddlesMap = new HashMap<>();
+	private Map<ArkaPlayer, EntityPaddle> paddlesMap = new HashMap<>();
 	
 	public ArkanoidMatch(ArkanoidMode mode) {
 		this.gameMode = mode;
 		this.world = new WorldServer(this, 600, 800);
 	}
 	
-	public void assignPlayerTo(TeamColor team, ArkaPlayer player) {
-		players.computeIfAbsent(team, k -> new ArrayList<>(2)).add(player);
-		teamMap.put(player, team);
-		player.joinGame(this);
+	public void assignTeam(TeamColor team, List<ArkaPlayer> players) {
+		teams.put(team, new TeamInfo(players));
+		players.forEach(p -> {
+			teamMap.put(p, team);
+			p.joinGame(this);
+		});
 	}
 	
-	public TeamColor getTeamOf(ArkaPlayer player) {
-		return teamMap.get(player);
+	public TeamInfo getTeamOf(ArkaPlayer player) {
+		return teams.get(teamMap.get(player));
 	}
 	
 	public Collection<ArkaPlayer> getPlayers() {
@@ -52,7 +58,10 @@ public class ArkanoidMatch {
 		EntityPaddle paddle = new EntityPaddle(owner, world.nextEntityId(), 
 			new Location(world, world.getWidth() / 2, y, 0)
 		);
+		
 		paddle.setLowerPaddle(isLowerPaddle);
+		paddle.setHealth(getTeamOf(owner).getHealth(owner));
+		
 		world.addEntity(paddle);
 		paddlesMap.put(owner, paddle);
 	}
@@ -72,8 +81,8 @@ public class ArkanoidMatch {
 		// NOTE: THẰNG ĐẠT CODE THUẬT TOÁN SINH KHỐI CỨNG (WORLD GEOMETRIES) RA		
 		
 		// spawn paddles based on team
-		for (TeamColor team : players.keySet()) {
-			List<ArkaPlayer> teamPlayers = players.get(team);
+		for (TeamColor team : teams.keySet()) {
+			List<ArkaPlayer> teamPlayers = teams.get(team).getPlayers();
 			
 			boolean isBottomTeam = (team == TeamColor.RED);
 			int baseY = isBottomTeam ? world.getHeight() - BASE_MARGIN : BASE_MARGIN;
@@ -102,8 +111,58 @@ public class ArkanoidMatch {
 		}
 	}
 	
-	// events fired by subclasses
+	// events fired by subclasses/utilities class
 	public void onBallFallIntoVoid(EntityWreckingBall ball, VoidSide side) {
 		ball.remove();
+	}
+	
+	// this event is called when a player of this match leaves
+	// the server
+	public void onPlayerLeft(ArkaPlayer player) {
+		if (getTeamOf(player) == null) return;
+	}
+	
+	public class TeamInfo {
+		private LinkedHashMap<ArkaPlayer, Integer> healthPoints = new LinkedHashMap<>();
+		private int teamLivesLeft;
+		private int teamScore;
+		
+		private TeamInfo(List<ArkaPlayer> teamMembers) {
+			teamMembers.forEach(teammate -> {
+				healthPoints.put(teammate, Constants.PADDLE_MAX_HEALTH);
+			});
+			this.teamLivesLeft = 3;
+			this.teamScore = 0;
+		}
+		
+		public List<ArkaPlayer> getPlayers() {
+			return new ArrayList<>(healthPoints.keySet());
+		}
+		
+		public int getHealth(ArkaPlayer player) {
+			if (!healthPoints.containsKey(player)) {
+				throw new IllegalArgumentException("This player does not belong to this team");
+			}
+			return healthPoints.get(player);
+		}
+		
+		public void setHealth(ArkaPlayer player, int health) {
+			if (!healthPoints.containsKey(player)) {
+				throw new IllegalArgumentException("This player does not belong to this team");
+			}
+			
+			// clamp health range
+			int newHealth = Math.max(0, Math.min(Constants.PADDLE_MAX_HEALTH, health));
+			this.healthPoints.put(player, newHealth); //
+			
+			// update the value inside the entity for rendering
+			EntityPaddle paddle = paddleOf(player);
+			paddle.setHealth(newHealth);
+			paddle.updateMetadata();
+		}
+		
+		public void damage(ArkaPlayer player, int damage) {
+			setHealth(player, getHealth(player) - damage);
+		}
 	}
 }

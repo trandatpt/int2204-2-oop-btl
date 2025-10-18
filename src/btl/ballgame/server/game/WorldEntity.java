@@ -351,7 +351,7 @@ public abstract class WorldEntity {
 	/** @return true if this entity should be collidable by other entities (just a suggestion). */
 	public boolean isCollidable() { return this.collidable; };
 	
-	/** Called on entity spawn (to a specific WorldServer) */
+	/** Called on BEFORE entity spawn (to a specific WorldServer) */
 	public void onSpawn() {};
 	/** Called every server tick to update entity logic. */
 	public abstract void tick();

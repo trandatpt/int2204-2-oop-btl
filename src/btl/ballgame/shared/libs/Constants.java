@@ -1,9 +1,14 @@
 package btl.ballgame.shared.libs;
 
 public class Constants {
+	// meta keys (datawatcher)
 	public static final int HP_META_KEY = 0xA;
 	public static final int PADDLE_OWNER_MKEY = 0xB01;
 	
+	// misc constants
+	public static final int PADDLE_MAX_HEALTH = 100;
+	
+	// enumerates
 	public static enum VoidSide {
 		FLOOR, CEILING
 	}

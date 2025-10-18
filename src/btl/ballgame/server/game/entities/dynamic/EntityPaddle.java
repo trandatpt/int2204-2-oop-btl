@@ -2,14 +2,12 @@ package btl.ballgame.server.game.entities.dynamic;
 
 import btl.ballgame.server.ArkaPlayer;
 import btl.ballgame.shared.libs.Constants;
-import btl.ballgame.shared.libs.Constants.TeamColor;
 import btl.ballgame.shared.libs.Location;
 
 public class EntityPaddle extends EntityDynamic {
 	private boolean lowerPaddle;
-	
 	private ArkaPlayer player;
-	private TeamColor team;
+	private int healthMetadata;
 	
 	public EntityPaddle(ArkaPlayer p, int id, Location location) {
 		super(id, location);
@@ -47,6 +45,13 @@ public class EntityPaddle extends EntityDynamic {
 		this.dataWatcher.watch(
 			Constants.PADDLE_OWNER_MKEY,
 			player.getUniqueId().toString()
+		);
+	}
+	
+	public void setHealth(int hp) {
+		this.healthMetadata = hp;
+		this.dataWatcher.watch(
+			Constants.HP_META_KEY, this.healthMetadata
 		);
 	}
 	

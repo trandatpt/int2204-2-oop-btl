@@ -5,11 +5,15 @@ import java.util.List;
 import btl.ballgame.protocol.PacketByteBuf;
 import btl.ballgame.protocol.packets.NetworkPacket;
 import btl.ballgame.shared.libs.IWorld;
+import btl.ballgame.shared.libs.Constants.TeamColor;
 
-public class PacketPlayOutMatchTeam extends NetworkPacket implements IPacketPlayOut {
-	public PacketPlayOutMatchTeam() {}
+public class PacketPlayOutTeamInfo extends NetworkPacket implements IPacketPlayOut {
+	public PacketPlayOutTeamInfo() {}
 	
-	public PacketPlayOutMatchTeam() {
+	public PacketPlayOutTeamInfo(
+		TeamColor teamColor, int teamLives,
+		int teamScore // TODO
+	) {
 		
 	}
 	
