@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import btl.ballgame.server.ArkaPlayer;
 import btl.ballgame.server.game.WorldServer;
@@ -18,6 +16,7 @@ import btl.ballgame.shared.libs.Constants.*;
 import btl.ballgame.shared.libs.Location;
 import btl.ballgame.shared.libs.Vector2f;
 
+// TODO TODO TODO WILL FINISH TMR!!!
 public class ArkanoidMatch {
 	private ArkanoidMode gameMode;
 	private WorldServer world;
@@ -28,6 +27,10 @@ public class ArkanoidMatch {
 	
 	// paddle ownership
 	private Map<ArkaPlayer, EntityPaddle> paddlesMap = new HashMap<>();
+	
+	// match state
+	private boolean matchStarted = false;
+	private TeamColor winner = null;
 	
 	public ArkanoidMatch(ArkanoidMode mode) {
 		this.gameMode = mode;
@@ -54,9 +57,10 @@ public class ArkanoidMatch {
 		return this.gameMode;
 	}
 	
-	private void spawnPaddleFor(ArkaPlayer owner, boolean isLowerPaddle, int y) {
-		EntityPaddle paddle = new EntityPaddle(owner, world.nextEntityId(), 
-			new Location(world, world.getWidth() / 2, y, 0)
+	private void spawnPaddleFor(ArkaPlayer owner, TeamColor team, boolean isLowerPaddle, int y) {
+		EntityPaddle paddle = new EntityPaddle(world.nextEntityId(), 
+			new Location(world, world.getWidth() / 2, y, 0),
+			owner, team // paddle metadata
 		);
 		
 		paddle.setLowerPaddle(isLowerPaddle);
@@ -91,7 +95,7 @@ public class ArkanoidMatch {
 	            // calculate the Y-position offset for this paddle
 	            // RED team paddles are stacked upward (-1),
 	            // BLUE team paddles are stacked downward (+1)
-				this.spawnPaddleFor(teamPlayers.get(i), isBottomTeam,
+				this.spawnPaddleFor(teamPlayers.get(i), team, isBottomTeam,
 					baseY + (isBottomTeam ? -1 : 1) * (i * PADDLE_SPACING)
 				);
 			}
@@ -107,6 +111,7 @@ public class ArkanoidMatch {
 					initial // initial flying vector
 				)
 			);
+			ball.setPrimaryBall(true);
 			world.addEntity(ball);
 		}
 	}
@@ -114,6 +119,7 @@ public class ArkanoidMatch {
 	// events fired by subclasses/utilities class
 	public void onBallFallIntoVoid(EntityWreckingBall ball, VoidSide side) {
 		ball.remove();
+		System.out.println("the ball is primary? " + ball.isPrimaryBall());
 	}
 	
 	// this event is called when a player of this match leaves
@@ -123,6 +129,7 @@ public class ArkanoidMatch {
 	}
 	
 	public class TeamInfo {
+		private TeamColor teamColor;
 		private LinkedHashMap<ArkaPlayer, Integer> healthPoints = new LinkedHashMap<>();
 		private int teamLivesLeft;
 		private int teamScore;

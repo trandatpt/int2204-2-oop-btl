@@ -9,7 +9,7 @@ public class EntityBrick extends BreakableEntity {
 	}
 
 	@Override
-	public void tick() {
+	protected void tick() {
 	}
 
 	@Override

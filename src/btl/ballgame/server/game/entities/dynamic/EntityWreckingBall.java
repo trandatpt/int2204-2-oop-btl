@@ -2,10 +2,12 @@ package btl.ballgame.server.game.entities.dynamic;
 
 import java.util.List;
 
+import btl.ballgame.server.ArkaPlayer;
 import btl.ballgame.server.ArkanoidServer;
 import btl.ballgame.server.game.WorldEntity;
 import btl.ballgame.server.game.entities.breakable.BreakableEntity;
 import btl.ballgame.shared.libs.AABB;
+import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.Constants.*;
 import btl.ballgame.shared.libs.Location;
 import btl.ballgame.shared.libs.Vector2f;
@@ -27,6 +29,10 @@ public class EntityWreckingBall extends EntityDynamic {
 	/** Current movement speed. */
 	private float speed;
 	
+	/** Game-dependent flags. */
+	private TeamColor temporaryOwner = null;
+	private boolean secondaryBall = true;
+	
 	/**
 	 * Constructs a new Wrecking Ball entity at the specified location.
 	 *
@@ -37,6 +43,22 @@ public class EntityWreckingBall extends EntityDynamic {
 		super(id, location);
 		this.setBallScale(1);
 		this.setSpeed(DEFAULT_SPEED);
+	}
+	
+	public void setPrimaryBall(boolean prime) {
+		this.secondaryBall = !prime;
+	}
+	
+	public boolean isPrimaryBall() {
+		return !secondaryBall;
+	}
+	
+	public void setTempOwner(TeamColor temporaryOwner) {
+		this.temporaryOwner = temporaryOwner;
+	}
+	
+	public TeamColor getTempOwner() {
+		return temporaryOwner;
 	}
 	
 	/**
@@ -84,7 +106,12 @@ public class EntityWreckingBall extends EntityDynamic {
 	}
 	
 	@Override
-	public void tick() {
+	public void onSpawn() {
+		this.dataWatcher.watch(Constants.MISC_META_KEY, this.isPrimaryBall());
+	}
+	
+	@Override
+	protected void tick() {
 		// move the ball forward
 		Location currentLoc = getLocation();
 		Vector2f direction = currentLoc.getDirection().normalize();
@@ -165,6 +192,7 @@ public class EntityWreckingBall extends EntityDynamic {
 			// just another physics prop, it will softlock the game gradually 
 			// if the ball points straight up
 			if (collider instanceof EntityPaddle paddle) {
+				this.setTempOwner(paddle.getTeam());
 				if (normal.x != 0) { // SPECIAL CASE: ball bounces on the edge
 					setLocation(currentLoc.add(push));
 					setDirection(paddle.isLowerPaddle() ? new Vector2f(0, -1) : new Vector2f(0, 1));

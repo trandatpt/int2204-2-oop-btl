@@ -16,9 +16,7 @@ public class DataWatcherEntry {
 	public static DataWatcherEntry read(PacketByteBuf buffer) {
 		int keyId = buffer.readInt32();
 		byte typeId = buffer.readInt8();
-		Object value;
-		
-		value = switch (typeId) {
+		Object value = switch (typeId) {
 			case 0 -> buffer.readInt8();
 			case 1 -> buffer.readInt16();
 			case 2 -> buffer.readInt32();
@@ -26,7 +24,6 @@ public class DataWatcherEntry {
 			case 4 -> buffer.readU8String();
 			default -> throw new IllegalArgumentException("Unknown type id: " + typeId);
 		};
-		
 		return new DataWatcherEntry(keyId, typeId, value);
 	}
 

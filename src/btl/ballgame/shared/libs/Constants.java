@@ -4,6 +4,7 @@ public class Constants {
 	// meta keys (datawatcher)
 	public static final int HP_META_KEY = 0xA;
 	public static final int PADDLE_OWNER_MKEY = 0xB01;
+	public static final int MISC_META_KEY = 0xFFF;
 	
 	// misc constants
 	public static final int PADDLE_MAX_HEALTH = 100;

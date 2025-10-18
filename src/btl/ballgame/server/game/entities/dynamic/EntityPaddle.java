@@ -3,16 +3,26 @@ package btl.ballgame.server.game.entities.dynamic;
 import btl.ballgame.server.ArkaPlayer;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.Location;
+import btl.ballgame.shared.libs.Constants.TeamColor;
 
 public class EntityPaddle extends EntityDynamic {
 	private boolean lowerPaddle;
 	private ArkaPlayer player;
+	private TeamColor team;
 	private int healthMetadata;
 	
-	public EntityPaddle(ArkaPlayer p, int id, Location location) {
+	public EntityPaddle(
+		int id, Location location, // base info
+		ArkaPlayer p, TeamColor team // extras
+	) {
 		super(id, location);
 		this.player = p;
+		this.team = team;
 		setBoundingBox(36 * 2, 18);
+	}
+	
+	public TeamColor getTeam() {
+		return team;
 	}
 	
 	public void setLowerPaddle(boolean lowerPaddle) {
@@ -56,5 +66,5 @@ public class EntityPaddle extends EntityDynamic {
 	}
 	
 	@Override
-	public void tick() {}
+	protected void tick() {}
 }

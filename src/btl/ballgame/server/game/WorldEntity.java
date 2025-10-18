@@ -354,5 +354,5 @@ public abstract class WorldEntity {
 	/** Called on BEFORE entity spawn (to a specific WorldServer) */
 	public void onSpawn() {};
 	/** Called every server tick to update entity logic. */
-	public abstract void tick();
+	protected abstract void tick();
 }

@@ -44,7 +44,7 @@ public class PacketByteBuf {
 	 * Reads a packet buffer from a stream. This expects the first 4 bytes to be the
 	 * length prefix (written by {@link PacketCodec#writePacket}).
 	 *
-	 * @param in input stream (socket or file)
+	 * @param in input stream (socket)
 	 * @return a {@code PacketByteBuf} positioned at the start of the payload
 	 * @throws IOException if I/O fails
 	 */
