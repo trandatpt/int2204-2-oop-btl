@@ -9,7 +9,6 @@ public class EntityPaddle extends EntityDynamic {
 	private boolean lowerPaddle;
 	private ArkaPlayer player;
 	private TeamColor team;
-	private int healthMetadata;
 	
 	public EntityPaddle(
 		int id, Location location, // base info
@@ -55,13 +54,6 @@ public class EntityPaddle extends EntityDynamic {
 		this.dataWatcher.watch(
 			Constants.PADDLE_OWNER_MKEY,
 			player.getUniqueId().toString()
-		);
-	}
-	
-	public void setHealth(int hp) {
-		this.healthMetadata = hp;
-		this.dataWatcher.watch(
-			Constants.HP_META_KEY, this.healthMetadata
 		);
 	}
 	

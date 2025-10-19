@@ -20,7 +20,7 @@ import btl.ballgame.shared.libs.Vector2f;
  * handling.
  */
 public class EntityWreckingBall extends EntityDynamic {
-	/** Default movement speed (units per tick). */
+	/** Default movement speed (units per sec). */
 	public static final float DEFAULT_SPEED = 320.0f;
 
 	/** Default ball radius (in pixels/units). */
@@ -199,19 +199,20 @@ public class EntityWreckingBall extends EntityDynamic {
 					break;
 				}
 				
-			    AABB paddleBox = paddle.getBoundingBox();
-			    float paddleCenter = paddleBox.getCenterX();
-			    
-			    // offset from center, range [-1, 1]
-			    // the more titled the ball is to the sides (upon contact), the steeper the refl angle gets
-			    float relative = (x - paddleCenter) / (paddleBox.getWidth() / 2f);
-			    relative = Math.max(-1f, Math.min(1f, relative)); // clamp
-			    Vector2f newDir = Vector2f.fromTheta(Math.toRadians(90 - 75 * relative));
-			    if (direction.y > 0) {
-			    	newDir.y *= -1; // if the ball is coming down, force it to fly up
-			    }
-			    setDirection(newDir.normalize());
-			    break;
+				AABB paddleBox = paddle.getBoundingBox();
+				float paddleCenter = paddleBox.getCenterX();
+
+				// offset from center, range [-1, 1]
+				// the more titled the ball is to the sides (upon contact), the steeper the refl
+				// angle gets
+				float relative = (x - paddleCenter) / (paddleBox.getWidth() / 2f);
+				relative = Math.max(-1f, Math.min(1f, relative)); // clamp
+				Vector2f newDir = Vector2f.fromTheta(Math.toRadians(90 - 75 * relative));
+				if (direction.y > 0) {
+					newDir.y *= -1; // if the ball is coming down, force it to fly up
+				}
+				setDirection(newDir.normalize());
+				break;
 			}
 			
 			/** for normal physics prop, we use the {@link EntityWreckingBall#bounce(Vector2f)} */
