@@ -17,7 +17,6 @@ import btl.ballgame.protocol.packets.NetworkPacket;
 import btl.ballgame.protocol.packets.PacketHandler;
 import btl.ballgame.protocol.packets.in.IPacketPlayIn;
 import btl.ballgame.protocol.packets.in.PacketPlayInDisconnect;
-import btl.ballgame.protocol.packets.out.IPacketPlayOut;
 
 /**
  * Represents an active network connection from the client to the game server.

@@ -1,12 +1,9 @@
-package btl.ballgame.server.game;
+/* package btl.ballgame.server.game;
 
-import btl.ballgame.server.ArkanoidServer;
 import btl.ballgame.server.game.entities.breakable.EntityBrick;
 import btl.ballgame.server.game.entities.dynamic.EntityPaddle;
 import btl.ballgame.server.game.entities.dynamic.EntityWreckingBall;
-import btl.ballgame.server.game.match.ArkanoidMatch;
 import btl.ballgame.shared.libs.AABB;
-import btl.ballgame.shared.libs.Constants.ArkanoidMode;
 import btl.ballgame.shared.libs.Location;
 import btl.ballgame.shared.libs.Vector2f;
 import javax.swing.*;
@@ -22,10 +19,9 @@ public class WorldVisualizer extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private static final Map<Integer, Vector2f> vectorVisualizers = new HashMap<>();
 	private final WorldServer world;
-	private final int scale = 1; // 1 world unit = 1 pixel
+	private final int scale = 1;  //1 world unit = 1 pixel
 	
 	static EntityPaddle pad;
-	static EntityPaddle pad2;
 	public WorldVisualizer(WorldServer world) {
 		this.world = world;
 		setPreferredSize(new Dimension(world.getWidth() * scale, world.getHeight() * scale));
@@ -33,15 +29,16 @@ public class WorldVisualizer extends JPanel {
 		Random rand = new Random();
 		int worldWidth = world.getWidth();
 		int worldHeight = world.getHeight();
-		int ballCount = 5;
+		int ballCount = 36;
 
 		for (int i = 0; i < ballCount; i++) {
-			int x = rand.nextInt(32, worldWidth - 128); // -32 so ball fits
+			int x = rand.nextInt(32, worldWidth - 128);  //-32 so ball fits
 			int y = rand.nextInt(32, worldHeight - 128);
 			float dx = rand.nextFloat() * 2f - 1f;
 			float dy = rand.nextFloat() * 2f - 1f;
 			Vector2f dir = new Vector2f(dx, dy).normalize();
 			EntityWreckingBall ball = new EntityWreckingBall(i + 1, new Location(world, x, y, dir));
+			ball.setSpeed(6f);
 			world.addEntity(ball);
 		}
 		
@@ -53,11 +50,8 @@ public class WorldVisualizer extends JPanel {
 			}
 		}
 		
-		pad = new EntityPaddle(null, 1236, new Location(world, 100, 40, 0));
+		pad = new EntityPaddle(1236, new Location(world, 100, 800, 0));
 		world.addEntity(pad);
-		
-		pad2 = new EntityPaddle(null, 1836, new Location(world, 100, 650, 0));
-		world.addEntity(pad2);
 	}
 
 	public static void addVectorVisualizer(int id) {
@@ -77,14 +71,14 @@ public class WorldVisualizer extends JPanel {
 		g2 = (Graphics2D) g;
 		g2.setColor(Color.BLACK);
 		g2.fillRect(0, 0, getWidth(), getHeight());
-//		
-//		if (drawAABB) {
-//			WorldServer.toVisualize.forEach(aabb -> {
-//				g2.setColor(Color.YELLOW);
-//				g2.fillRect(aabb.minX, aabb.minY, (int) aabb.getWidth(), (int) aabb.getHeight());				
-//			});
-//			if (!pause) WorldServer.toVisualize.clear();
-//		}
+		
+		if (drawAABB) {
+			WorldServer.toVisualize.forEach(aabb -> {
+				g2.setColor(Color.YELLOW);
+				g2.fillRect(aabb.minX, aabb.minY, (int) aabb.getWidth(), (int) aabb.getHeight());				
+			});
+			if (!pause) WorldServer.toVisualize.clear();
+		}
 		
 		Collection<WorldEntity> entities = world.getEntities();
 		
@@ -124,7 +118,7 @@ public class WorldVisualizer extends JPanel {
 			}
 		}
 
-		// Optional: draw chunk grid
+		 //Optional: draw chunk grid
 		g2.setColor(new Color(255, 255, 255, 50));
 		int chunkSize = 1 << LevelChunk.CHUNK_SHIFT;
 		for (int cx = 0; cx < world.getWidth(); cx += chunkSize) {
@@ -143,9 +137,8 @@ public class WorldVisualizer extends JPanel {
 	static boolean pause = false;
 	static boolean drawAABB = false;
 	public static void main(String[] args) {
-		ArkanoidServer.main(args);
 		SwingUtilities.invokeLater(() -> {
-			WorldServer world = new WorldServer(new ArkanoidMatch(ArkanoidMode.ONE_VERSUS_ONE), 600, 700);
+			WorldServer world = new WorldServer(1920, 1080);
 			WorldVisualizer viz = new WorldVisualizer(world);
 
 			JFrame frame = new JFrame("btl.ballgame.server.game.WorldServer ICSP System");
@@ -155,8 +148,7 @@ public class WorldVisualizer extends JPanel {
 			frame.setLocationRelativeTo(null);
 			frame.setVisible(true);
 
-			System.out.println(ArkanoidServer.MS_PER_TICK);
-			new Timer(ArkanoidServer.MS_PER_TICK, e -> {
+			new Timer(15, e -> {
 				if (!pause) world.tick();
 				viz.repaint();
 			}).start();
@@ -167,8 +159,6 @@ public class WorldVisualizer extends JPanel {
 					switch (e.getKeyCode()) {
 					case KeyEvent.VK_LEFT -> pad.moveLeft();
 					case KeyEvent.VK_RIGHT -> pad.moveRight();
-					case KeyEvent.VK_Z -> pad2.moveLeft();
-					case KeyEvent.VK_C -> pad2.moveRight();
 					case KeyEvent.VK_P -> pause = !pause;
 					case KeyEvent.VK_A -> drawAABB = !drawAABB;
 					case KeyEvent.VK_V -> visualizeVec = !visualizeVec;
@@ -179,3 +169,4 @@ public class WorldVisualizer extends JPanel {
 		});
 	}
 }
+ */

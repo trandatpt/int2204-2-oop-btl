@@ -36,13 +36,7 @@ import btl.ballgame.shared.libs.Utils;
 public class ArkanoidClient {
 	public static void main(String[] args) throws IOException {
 		ArkanoidClient client = new ArkanoidClient("localhost", 3636);
-		while (true) {
-			if (client.getActiveWorld() != null) {
-				client.getActiveWorld().getAllEntities().forEach(e -> {;
-					e.render();
-				});
-			}
-		}
+
 	}
 	
 	private CServerConnection connection;
@@ -57,6 +51,7 @@ public class ArkanoidClient {
 	public ArkanoidClient(String serverAddress, int port) throws IOException {
 		this.registry = new PacketRegistry();
 		this.codec = new PacketCodec(this.registry);
+		this.entityRegistry = new CSEntityRegistry();
 		ProtoUtils.registerMutualPackets(this.registry); // ensure that the client & server share the same understanding of packet types
 		this.registerPacketHandlers();
 		this.registerEntities();

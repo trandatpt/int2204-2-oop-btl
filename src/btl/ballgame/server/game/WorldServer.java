@@ -14,7 +14,6 @@ import java.util.Set;
 
 import btl.ballgame.protocol.packets.out.IPacketPlayOut;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntitySpawn;
-import btl.ballgame.server.ArkaPlayer;
 import btl.ballgame.server.ArkanoidServer;
 import btl.ballgame.server.game.match.ArkanoidMatch;
 import btl.ballgame.shared.libs.AABB;
