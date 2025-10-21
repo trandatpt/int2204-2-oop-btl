@@ -30,7 +30,7 @@ public class ArkanoidServer {
 	
 	public static void main(String[] args) {
 		server = new ArkanoidServer(3636);
-		//server.startDedicatedServer();
+		server.startDedicatedServer();
 	}
 	
 	public static ArkanoidServer getServer() {

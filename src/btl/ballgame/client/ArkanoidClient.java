@@ -2,6 +2,7 @@ package btl.ballgame.client;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.UUID;
 
 import btl.ballgame.client.net.CServerConnection;
 import btl.ballgame.client.net.handle.ServerEntityBBSizeUpdateHandle;
@@ -10,6 +11,7 @@ import btl.ballgame.client.net.handle.ServerEntityMetadataUpdateHandle;
 import btl.ballgame.client.net.handle.ServerEntityPositionUpdateHandle;
 import btl.ballgame.client.net.handle.ServerEntitySpawnHandle;
 import btl.ballgame.client.net.handle.ServerLoginAckHandle;
+import btl.ballgame.client.net.handle.ServerMatchInitHandle;
 import btl.ballgame.client.net.handle.ServerSocketCloseHandle;
 import btl.ballgame.client.net.systems.CSEntityRegistry;
 import btl.ballgame.client.net.systems.CSWorld;
@@ -26,6 +28,7 @@ import btl.ballgame.protocol.packets.out.PacketPlayOutEntityDestroy;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntityMetadata;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntityPosition;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntitySpawn;
+import btl.ballgame.protocol.packets.out.PacketPlayOutInitMatch;
 import btl.ballgame.protocol.packets.out.PacketPlayOutLoginAck;
 import btl.ballgame.shared.libs.EntityType;
 import btl.ballgame.shared.libs.Utils;
@@ -33,6 +36,13 @@ import btl.ballgame.shared.libs.Utils;
 public class ArkanoidClient {
 	public static void main(String[] args) throws IOException {
 		ArkanoidClient client = new ArkanoidClient("localhost", 3636);
+		while (true) {
+			if (client.getActiveWorld() != null) {
+				client.getActiveWorld().getAllEntities().forEach(e -> {;
+					e.render();
+				});
+			}
+		}
 	}
 	
 	private CServerConnection connection;
@@ -40,11 +50,9 @@ public class ArkanoidClient {
 	private PacketCodec codec;
 	private CSEntityRegistry entityRegistry;
 	
+	private String userName = null;
+	private UUID userUUID = null;
 	private CSWorld activeWorld = null;
-	
-	public CSWorld getActiveWorld() {
-		return activeWorld;
-	}
 	
 	public ArkanoidClient(String serverAddress, int port) throws IOException {
 		this.registry = new PacketRegistry();
@@ -77,10 +85,32 @@ public class ArkanoidClient {
 		));
 	}
 	
+	public void logInAs(String userName, UUID uuid) {
+		this.userUUID = uuid;
+		this.userName = userName;
+	}
+	
+	public void setActiveWorld(CSWorld activeWorld) {
+		this.activeWorld = activeWorld;
+	}
+	
+	public CSWorld getActiveWorld() {
+		return activeWorld;
+	}
+	
+	public String getUserName() {
+		return userName;
+	}
+	
+	public UUID getUserUUID() {
+		return userUUID;
+	}
+	
 	private void registerPacketHandlers() {
 		this.registry.registerHandler(PacketPlayOutCloseSocket.class, new ServerSocketCloseHandle());
 		this.registry.registerHandler(PacketPlayOutLoginAck.class, new ServerLoginAckHandle());
 		// more to add
+		this.registry.registerHandler(PacketPlayOutInitMatch.class, new ServerMatchInitHandle());
 		this.registry.registerHandler(PacketPlayOutEntitySpawn.class, new ServerEntitySpawnHandle());
 		this.registry.registerHandler(PacketPlayOutEntityPosition.class, new ServerEntityPositionUpdateHandle());
 		this.registry.registerHandler(PacketPlayOutEntityMetadata.class, new ServerEntityMetadataUpdateHandle());

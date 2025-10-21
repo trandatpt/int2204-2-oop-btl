@@ -7,14 +7,16 @@ import btl.ballgame.protocol.packets.NetworkPacket;
 
 public class PacketPlayOutLoginAck extends NetworkPacket implements IPacketPlayOut {
 	private boolean success;
+	private String userName;
 	private UUID userUuid;
 	private String errorMessage;
 	
 	public PacketPlayOutLoginAck() {};
 	
-	// when the server ACCEPTS the client, return the UUID
-	public PacketPlayOutLoginAck(UUID userUUID) {
+	// when the server ACCEPTS the client, return the UUID & name
+	public PacketPlayOutLoginAck(String name, UUID userUUID) {
 		this.success = true;
+		this.userName = name;
 		this.userUuid = userUUID;
 		this.errorMessage = null;
 	}
@@ -23,6 +25,7 @@ public class PacketPlayOutLoginAck extends NetworkPacket implements IPacketPlayO
 	public PacketPlayOutLoginAck(String errorMessage) {
 		this.errorMessage = errorMessage;
 		this.success = false;
+		this.userName = null;
 		this.userUuid = null;
 	}
 	
@@ -32,6 +35,10 @@ public class PacketPlayOutLoginAck extends NetworkPacket implements IPacketPlayO
 	
 	public String getErrorMessage() {
 		return this.errorMessage;
+	}
+	
+	public String getUserName() {
+		return userName;
 	}
 	
 	public UUID getServerSideUUID() {
@@ -45,6 +52,7 @@ public class PacketPlayOutLoginAck extends NetworkPacket implements IPacketPlayO
 			buffer.writeU16String(errorMessage);
 		} else {
 			buffer.writeU8String(userUuid.toString());
+			buffer.writeU8String(userName);
 		}
 	}
 
@@ -55,6 +63,7 @@ public class PacketPlayOutLoginAck extends NetworkPacket implements IPacketPlayO
 			this.errorMessage = buffer.readU16String();
 		} else {
 			this.userUuid = UUID.fromString(buffer.readU8String());
+			this.userName = buffer.readU8String();
 		}
 	}
  }

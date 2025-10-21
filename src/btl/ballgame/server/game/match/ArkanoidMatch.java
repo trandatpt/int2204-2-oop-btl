@@ -4,6 +4,9 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import btl.ballgame.protocol.packets.out.PacketPlayOutMatchMetadata;
+import btl.ballgame.protocol.packets.out.PacketPlayOutMatchMetadata.PlayerEntry;
+import btl.ballgame.protocol.packets.out.PacketPlayOutMatchMetadata.TeamEntry;
 import btl.ballgame.server.ArkaPlayer;
 import btl.ballgame.server.ArkanoidServer;
 import btl.ballgame.server.game.WorldEntity;
@@ -385,7 +388,32 @@ public class ArkanoidMatch {
 	 * health, Arkanoid scores, FT scores, round index, and current phase.
 	 */
 	public void syncMatchStateWithClients() {
-		// TODO: implement client update
+		List<TeamEntry> teamEntries = new ArrayList<>();
+		for (TeamInfo team : teams.values()) {
+			TeamEntry t = new TeamEntry();
+			t.teamColor = (byte) team.getTeamColor().ordinal();
+			t.ftScore = (byte) team.getFTScore();
+			t.arkScore = team.getArkanoidScore();
+			t.livesRemaining = (byte) team.getLivesRemaining();
+			
+			List<PlayerEntry> players = new ArrayList<>();
+			for (ArkaPlayer p : team.getPlayers()) {
+				PlayerEntry pe = new PlayerEntry();
+				pe.uuid = p.getUniqueId(); // UUID
+				pe.health = (short) team.getHealth(p); // paddle HP
+				players.add(pe);
+			}
+
+			t.players = players.toArray(PlayerEntry[]::new);
+			teamEntries.add(t);
+		}
+
+		this.world.broadcastPackets(new PacketPlayOutMatchMetadata(
+			(byte) getGameMode().ordinal(), 
+			(byte) getCurrentPhase().ordinal(), 
+			getRoundIndex(),
+			teamEntries.toArray(TeamEntry[]::new)
+		));
 	}
 
 	/**
