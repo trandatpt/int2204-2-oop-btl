@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Semaphore;
 
 import btl.ballgame.protocol.ConnectionCtx;
+import btl.ballgame.protocol.ProtoUtils;
 import btl.ballgame.protocol.packets.NetworkPacket;
 import btl.ballgame.protocol.packets.PacketHandler;
 import btl.ballgame.protocol.packets.out.IPacketPlayOut;
@@ -70,6 +71,7 @@ public class PlayerConnection implements ConnectionCtx {
 	public PlayerConnection(ArkanoidServer server, Socket socket) throws IOException {
 		this.server = server;
 		this.clientSocket = socket;
+		
 		this.sendStream = new DataOutputStream(socket.getOutputStream());
 		this.receiveStream = new DataInputStream(socket.getInputStream());
 		

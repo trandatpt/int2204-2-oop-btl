@@ -18,7 +18,9 @@ public class ProtoUtils {
 		// inbound packets (client -> server)
 		PLAYIN_CLIENT_HELLO  	   = 0x000,
 		PLAYIN_DISCONNECT		   = 0x001,
-		PLAYIN_PONG                = 0x003,
+		PLAYIN_USER_LOG_IN         = 0x002,
+		PLAYIN_USER_SIGN_UP        = 0x003,
+		PLAYIN_PONG                = 0x004,
 		// outbound packets (server -> client)
 		PLAYOUT_LOGIN_ACK 		   = 0xC00,
 		PLAYOUT_CLOSE_SOCKET 	   = 0xC01,
@@ -28,7 +30,7 @@ public class ProtoUtils {
 		PLAYOUT_ENTITY_METADATA    = 0xC05,
 		PLAYOUT_ENTITY_BB_SIZE     = 0xC06,
 		PLAYOUT_ENTITY_DESTROY     = 0xC07,
-		PLAYOUT_MATCH_INIT         = 0xC08,
+		PLAYOUT_WORLD_INIT         = 0xC08,
 		PLAYOUT_MATCH_META_UPDATE  = 0xC09
 	;
 	
@@ -41,10 +43,14 @@ public class ProtoUtils {
 	 * @param registry The {@link PacketRegistry} to register all packets into.
 	 */
 	public static void registerMutualPackets(PacketRegistry registry) {
+		// PLAYIN (Client -> Server)
 		registry.registerPacket(PLAYIN_CLIENT_HELLO, PacketPlayInClientLogin.class, PacketPlayInClientLogin::new);
 		registry.registerPacket(PLAYIN_DISCONNECT, PacketPlayInDisconnect.class, PacketPlayInDisconnect::new);
+		registry.registerPacket(PLAYIN_USER_LOG_IN, PacketPlayInClientLogin.class, PacketPlayInClientLogin::new);
+		registry.registerPacket(PLAYIN_USER_SIGN_UP, PacketPlayInClientUserCreation.class, PacketPlayInClientUserCreation::new);
 		registry.registerPacket(PLAYIN_PONG, PacketPlayInPong.class, PacketPlayInPong::new);
 		
+		// PLAYOUT (Server -> Client)
 		registry.registerPacket(PLAYOUT_CLOSE_SOCKET, PacketPlayOutCloseSocket.class, PacketPlayOutCloseSocket::new);
 		registry.registerPacket(PLAYOUT_LOGIN_ACK, PacketPlayOutLoginAck.class, PacketPlayOutLoginAck::new);
 		registry.registerPacket(PLAYOUT_PING, PacketPlayOutPing.class, PacketPlayOutPing::new);
@@ -54,7 +60,7 @@ public class ProtoUtils {
 		registry.registerPacket(PLAYOUT_ENTITY_METADATA, PacketPlayOutEntityMetadata.class, PacketPlayOutEntityMetadata::new);
 		registry.registerPacket(PLAYOUT_ENTITY_BB_SIZE, PacketPlayOutEntityBBSizeUpdate.class, PacketPlayOutEntityBBSizeUpdate::new);
 		registry.registerPacket(PLAYOUT_ENTITY_DESTROY, PacketPlayOutEntityDestroy.class, PacketPlayOutEntityDestroy::new);
-		registry.registerPacket(PLAYOUT_MATCH_INIT, PacketPlayOutWorldInit.class, PacketPlayOutWorldInit::new);
+		registry.registerPacket(PLAYOUT_WORLD_INIT, PacketPlayOutWorldInit.class, PacketPlayOutWorldInit::new);
 		registry.registerPacket(PLAYOUT_MATCH_META_UPDATE, PacketPlayOutMatchMetadata.class, PacketPlayOutMatchMetadata::new);
 	}
 }

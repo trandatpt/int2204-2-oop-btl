@@ -11,6 +11,8 @@ import btl.ballgame.client.net.handle.ServerEntityMetadataUpdateHandle;
 import btl.ballgame.client.net.handle.ServerEntityPositionUpdateHandle;
 import btl.ballgame.client.net.handle.ServerEntitySpawnHandle;
 import btl.ballgame.client.net.handle.ServerLoginAckHandle;
+import btl.ballgame.client.net.handle.ServerMatchMetadataHandle;
+import btl.ballgame.client.net.handle.ServerPingHandle;
 import btl.ballgame.client.net.handle.ServerWorldInitHandle;
 import btl.ballgame.client.net.handle.ServerSocketCloseHandle;
 import btl.ballgame.client.net.systems.CSEntityRegistry;
@@ -30,6 +32,8 @@ import btl.ballgame.protocol.packets.out.PacketPlayOutEntityPosition;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntitySpawn;
 import btl.ballgame.protocol.packets.out.PacketPlayOutWorldInit;
 import btl.ballgame.protocol.packets.out.PacketPlayOutLoginAck;
+import btl.ballgame.protocol.packets.out.PacketPlayOutMatchMetadata;
+import btl.ballgame.protocol.packets.out.PacketPlayOutPing;
 import btl.ballgame.shared.libs.EntityType;
 import btl.ballgame.shared.libs.Utils;
 
@@ -61,10 +65,13 @@ public class ArkanoidClient {
 	}
 	
 	private void registerPacketHandlers() {
+		// connection/protocol handlers
 		this.registry.registerHandler(PacketPlayOutCloseSocket.class, new ServerSocketCloseHandle());
 		this.registry.registerHandler(PacketPlayOutLoginAck.class, new ServerLoginAckHandle());
+		this.registry.registerHandler(PacketPlayOutPing.class, new ServerPingHandle());
 		// more to add
 		this.registry.registerHandler(PacketPlayOutWorldInit.class, new ServerWorldInitHandle());
+		this.registry.registerHandler(PacketPlayOutMatchMetadata.class, new ServerMatchMetadataHandle());
 		this.registry.registerHandler(PacketPlayOutEntitySpawn.class, new ServerEntitySpawnHandle());
 		this.registry.registerHandler(PacketPlayOutEntityPosition.class, new ServerEntityPositionUpdateHandle());
 		this.registry.registerHandler(PacketPlayOutEntityMetadata.class, new ServerEntityMetadataUpdateHandle());

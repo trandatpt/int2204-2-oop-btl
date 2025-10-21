@@ -13,6 +13,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import btl.ballgame.client.ArkanoidClient;
 import btl.ballgame.protocol.ConnectionCtx;
+import btl.ballgame.protocol.ProtoUtils;
 import btl.ballgame.protocol.packets.NetworkPacket;
 import btl.ballgame.protocol.packets.PacketHandler;
 import btl.ballgame.protocol.packets.in.IPacketPlayIn;
@@ -61,6 +62,12 @@ public class CServerConnection implements ConnectionCtx {
 		
 		this.sendStream = new DataOutputStream(socket.getOutputStream());
 		this.receiveStream = new DataInputStream(socket.getInputStream());
+		
+		// PWP specifications: magic bytes (0x544824) -> Protocol version -> magic footer (0x24E12)
+//		sendStream.writeInt(0x544824);
+//		sendStream.write(ProtoUtils.PROTOCOL_VERSION);
+//		sendStream.writeInt(0x24E12);
+//		sendStream.flush();
 		
 		// packet listening thread
 		this.packetListenerThread = new Thread(() -> {
