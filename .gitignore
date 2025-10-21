@@ -2,6 +2,7 @@
 /artifacts
 /target/
 target/
+/out
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
