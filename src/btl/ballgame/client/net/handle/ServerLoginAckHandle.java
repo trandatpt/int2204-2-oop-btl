@@ -9,6 +9,6 @@ public class ServerLoginAckHandle implements PacketHandler<PacketPlayOutLoginAck
 	@Override
 	public void handle(PacketPlayOutLoginAck packet, CServerConnection context) {
 		ArkanoidClient client = context.client;
-		client.logInAs(packet.getUserName(), packet.getServerSideUUID());
+		client.setUser(packet.getUserName(), packet.getServerSideUUID());
 	}
 }

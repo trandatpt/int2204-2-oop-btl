@@ -11,7 +11,7 @@ import btl.ballgame.client.net.handle.ServerEntityMetadataUpdateHandle;
 import btl.ballgame.client.net.handle.ServerEntityPositionUpdateHandle;
 import btl.ballgame.client.net.handle.ServerEntitySpawnHandle;
 import btl.ballgame.client.net.handle.ServerLoginAckHandle;
-import btl.ballgame.client.net.handle.ServerMatchInitHandle;
+import btl.ballgame.client.net.handle.ServerWorldInitHandle;
 import btl.ballgame.client.net.handle.ServerSocketCloseHandle;
 import btl.ballgame.client.net.systems.CSEntityRegistry;
 import btl.ballgame.client.net.systems.CSWorld;
@@ -28,7 +28,7 @@ import btl.ballgame.protocol.packets.out.PacketPlayOutEntityDestroy;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntityMetadata;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntityPosition;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntitySpawn;
-import btl.ballgame.protocol.packets.out.PacketPlayOutInitMatch;
+import btl.ballgame.protocol.packets.out.PacketPlayOutWorldInit;
 import btl.ballgame.protocol.packets.out.PacketPlayOutLoginAck;
 import btl.ballgame.shared.libs.EntityType;
 import btl.ballgame.shared.libs.Utils;
@@ -44,9 +44,8 @@ public class ArkanoidClient {
 	private PacketCodec codec;
 	private CSEntityRegistry entityRegistry;
 	
-	private String userName = null;
-	private UUID userUUID = null;
-	private CSWorld activeWorld = null;
+	private ClientPlayer clientPlayer;
+	private ClientArkanoidMatch activeMatch;
 	
 	public ArkanoidClient(String serverAddress, int port) throws IOException {
 		this.registry = new PacketRegistry();
@@ -59,6 +58,18 @@ public class ArkanoidClient {
 		this.connection = new CServerConnection(
 			new Socket(serverAddress, port), this
 		);
+	}
+	
+	private void registerPacketHandlers() {
+		this.registry.registerHandler(PacketPlayOutCloseSocket.class, new ServerSocketCloseHandle());
+		this.registry.registerHandler(PacketPlayOutLoginAck.class, new ServerLoginAckHandle());
+		// more to add
+		this.registry.registerHandler(PacketPlayOutWorldInit.class, new ServerWorldInitHandle());
+		this.registry.registerHandler(PacketPlayOutEntitySpawn.class, new ServerEntitySpawnHandle());
+		this.registry.registerHandler(PacketPlayOutEntityPosition.class, new ServerEntityPositionUpdateHandle());
+		this.registry.registerHandler(PacketPlayOutEntityMetadata.class, new ServerEntityMetadataUpdateHandle());
+		this.registry.registerHandler(PacketPlayOutEntityBBSizeUpdate.class, new ServerEntityBBSizeUpdateHandle());
+		this.registry.registerHandler(PacketPlayOutEntityDestroy.class, new ServerEntityDestroyHandle());
 	}
 	
 	public void login(String username, String password) {
@@ -80,37 +91,24 @@ public class ArkanoidClient {
 		));
 	}
 	
-	public void logInAs(String userName, UUID uuid) {
-		this.userUUID = uuid;
-		this.userName = userName;
+	public void setUser(String userName, UUID uuid) {
+		this.clientPlayer = new ClientPlayer(userName, uuid);
 	}
 	
-	public void setActiveWorld(CSWorld activeWorld) {
-		this.activeWorld = activeWorld;
+	public void setActiveMatch(ClientArkanoidMatch activeMatch) {
+		this.activeMatch = activeMatch;
+	}
+	
+	public ClientArkanoidMatch getActiveMatch() {
+		return activeMatch;
 	}
 	
 	public CSWorld getActiveWorld() {
-		return activeWorld;
+		return activeMatch == null ? null : activeMatch.getGameWorld();
 	}
 	
-	public String getUserName() {
-		return userName;
-	}
-	
-	public UUID getUserUUID() {
-		return userUUID;
-	}
-	
-	private void registerPacketHandlers() {
-		this.registry.registerHandler(PacketPlayOutCloseSocket.class, new ServerSocketCloseHandle());
-		this.registry.registerHandler(PacketPlayOutLoginAck.class, new ServerLoginAckHandle());
-		// more to add
-		this.registry.registerHandler(PacketPlayOutInitMatch.class, new ServerMatchInitHandle());
-		this.registry.registerHandler(PacketPlayOutEntitySpawn.class, new ServerEntitySpawnHandle());
-		this.registry.registerHandler(PacketPlayOutEntityPosition.class, new ServerEntityPositionUpdateHandle());
-		this.registry.registerHandler(PacketPlayOutEntityMetadata.class, new ServerEntityMetadataUpdateHandle());
-		this.registry.registerHandler(PacketPlayOutEntityBBSizeUpdate.class, new ServerEntityBBSizeUpdateHandle());
-		this.registry.registerHandler(PacketPlayOutEntityDestroy.class, new ServerEntityDestroyHandle());
+	public ClientPlayer getPlayer() {
+		return clientPlayer;
 	}
 	
 	private void registerEntities() {		

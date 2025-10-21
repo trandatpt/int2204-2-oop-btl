@@ -4,16 +4,16 @@ import btl.ballgame.protocol.PacketByteBuf;
 import btl.ballgame.protocol.packets.NetworkPacket;
 import btl.ballgame.shared.libs.IWorld;
 
-public class PacketPlayOutInitMatch extends NetworkPacket implements IPacketPlayOut {
+public class PacketPlayOutWorldInit extends NetworkPacket implements IPacketPlayOut {
 	private int worldWidth, worldHeight;
 	
-	public PacketPlayOutInitMatch() {}
+	public PacketPlayOutWorldInit() {}
 	
-	public PacketPlayOutInitMatch(IWorld world) {
+	public PacketPlayOutWorldInit(IWorld world) {
 		this(world.getWidth(), world.getHeight());
 	}
 	
-	public PacketPlayOutInitMatch(int ww, int wh) {
+	public PacketPlayOutWorldInit(int ww, int wh) {
 		this.worldWidth = ww;
 		this.worldHeight = wh;
 	}

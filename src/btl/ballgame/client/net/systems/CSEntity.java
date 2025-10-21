@@ -118,6 +118,14 @@ public abstract class CSEntity {
 		return boundingBox;
 	}
 	
+	public int getWidth() {
+		return width;
+	}
+	
+	public int getHeight() {
+		return height;
+	}
+	
 	/** Called before the entity's DataWatcher is updated. */
 	public void onBeforeWatcherUpdate() {};
 	/** Called after the entity's DataWatcher has been updated. */

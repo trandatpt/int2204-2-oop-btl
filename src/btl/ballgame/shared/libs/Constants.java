@@ -1,6 +1,10 @@
 package btl.ballgame.shared.libs;
 
 public class Constants {
+	public static final int TICKS_PER_SECOND = 30;
+	public static final int MS_PER_TICK = (int) (1000.f / TICKS_PER_SECOND);
+	public static final int NS_PER_TICK = (int) 1_000_000_000f / TICKS_PER_SECOND;
+	
 	// meta keys (datawatcher)
 	public static final int HP_META_KEY = 0xA;
 	public static final int PADDLE_OWNER_MKEY = 0xB01;

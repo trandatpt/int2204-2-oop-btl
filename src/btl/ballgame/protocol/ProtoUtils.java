@@ -54,7 +54,7 @@ public class ProtoUtils {
 		registry.registerPacket(PLAYOUT_ENTITY_METADATA, PacketPlayOutEntityMetadata.class, PacketPlayOutEntityMetadata::new);
 		registry.registerPacket(PLAYOUT_ENTITY_BB_SIZE, PacketPlayOutEntityBBSizeUpdate.class, PacketPlayOutEntityBBSizeUpdate::new);
 		registry.registerPacket(PLAYOUT_ENTITY_DESTROY, PacketPlayOutEntityDestroy.class, PacketPlayOutEntityDestroy::new);
-		registry.registerPacket(PLAYOUT_MATCH_INIT, PacketPlayOutInitMatch.class, PacketPlayOutInitMatch::new);
+		registry.registerPacket(PLAYOUT_MATCH_INIT, PacketPlayOutWorldInit.class, PacketPlayOutWorldInit::new);
 		registry.registerPacket(PLAYOUT_MATCH_META_UPDATE, PacketPlayOutMatchMetadata.class, PacketPlayOutMatchMetadata::new);
 	}
 }

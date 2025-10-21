@@ -1,17 +1,10 @@
 package btl.ballgame.client.net.systems.entities;
 
-import btl.ballgame.client.net.systems.CSEntity;
+import btl.ballgame.client.net.systems.CSInterpolatedEntity;
 
-public class CEntityWreckingBall extends CSEntity {
+public class CEntityWreckingBall extends CSInterpolatedEntity {
 	@Override
 	public void render() {
-	}
-	
-	@Override
-	public void onBeforeLocationUpdate() {
-	}
-	
-	@Override
-	public void onAfterLocationUpdate() {
+		this.computeLerps();
 	}
 }

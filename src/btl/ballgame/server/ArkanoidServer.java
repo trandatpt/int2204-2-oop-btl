@@ -12,6 +12,7 @@ import btl.ballgame.server.net.NetworkManager;
 import btl.ballgame.server.net.PlayerConnection;
 import btl.ballgame.server.net.handle.ClientDisconnectHandle;
 import btl.ballgame.server.net.handle.ClientLoginHandle;
+import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.EntityType;
 import btl.ballgame.protocol.PacketCodec;
 import btl.ballgame.protocol.PacketRegistry;
@@ -23,8 +24,8 @@ public class ArkanoidServer {
 	public static final int VERSION_NUMERIC = 1;
 	
 	/** Each Arkanoid world ticks at a fixed 30 TPS */
-	public static final int TICKS_PER_SECOND = 30;
-	public static final int MS_PER_TICK = (int) (1000.f / TICKS_PER_SECOND);
+	public static final int TICKS_PER_SECOND = Constants.TICKS_PER_SECOND;
+	public static final int MS_PER_TICK = Constants.MS_PER_TICK;
 	
 	private static ArkanoidServer server = null;
 	

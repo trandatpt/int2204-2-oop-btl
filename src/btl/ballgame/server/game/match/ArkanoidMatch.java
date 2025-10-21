@@ -400,7 +400,7 @@ public class ArkanoidMatch {
 			for (ArkaPlayer p : team.getPlayers()) {
 				PlayerEntry pe = new PlayerEntry();
 				pe.uuid = p.getUniqueId(); // UUID
-				pe.health = (short) team.getHealth(p); // paddle HP
+				pe.health = (byte) team.getHealth(p); // paddle HP
 				players.add(pe);
 			}
 
