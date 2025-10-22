@@ -22,7 +22,7 @@ public class LoginMenu extends Window{
     private final Button clearall;
     private final Button score;
     private final Button link;
-    private final Button sever;
+    private final Button server;
     private final Button exit;
     
     public LoginMenu(WindowManager manager) {
@@ -43,7 +43,7 @@ public class LoginMenu extends Window{
         this.clearall = new Button("Clear All Accounts");
         this.score = new Button("High Score");
         link         = new Button("Fanpage");
-        this.sever = new Button("Return to the server selection");
+        this.server = new Button("Return to the server selection");
         this.exit = new Button("Exit");
 
         manager.print();
@@ -136,7 +136,7 @@ public class LoginMenu extends Window{
             }
         });
 
-        sever.setOnAction(e -> {
+        server.setOnAction(e -> {
             manager.back();
         });
 
@@ -144,7 +144,7 @@ public class LoginMenu extends Window{
 
 
 
-        VBox buttons = new VBox(10, usernameField, passwordField, login, create, forgot, clearall,score, link, sever, exit);
+        VBox buttons = new VBox(10, usernameField, passwordField, login, create, forgot, clearall,score, link, server, exit);
         buttons.setAlignment(Pos.CENTER);
 
         VBox loginBox = new VBox(10, label, buttons);

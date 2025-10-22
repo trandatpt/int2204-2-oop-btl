@@ -1,4 +1,4 @@
-package btl.ballgame.client.ui.sever;
+package btl.ballgame.client.ui.server;
 
 import btl.ballgame.client.ui.login.LoginMenu;
 import btl.ballgame.client.ui.menu.Exit;
@@ -11,7 +11,7 @@ import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.VBox;
 
-public class PickSever extends Window{
+public class PickServer extends Window{
     WindowManager manager;
     private Label label;
     private Button offline;
@@ -21,18 +21,18 @@ public class PickSever extends Window{
     private Button online;
     private Button exit;
 
-    public PickSever(WindowManager manager, String sever0, String sever1) {
+    public PickServer(WindowManager manager, String server0, String server1) {
         this.manager = manager;
         label = new Label("");
         offline = new Button("Offline");
-        sv0 = new MenuItem(sever0);
-        sv1 = new MenuItem(sever1);
-        onlineButton = new MenuButton("Select Sever", null, sv0, sv1);
+        sv0 = new MenuItem(server0);
+        sv1 = new MenuItem(server1);
+        onlineButton = new MenuButton("Select Server", null, sv0, sv1);
         online = new Button("Online");
         exit = new Button("Exit");
         manager.print();
-        setTitle("Chọn Sever");
-        setwindowId("pickseverid");
+        setTitle("Chọn server");
+        setwindowId("pickserverid");
         initUI();
     }
 
@@ -51,22 +51,22 @@ public class PickSever extends Window{
         //onlineButton.setOnMouseExited(e -> onlineButton.hide());
 
         sv0.setOnAction(e -> {
-            selectSever(onlineButton, sv0.getText());
+            selectserver(onlineButton, sv0.getText());
         });
 
         sv1.setOnAction(e -> {
-            selectSever(onlineButton, sv1.getText());
+            selectserver(onlineButton, sv1.getText());
         });
 
         online.setOnAction(e -> {
-            if (onlineButton.getText().equals("Select Sever")) {
-                System.out.println("sever chưa được chọn");
+            if (onlineButton.getText().equals("Select Server")) {
+                System.out.println("server chưa được chọn");
                 label.setText("The server has not been selected");
             }
             else {
                 LoginMenu login = new LoginMenu(manager);
-                System.out.println("sever đã được chọn là: " + onlineButton.getText());
-                System.out.println("Connect to Sever...");
+                System.out.println("server đã được chọn là: " + onlineButton.getText());
+                System.out.println("Connect to server...");
 
                 label.setText("The server has been selected as " + onlineButton.getText());
 
@@ -74,7 +74,7 @@ public class PickSever extends Window{
                 delay(2, () -> {
                     label.setText("");
                     onlineButton.hide();
-                    onlineButton.setText("Select Sever");
+                    onlineButton.setText("Select server");
                     manager.show(login, login.getTitle(), login.getwindowId());
                 });
             }
@@ -87,16 +87,16 @@ public class PickSever extends Window{
         VBox pick = new VBox(20, offline, online, onlineButton, exit);
         pick.setAlignment(Pos.CENTER);
 
-        VBox sever = new VBox(30, label, pick);
-        sever.setAlignment(Pos.CENTER);
+        VBox server = new VBox(30, label, pick);
+        server.setAlignment(Pos.CENTER);
 
-        this.getChildren().add(sever);
+        this.getChildren().add(server);
     }
 
-    private void selectSever(MenuButton button, String severname) {
-        button.setText(severname);
+    private void selectserver(MenuButton button, String servername) {
+        button.setText(servername);
         button.hide();
-        System.out.println("đã chọn sever: " + severname);
+        System.out.println("đã chọn server: " + servername);
     }
     
 }
