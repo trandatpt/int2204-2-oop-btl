@@ -37,12 +37,7 @@ import btl.ballgame.protocol.packets.out.PacketPlayOutPing;
 import btl.ballgame.shared.libs.EntityType;
 import btl.ballgame.shared.libs.Utils;
 
-public class ArkanoidClient {
-	public static void main(String[] args) throws IOException {
-		ArkanoidClient client = new ArkanoidClient("localhost", 3636);
-		
-	}
-	
+public class ArkanoidClientCore {
 	private CServerConnection connection;
 	private PacketRegistry registry;
 	private PacketCodec codec;
@@ -51,7 +46,7 @@ public class ArkanoidClient {
 	private ClientPlayer clientPlayer;
 	private ClientArkanoidMatch activeMatch;
 	
-	public ArkanoidClient(String serverAddress, int port) throws IOException {
+	public ArkanoidClientCore(String serverAddress, int port) throws IOException {
 		this.registry = new PacketRegistry();
 		this.codec = new PacketCodec(this.registry);
 		this.entityRegistry = new CSEntityRegistry();

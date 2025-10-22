@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import btl.ballgame.client.ArkanoidClient;
+import btl.ballgame.client.ArkanoidClientCore;
 import btl.ballgame.protocol.ConnectionCtx;
 import btl.ballgame.protocol.ProtoUtils;
 import btl.ballgame.protocol.packets.NetworkPacket;
@@ -45,7 +45,7 @@ public class CServerConnection implements ConnectionCtx {
 	private Thread packetListenerThread;
 	private Thread packetDispatcherThread;
 	
-	public final ArkanoidClient client;
+	public final ArkanoidClientCore client;
 	
 	@SuppressWarnings("unchecked")    
 	/**
@@ -53,10 +53,10 @@ public class CServerConnection implements ConnectionCtx {
      * Initializes input/output streams and spawns the packet listener and dispatcher threads.
      *
      * @param socket the socket connected to the server
-     * @param client the {@link ArkanoidClient} instance providing packet handling and codec utilities
+     * @param client the {@link ArkanoidClientCore} instance providing packet handling and codec utilities
      * @throws IOException if an I/O error occurs while creating the input/output streams
      */
-	public CServerConnection(Socket socket, ArkanoidClient client) throws IOException {
+	public CServerConnection(Socket socket, ArkanoidClientCore client) throws IOException {
 		this.socket = socket;
 		this.client = client;
 		
