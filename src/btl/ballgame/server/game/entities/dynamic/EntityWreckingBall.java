@@ -2,10 +2,9 @@ package btl.ballgame.server.game.entities.dynamic;
 
 import java.util.List;
 
-import btl.ballgame.server.ArkaPlayer;
 import btl.ballgame.server.ArkanoidServer;
 import btl.ballgame.server.game.WorldEntity;
-import btl.ballgame.server.game.entities.breakable.BreakableEntity;
+import btl.ballgame.server.game.entities.BreakableEntity;
 import btl.ballgame.shared.libs.AABB;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.Constants.*;
@@ -19,7 +18,7 @@ import btl.ballgame.shared.libs.Vector2f;
  * response with paddles and breakable blocks, and out-of-bounds (void)
  * handling.
  */
-public class EntityWreckingBall extends EntityDynamic {
+public class EntityWreckingBall extends WorldEntity {
 	/** Default movement speed (units per sec). */
 	public static final float DEFAULT_SPEED = 320.0f;
 

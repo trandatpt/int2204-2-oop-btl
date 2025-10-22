@@ -27,7 +27,10 @@ public class ClientLoginHandle implements PacketHandler<PacketPlayInClientLogin,
 		// TODO: check for password
 		PacketPlayOutLoginAck aLoginAck;
 		try {
-			ArkaPlayer player = ArkanoidServer.getServer().getPlayerManager().addPlayer(context, username);
+			ArkaPlayer player = ArkanoidServer.getServer()
+				.getPlayerManager()
+				.addPlayer(context, username)
+			;
 			aLoginAck = new PacketPlayOutLoginAck(player.getName(), player.getUniqueId()); // success
 		} catch (Exception e) {
 			aLoginAck = new PacketPlayOutLoginAck(e.getMessage());

@@ -52,7 +52,6 @@ public class ArkanoidMatch {
 				this.world.tick();
 				this.onMatchTick();
 			}
-			this.world.notifyPlayerDispatchers();
 		}, 0, ArkanoidServer.MS_PER_TICK, TimeUnit.MILLISECONDS);
 	}
 
@@ -61,25 +60,6 @@ public class ArkanoidMatch {
 	 * bricks as required.
 	 */
 	public void prepareMatch() {
-		switch (gameMode) {
-		case SOLO_ENDLESS -> prepareClassicRound();
-		default -> preparePvPRound();
-		}
-	}
-
-	/**
-	 * Prepares a new round in Classic single-player mode. Spawns one paddle, one
-	 * neutral ball, and procedural bricks.
-	 */
-	private void prepareClassicRound() {
-		spawnPaddles();
-	}
-
-	/**
-	 * Prepares a new round in PvP arena mode. Spawns team paddles, balls, and
-	 * static bricks.
-	 */
-	private void preparePvPRound() {
 		spawnPaddles();
 	}
 	

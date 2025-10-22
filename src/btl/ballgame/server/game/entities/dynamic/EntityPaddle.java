@@ -1,11 +1,12 @@
 package btl.ballgame.server.game.entities.dynamic;
 
 import btl.ballgame.server.ArkaPlayer;
+import btl.ballgame.server.game.entities.ControllableEntity;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.Location;
 import btl.ballgame.shared.libs.Constants.TeamColor;
 
-public class EntityPaddle extends EntityDynamic {
+public class EntityPaddle extends ControllableEntity {
 	private boolean lowerPaddle;
 	private ArkaPlayer player;
 	private TeamColor team;

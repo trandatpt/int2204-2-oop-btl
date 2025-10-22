@@ -1,13 +1,20 @@
 package btl.ballgame.server.net;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import btl.ballgame.protocol.packets.out.IPacketPlayOut;
 
 public class NetworkManager {
-	private final List<PlayerConnection> connections = Collections.synchronizedList(new ArrayList<>());
+	private final Set<PlayerConnection> connections = Collections.synchronizedSet(new LinkedHashSet<>());	
+	
+	public void notifyAllDispatcher() {
+		for (PlayerConnection conn : connections) {
+			conn.notifyDispatcher();
+		}
+	}
 	
 	public void track(PlayerConnection conn) {
 		connections.add(conn);
@@ -18,12 +25,14 @@ public class NetworkManager {
 	}
 	
 	public void broadcast(IPacketPlayOut packet) {
-		for (PlayerConnection conn : connections) {
-			conn.sendPacket(packet);
+		synchronized (connections) {
+			for (PlayerConnection conn : connections) {
+				conn.sendPacket(packet);
+			}
 		}
 	}
 	
-	public List<PlayerConnection> getConnections() {
-		return Collections.unmodifiableList(connections);
+	public Collection<PlayerConnection> getConnections() {
+		return Collections.unmodifiableSet(connections);
 	}
 }

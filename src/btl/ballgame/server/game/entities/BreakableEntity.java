@@ -1,17 +1,17 @@
-package btl.ballgame.server.game.entities.breakable;
+package btl.ballgame.server.game.entities;
 
-import btl.ballgame.server.game.entities.dynamic.EntityDynamic;
+import btl.ballgame.server.game.WorldEntity;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.Location;
 
 /**
- * Represents a dynamic entity in the game world that can take damage
+ * Represents a dynamic/static entity in the game world that can take damage
  * and eventually break when its health reaches zero.
  * 
  * This abstract class defines the basic behavior for any "breakable" entity.
  * Subclasses must define their maximum health and what happens when the entity breaks.
  */
-public abstract class BreakableEntity extends EntityDynamic {
+public abstract class BreakableEntity extends WorldEntity {
 	// the current remaining health of this entity
 	private int remainingHealth;
 	
@@ -59,7 +59,7 @@ public abstract class BreakableEntity extends EntityDynamic {
 	 * Called when the entity's health reaches zero. 
 	 * Subclasses must define what happens when the object breaks.
 	 */
-	abstract void onObjectBroken();
+	public abstract void onObjectBroken();
 
 	/**
 	 * Returns the maximum health for this entity type. 
@@ -67,5 +67,5 @@ public abstract class BreakableEntity extends EntityDynamic {
 	 *
 	 * @return the maximum health value
 	 */
-	abstract int getMaxHealth();
+	public abstract int getMaxHealth();
 }

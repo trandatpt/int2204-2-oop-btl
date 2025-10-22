@@ -40,7 +40,7 @@ import btl.ballgame.shared.libs.Utils;
 public class ArkanoidClient {
 	public static void main(String[] args) throws IOException {
 		ArkanoidClient client = new ArkanoidClient("localhost", 3636);
-
+		
 	}
 	
 	private CServerConnection connection;
@@ -79,6 +79,11 @@ public class ArkanoidClient {
 		this.registry.registerHandler(PacketPlayOutEntityDestroy.class, new ServerEntityDestroyHandle());
 	}
 	
+	/**
+	 * Send a login packet to the server
+	 * @param username
+	 * @param password
+	 */
 	public void login(String username, String password) {
 		connection.sendPacket(new PacketPlayInClientLogin(
 			username, // Login credentials

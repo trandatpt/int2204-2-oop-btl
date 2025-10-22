@@ -112,8 +112,6 @@ public class WorldServer implements IWorld {
 	
 	/**
 	 * Performs a single server tick, updating all entities in the world.
-	 * You should perform a {@link WorldServer#notifyPlayerDispatchers()} after 
-	 * this method!
 	 * <p>
 	 * This should be called at a {@link ArkanoidServer#TICKS_PER_SECOND} rate 
 	 * by the Arkanoid Match executor.
@@ -125,15 +123,6 @@ public class WorldServer implements IWorld {
 		});
 		entitiesToBeRemoved.forEach(entity -> entities.remove(entity.getId()));
 		entitiesToBeRemoved.clear();
-	}
-	
-	/**
-	 * <b>RECOMMENDED</b>: At the end of the tick, flushes outbound 
-	 * packets queue for all players in the match.
-	 */
-	public void notifyPlayerDispatchers() {
-		// flushes outbound packets (save network bandwidth)
-		match.getPlayers().forEach(p -> p.playerConnection.notifyDispatcher());
 	}
 	
 	/**

@@ -3,6 +3,8 @@ package btl.ballgame.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import btl.ballgame.server.game.EntityRegistry;
 import btl.ballgame.server.game.entities.breakable.EntityBrick;
@@ -14,6 +16,7 @@ import btl.ballgame.server.net.handle.ClientDisconnectHandle;
 import btl.ballgame.server.net.handle.ClientLoginHandle;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.EntityType;
+import btl.ballgame.shared.libs.Constants.MatchPhase;
 import btl.ballgame.protocol.PacketCodec;
 import btl.ballgame.protocol.PacketRegistry;
 import btl.ballgame.protocol.ProtoUtils;
@@ -67,6 +70,14 @@ public class ArkanoidServer {
 	
 	public void startDedicatedServer() {
 		System.out.println("[TEST] Started dedi server");
+		
+		// notify all network dispatchers to flush queued packets at
+		// the tick rate
+		Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
+			netMan.notifyAllDispatcher();
+		}, 0, ArkanoidServer.MS_PER_TICK, TimeUnit.MILLISECONDS);
+		
+		// begin listening to player connection
 		while (true) {
 			try {
 				Socket client = serverSocket.accept();

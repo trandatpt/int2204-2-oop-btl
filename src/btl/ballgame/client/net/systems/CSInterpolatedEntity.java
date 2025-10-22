@@ -2,6 +2,7 @@ package btl.ballgame.client.net.systems;
 
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.Location;
+import javafx.scene.canvas.GraphicsContext;
 
 import static btl.ballgame.shared.libs.Utils.*;
 
@@ -12,7 +13,7 @@ public abstract class CSInterpolatedEntity extends CSEntity {
 	private long lastPosUpdateNanos;
 	
 	// use these to render (x,y is CENTERED, NOT TOP LEFT!!!!!)
-	protected int renderX, renderY, renderRot;
+	private int renderX, renderY, renderRot;
 	
 	@Override
 	public void onBeforeLocationUpdate() {
@@ -45,9 +46,9 @@ public abstract class CSInterpolatedEntity extends CSEntity {
 	}
 	
 	// ---- RENDER LOOP ----
-	public void computeLerps() {
+	protected final void computeLerps() {
 		float posAlpha = getAlpha(lastPosUpdateNanos);
-		Location loc = getServerLocation();
+		Location loc = getMutableServerLocation(); // faster, prevent object creation
 		this.renderX = intLerp(oldX, loc.getX(), posAlpha);
 		this.renderY = intLerp(oldY, loc.getY(), posAlpha);
 		this.renderRot = intLerp(oldRot, loc.getRotation(), posAlpha);
@@ -63,5 +64,38 @@ public abstract class CSInterpolatedEntity extends CSEntity {
 		return Math.min(1.0f, 
 			(System.nanoTime() - last) / (Constants.NS_PER_TICK * 1.f)
 		);
+	}
+	
+	// --- HIER CLASS SIGNATURE ---
+	// supply the renderer with easy-to-access LERP'ed data
+	// for rendering smooth visuals (standardized)
+	@Override
+	public int getRenderX() {
+		return this.renderX;
+	}
+	
+	@Override
+	public int getRenderY() {
+		return this.renderY;
+	}
+	
+	@Override
+	public int getRenderRotation() {
+		return this.renderRot;
+	}
+	
+	@Override
+	public int getRenderWidth() {
+		return this.renderWidth;
+	}
+	
+	@Override
+	public int getRenderHeight() {
+		return this.renderHeight;
+	}
+	
+	@Override
+	public void render(GraphicsContext cv) {
+		this.computeLerps();
 	}
 }
