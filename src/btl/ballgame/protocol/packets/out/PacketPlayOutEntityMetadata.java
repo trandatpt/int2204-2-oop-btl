@@ -35,4 +35,4 @@ public class PacketPlayOutEntityMetadata extends NetworkPacket implements IPacke
 		this.metadata = new DataWatcher();
 		this.metadata.read(buffer);
 	}
- }
+}

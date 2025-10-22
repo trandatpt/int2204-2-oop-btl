@@ -58,7 +58,7 @@ public class PlayerConnection implements ConnectionCtx {
 	 * 
 	 * @apiNote This connection uses a PASSIVE DISPATCHER model!<br>
 	 * Outbound packets (to the client) are not pushed automatically.
-	 * To trigger transmission, {@link PlayerConnection#notifyDispatcher()} 
+	 * To trigger transmission, {@link PlayerConnection#notifyDispatcher()}
 	 * must be called!
 	 * 
 	 * @param server the game server managing this connection
@@ -66,7 +66,7 @@ public class PlayerConnection implements ConnectionCtx {
 	 * @throws IOException if an I/O error occurs when creating the input/output
 	 *                     streams
 	 */
-	@SuppressWarnings("unchecked")    
+	@SuppressWarnings("unchecked")
 	public PlayerConnection(ArkanoidServer server, Socket socket) throws IOException {
 		this.server = server;
 		this.clientSocket = socket;

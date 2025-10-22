@@ -73,7 +73,42 @@ public class ArkanoidMatch {
 	 */
 	private void prepareClassicRound() {
 		spawnPaddles();
+		testPerlinBricks();
 	}
+
+	/**
+ * Sinh gạch ngẫu nhiên bằng Perlin noise để test.
+ */
+	public void testPerlinBricks() {
+		int cols = 12;
+		int rows = 10;
+		int brickWidth = 48;
+		int brickHeight = 18;
+
+		int startX = (world.getWidth() - cols * brickWidth) / 2;
+		int startY = 150;
+
+		for (int row = 0; row < rows; row++) {
+			for (int col = 0; col < cols; col++) {
+				// Lấy giá trị noise tại ô (col, row)
+                double n = PerlinNoise2D.noise(col * 0.3, row * 0.3);
+                double val = (n + 1) / 2.0; // [-1,1] → [0,1]
+
+                // Giá trị thấp => bỏ qua (trống)
+                if (val < 0.4) continue;
+				// Tạo brick
+                EntityBrick brick = new EntityBrick(
+                    world.nextEntityId(),
+                    new Location(world,
+                    startX + col * brickWidth,
+                    startY + row * brickHeight,
+                    0)
+                );
+			world.addEntity(brick);
+            }
+        }
+    }
+
 
 	/**
 	 * Prepares a new round in PvP arena mode. Spawns team paddles, balls, and
@@ -179,6 +214,47 @@ public class ArkanoidMatch {
 		});
 	}
 
+	// private static final class Perlin2D {
+	// 	private final int[] p = new int[512];
+	// 	Perlin2D(long seed){
+	// 		int[] perm = new int[256];
+    //         for(int i=0;i<256;i++) perm[i]=i;
+    //         Random rnd = new Random(seed);
+    //         for(int i=255;i>0;i--){
+    //             int j=rnd.nextInt(i+1);
+    //             int t=perm[i]; perm[i]=perm[j]; perm[j]=t;
+    //         }
+    //     for(int i=0;i<512;i++) p[i]=perm[i&255];
+    //     }
+    //     private static double fade(double t){ return t*t*t*(t*(t*6-15)+10); }
+    //     private static double lerp(double t,double a,double b){ return a+t*(b-a); }
+    //     private static double grad(int h,double x,double y){
+    //         h &= 7; // 8 grads
+    //         double u = (h<4)?x:y;
+    //         double v = (h<4)?y:x;
+    //         return ((h&1)==0?u:-u) + ((h&2)==0?v:-v);
+    //     }
+    //     /** classic Perlin in [-1,1] */
+    //     double noise(double x,double y){
+    //         int X=((int)Math.floor(x))&255, Y=((int)Math.floor(y))&255;
+    //         x-=Math.floor(x); y-=Math.floor(y);
+    //         double u=fade(x), v=fade(y);
+    //         int A=p[X]+Y, B=p[X+1]+Y, AA=p[A], AB=p[A+1], BA=p[B], BB=p[B+1];
+    //         double n00=grad(p[AA],x,y), n10=grad(p[BA],x-1,y);
+    //         double n01=grad(p[AB],x,y-1), n11=grad(p[BB],x-1,y-1);
+    //         double nx0=lerp(u,n00,n10),   nx1=lerp(u,n01,n11);
+    //         return lerp(v,nx0,nx1);
+    //     }
+    //     /** fBm (sum nhiều octave), trả về [0,1] */
+    //     double fbm(double x,double y,int oct,double lac,double gain){
+    //         double amp=1, freq=1, sum=0, norm=0;
+    //         for(int i=0;i<oct;i++){
+    //             sum += amp*noise(x*freq,y*freq);
+    //             norm+=amp; amp*=gain; freq*=lac;
+    //         }
+    //         return (sum/norm)*0.5+0.5;
+    //     }
+    // }
 	/**
 	 * Returns the TeamInfo for a given player.
 	 * 
@@ -514,4 +590,80 @@ public class ArkanoidMatch {
 			return teamColor;
 		}
 	}
+
+	private static class PerlinNoise2D {
+		private static final int[] permutation = makePermutation();
+		private static int[] makePermutation() {
+        int[] p = new int[512];
+        int[] base = new int[256];
+        for (int i = 0; i < 256; i++) base[i] = i;
+        Random rand = new Random();
+        for (int i = 255; i > 0; i--) {
+            int j = rand.nextInt(i + 1);
+            int temp = base[i];
+            base[i] = base[j];
+            base[j] = temp;
+        }
+
+        for (int i = 0; i < 512; i++) {
+            p[i] = base[i & 255];
+        }
+        return p;
+    }
+
+    private static class Vec2 {
+        double x, y;
+        Vec2(double x, double y) { this.x = x; this.y = y; }
+        double dot(Vec2 other) { return x * other.x + y * other.y; }
+    }
+
+    private static Vec2 getConstantVector(int v) {
+        int h = v & 3;
+        return switch (h) {
+            case 0 -> new Vec2(1, 1);
+            case 1 -> new Vec2(-1, 1);
+            case 2 -> new Vec2(-1, -1);
+            default -> new Vec2(1, -1);
+        };
+    }
+
+    private static double fade(double t) {
+        return ((6 * t - 15) * t + 10) * t * t * t;
+    }
+
+    private static double lerp(double t, double a, double b) {
+        return a + t * (b - a);
+    }
+
+    public static double noise(double x, double y) {
+        int X = ((int) Math.floor(x)) & 255;
+        int Y = ((int) Math.floor(y)) & 255;
+
+        double xf = x - Math.floor(x);
+        double yf = y - Math.floor(y);
+
+        Vec2 topRight = new Vec2(xf - 1.0, yf - 1.0);
+        Vec2 topLeft = new Vec2(xf, yf - 1.0);
+        Vec2 bottomRight = new Vec2(xf - 1.0, yf);
+        Vec2 bottomLeft = new Vec2(xf, yf);
+
+        int valueTopRight = permutation[permutation[X + 1] + Y + 1];
+        int valueTopLeft = permutation[permutation[X] + Y + 1];
+        int valueBottomRight = permutation[permutation[X + 1] + Y];
+        int valueBottomLeft = permutation[permutation[X] + Y];
+
+        double dotTopRight = topRight.dot(getConstantVector(valueTopRight));
+        double dotTopLeft = topLeft.dot(getConstantVector(valueTopLeft));
+        double dotBottomRight = bottomRight.dot(getConstantVector(valueBottomRight));
+        double dotBottomLeft = bottomLeft.dot(getConstantVector(valueBottomLeft));
+
+        double u = fade(xf);
+        double v = fade(yf);
+
+        return lerp(u,
+                lerp(v, dotBottomLeft, dotTopLeft),
+                lerp(v, dotBottomRight, dotTopRight)
+            );
+        }
+    }
 }

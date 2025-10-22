@@ -29,7 +29,7 @@ public class EntityBrick extends BreakableEntity {
 
 	@Override
 	void onObjectBroken() {
-		this.remove();		
+		this.remove();
 	}
 
 }

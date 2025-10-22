@@ -34,7 +34,7 @@ public class EntityPaddle extends EntityDynamic {
 	
 	private void move(int relX) {
 		if (getBoundingBox().minX + relX <= 0 
-		 || getBoundingBox().maxX + relX > world.getWidth()) {
+		|| getBoundingBox().maxX + relX > world.getWidth()) {
 			return;
 		}
 		teleport(getLocation().add(relX, 0));

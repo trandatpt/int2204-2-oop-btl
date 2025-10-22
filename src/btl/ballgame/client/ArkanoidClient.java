@@ -64,7 +64,7 @@ public class ArkanoidClient {
 	public void login(String username, String password) {
 		connection.sendPacket(new PacketPlayInClientLogin(
 			username, // Login credentials
-			Utils.SHA256(password), // 
+			Utils.SHA256(password), //
 			ProtoUtils.PROTOCOL_VERSION
 		));
 	}
@@ -76,7 +76,7 @@ public class ArkanoidClient {
 		
 		connection.sendPacket(new PacketPlayInClientUserCreation(
 			username, // Login credentials
-			Utils.SHA256(password) // 
+			Utils.SHA256(password) //
 		));
 	}
 	
@@ -113,7 +113,7 @@ public class ArkanoidClient {
 		this.registry.registerHandler(PacketPlayOutEntityDestroy.class, new ServerEntityDestroyHandle());
 	}
 	
-	private void registerEntities() {		
+	private void registerEntities() {
 		this.entityRegistry.registerEntity(EntityType.ENTITY_BALL, CEntityWreckingBall::new);
 		this.entityRegistry.registerEntity(EntityType.ENTITY_BRICK_NORMAL, CEntityBrickNormal::new);
 	}
