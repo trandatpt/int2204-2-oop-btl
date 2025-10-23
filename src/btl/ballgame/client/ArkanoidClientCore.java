@@ -46,7 +46,7 @@ public class ArkanoidClientCore {
 	private ClientPlayer clientPlayer;
 	private ClientArkanoidMatch activeMatch;
 	
-	public ArkanoidClientCore(String serverAddress, int port) throws IOException {
+	public ArkanoidClientCore(Socket socket) throws IOException {
 		this.registry = new PacketRegistry();
 		this.codec = new PacketCodec(this.registry);
 		this.entityRegistry = new CSEntityRegistry();
@@ -54,9 +54,7 @@ public class ArkanoidClientCore {
 		this.registerPacketHandlers();
 		this.registerEntities();
 		
-		this.connection = new CServerConnection(
-			new Socket(serverAddress, port), this
-		);
+		this.connection = new CServerConnection(socket, this);
 	}
 	
 	private void registerPacketHandlers() {
@@ -96,6 +94,10 @@ public class ArkanoidClientCore {
 			username, // Login credentials
 			Utils.SHA256(password) // 
 		));
+	}
+	
+	public void disconnect() {
+		this.connection.closeConnection();
 	}
 	
 	public void setUser(String userName, UUID uuid) {

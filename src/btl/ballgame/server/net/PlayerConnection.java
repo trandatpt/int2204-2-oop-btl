@@ -75,6 +75,14 @@ public class PlayerConnection implements ConnectionCtx {
 		this.sendStream = new DataOutputStream(socket.getOutputStream());
 		this.receiveStream = new DataInputStream(socket.getInputStream());
 		
+		// PWP specifications (SERVER): RECEIVE magic bytes (0x544824) / SEND magic bytes (0x24E12)
+		if (receiveStream.readInt() == 0x544824) {
+			sendStream.writeInt(0x24E12);
+		} else {
+			socket.close();
+			throw new IOException("PWP Protocol: Invalid Handshake!");
+		}
+		
 		// packet listening thread
 		this.packetListenerThread = new Thread(() -> {
 			Thread.currentThread().setName("PlayerConnection: Packet Listener Thread");

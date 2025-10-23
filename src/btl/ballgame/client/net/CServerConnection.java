@@ -63,11 +63,13 @@ public class CServerConnection implements ConnectionCtx {
 		this.sendStream = new DataOutputStream(socket.getOutputStream());
 		this.receiveStream = new DataInputStream(socket.getInputStream());
 		
-		// PWP specifications: magic bytes (0x544824) -> Protocol version -> magic footer (0x24E12)
-//		sendStream.writeInt(0x544824);
-//		sendStream.write(ProtoUtils.PROTOCOL_VERSION);
-//		sendStream.writeInt(0x24E12);
-//		sendStream.flush();
+		// PWP specifications (CLIENT): SEND magic bytes (0x544824) / RECEIVE magic bytes (0x24E12)
+		sendStream.writeInt(0x544824);
+		
+		if (receiveStream.readInt() != 0x24E12) {
+			socket.close();
+			throw new IOException("PWP Protocol: Invalid Handshake!");
+		}
 		
 		// packet listening thread
 		this.packetListenerThread = new Thread(() -> {
@@ -154,7 +156,7 @@ public class CServerConnection implements ConnectionCtx {
 			} catch (IOException e) {}
 		}
 		closeConnection();
-		System.out.println("dc'ed: " + reason);
+		System.out.println("[CLIENT] Disconnected for: " + reason);
 	}
 	
 	/**

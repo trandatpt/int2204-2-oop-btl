@@ -1,32 +1,45 @@
 package btl.ballgame.client;
 
-import btl.ballgame.client.ui.server.PickServer;
-import btl.ballgame.client.ui.server.PickServer.PredefinedServer;
-import btl.ballgame.client.ui.window.WindowManager;
-import btl.ballgame.shared.libs.Constants.ArkanoidMode;
+import java.io.File;
+import java.io.IOException;
+import java.net.Socket;
+
+import btl.ballgame.client.ui.menus.LoginScreen;
+import btl.ballgame.client.ui.menus.MenuUtils;
+import btl.ballgame.client.ui.menus.ServerSelector;
+import btl.ballgame.client.ui.menus.ServerSelector.PredefinedServer;
+import btl.ballgame.client.ui.screen.ScreenManager;
 import javafx.application.Application;
-import javafx.scene.PerspectiveCamera;
-import javafx.scene.Scene;
+import javafx.application.Platform;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 public class ArkanoidGame extends Application {
-	
-	static ArkanoidClientCore core;
-	
+	public static final Image LOGO = new Image(new File("assets/arkgo.png").toURI().toString());
+	private static ArkanoidClientCore core = null;
+	private static ScreenManager manager;
+
 	@Override
-	public void start(Stage stage) throws Exception {
-        // Create a client match and a dummy game world
-        ClientArkanoidMatch match = new ClientArkanoidMatch(ArkanoidMode.SOLO_ENDLESS);
-        match.createGameWorld(800, 600); // 800x600 game world coordinates
+	public void start(Stage root) throws Exception {
+		manager = new ScreenManager(root);
 
-        // Create the GameRenderer
-        GameRenderer renderer = new GameRenderer(match);
+		MenuUtils.displayServerSelector();
+//		LoginScreen login = new LoginScreen();
+//		manager.setScreen(login);
 
-        // Create a scene with the renderer
-        Scene scene = new Scene(renderer, 1200, 700); // 1200 width to give space for info panel
+		root.show();
+	}
 
-        stage.setTitle("BallGame - Test Renderer");
-        stage.setScene(scene);
-        stage.show();
+	public static ScreenManager manager() {
+		return manager;
+	}
+
+	public static void createCore(Socket socket) throws IOException {
+		core = new ArkanoidClientCore(socket);
+		Platform.runLater(() -> MenuUtils.displayLoginScreen());
+	}
+
+	public static ArkanoidClientCore core() {
+		return core;
 	}
 }
