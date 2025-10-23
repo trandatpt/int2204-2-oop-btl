@@ -23,7 +23,7 @@ public class ForgotPassWord extends Window{
         this.backtologin = new Button("Back To Login");
         this.userField = new TextField();
         this.userField.setPromptText("username");
-        setwindowId("forgotpasswordid");
+        setWindowId("forgotpasswordid");
         setTitle("Forgot");
         initUI();
     }
@@ -55,6 +55,6 @@ public class ForgotPassWord extends Window{
                 return accounts.get(i).getPassword();
             }
         }
-        return "Tài khoản không tồn tại !!!";
+        return "Tài khoản không tồn tại!";
     }
 }

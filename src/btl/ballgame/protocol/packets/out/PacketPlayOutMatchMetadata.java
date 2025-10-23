@@ -52,7 +52,10 @@ public class PacketPlayOutMatchMetadata extends NetworkPacket implements IPacket
 			for (PlayerEntry p : team.players) {
 				buf.writeInt64(p.uuid.getMostSignificantBits());
 				buf.writeInt64(p.uuid.getLeastSignificantBits());
+				buf.writeU8String(p.name);
 				buf.writeInt8(p.health);
+				buf.writeInt8(p.rifleState);
+				buf.writeInt8(p.bulletsLeft);
 			}
 		}
 	}
@@ -75,7 +78,10 @@ public class PacketPlayOutMatchMetadata extends NetworkPacket implements IPacket
 				long msb = buf.readInt64(); // evil
 				long lsb = buf.readInt64();
 				pe.uuid = new UUID(msb, lsb);
+				pe.name = buf.readU8String();
 				pe.health = buf.readInt8();
+				pe.rifleState = buf.readInt8();
+				pe.bulletsLeft = buf.readInt8();
 				team.players[j] = pe;
 			}
 			this.teams[i] = team;
@@ -92,6 +98,9 @@ public class PacketPlayOutMatchMetadata extends NetworkPacket implements IPacket
 
 	public static class PlayerEntry {
 		public UUID uuid;
+		public String name;
 		public byte health;
+		public byte bulletsLeft;
+		public byte rifleState;
 	}
 }

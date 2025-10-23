@@ -26,6 +26,14 @@
 		<sourceDirectory>src</sourceDirectory>
 		<plugins>
 			<plugin>
+				<groupId>org.openjfx</groupId>
+				<artifactId>javafx-maven-plugin</artifactId>
+				<version>0.0.8</version>
+				<configuration>
+					<mainClass>btl.ballgame.client.ArkanoidGame</mainClass>
+				</configuration>
+			</plugin>
+			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.1</version>
 				<configuration>

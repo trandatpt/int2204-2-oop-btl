@@ -29,7 +29,7 @@ public class ModeSingle extends Window{
         createroom = new Button("Create Single Room");
         back = new Button("Back to Menu");
         manager.print();
-        setwindowId("modesingleid");
+        setWindowId("modesingleid");
         setTitle("Single");
         initUI();
     }
@@ -47,12 +47,12 @@ public class ModeSingle extends Window{
         createroom.setOnAction(e -> {
             RoomOnePlayer room = new RoomOnePlayer(manager, account, "");
             manager.print();
-            delay(0.5, () -> manager.show(room, room.getTitle() , room.getwindowId()));
+            delay(0.5, () -> manager.show(room, room.getTitle() , room.getWindowId()));
         });
 
         back.setOnAction(e -> {
             Stack<WindowEntry> window = manager.getHistory();
-            while(!window.peek().getWindow().getwindowId().equals("menuonlineid")) {
+            while(!window.peek().getWindow().getWindowId().equals("menuonlineid")) {
                 manager.print();
                 manager.back();
             }

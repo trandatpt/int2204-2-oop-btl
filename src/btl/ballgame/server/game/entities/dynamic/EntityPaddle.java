@@ -54,7 +54,7 @@ public class EntityPaddle extends ControllableEntity {
 		if (player == null) return;
 		this.dataWatcher.watch(
 			Constants.PADDLE_OWNER_MKEY,
-			player.getUniqueId().toString()
+			player.getUniqueId().getMostSignificantBits()
 		);
 	}
 	

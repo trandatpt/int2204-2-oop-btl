@@ -31,7 +31,7 @@ public class MenuOnline extends Window {
         settings     = new Button("Settings");
         backlogin    = new Button("Back to Login");
         exit         = new Button("Exit");
-        setwindowId("menuonlineid");
+        setWindowId("menuonlineid");
         setTitle("Menu");
         initUI();
 }
@@ -41,23 +41,23 @@ public class MenuOnline extends Window {
         // Thiết lập sự kiện
         singlePlayer.setOnAction(e -> {
             ModeSingle single = new ModeSingle(manager, account);
-            manager.show(single, single.getTitle(), single.getwindowId());
+            manager.show(single, single.getTitle(), single.getWindowId());
             manager.print();
         });
 
         multiPlayer.setOnAction(e -> {
             ModeMulti multi = new ModeMulti(manager, account);
-            manager.show(multi, multi.getTitle() , multi.getwindowId());
+            manager.show(multi, multi.getTitle() , multi.getWindowId());
         });
 
         settings.setOnAction(e -> {
             Setting setting = new Setting(manager);
-            manager.show(setting, setting.getTitle() , setting.getwindowId());
+            manager.show(setting, setting.getTitle() , setting.getWindowId());
         });
 
         backlogin.setOnAction(e -> {
             Stack<WindowEntry> window = manager.getHistory();
-            while(!window.peek().getWindow().getwindowId().equals("loginid")) {
+            while(!window.peek().getWindow().getWindowId().equals("loginid")) {
                 manager.back();
             }
         });

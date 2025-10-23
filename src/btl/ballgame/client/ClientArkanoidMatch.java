@@ -2,6 +2,7 @@ package btl.ballgame.client;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import btl.ballgame.client.net.systems.CSWorld;
 import btl.ballgame.protocol.packets.out.PacketPlayOutMatchMetadata;
@@ -9,6 +10,7 @@ import btl.ballgame.protocol.packets.out.PacketPlayOutMatchMetadata.PlayerEntry;
 import btl.ballgame.protocol.packets.out.PacketPlayOutMatchMetadata.TeamEntry;
 import btl.ballgame.shared.libs.Constants.ArkanoidMode;
 import btl.ballgame.shared.libs.Constants.MatchPhase;
+import btl.ballgame.shared.libs.Constants.RifleMode;
 import btl.ballgame.shared.libs.Constants.TeamColor;
 
 public class ClientArkanoidMatch {
@@ -18,7 +20,7 @@ public class ClientArkanoidMatch {
 	private MatchPhase phase = MatchPhase.MATCH_IDLING;
 	private int roundIndex = 0;
 	
-	private Map<TeamColor, CTeamInfo> teams = new HashMap<>();
+	public Map<TeamColor, CTeamInfo> teams = new HashMap<>();
 	
 	public ClientArkanoidMatch(ArkanoidMode mode) {
 		this.mode = mode;
@@ -65,7 +67,19 @@ public class ClientArkanoidMatch {
 			teamInfo.ftScore = teamEntry.ftScore;
 			teamInfo.arkScore = teamEntry.arkScore;
 			teamInfo.livesRemaining = teamEntry.livesRemaining;
-			teamInfo.players = teamEntry.players;
+			PlayerEntry pentry[] = teamEntry.players;
+			CPlayerInfo cpis[] = new CPlayerInfo[pentry.length];
+			for (int i = 0; i < cpis.length; i++) {
+				CPlayerInfo cpi = new CPlayerInfo();
+				PlayerEntry pe = pentry[i];
+				cpi.uuid = pe.uuid;
+				cpi.name = pe.name;
+				cpi.health = pe.health;
+				cpi.firingMode = RifleMode.values()[pe.rifleState];
+				cpi.bulletsLeft = pe.bulletsLeft;
+				cpis[i] = cpi;
+			}
+			
 			teams.put(teamInfo.teamColor, teamInfo);
 		}
 	}
@@ -75,6 +89,14 @@ public class ClientArkanoidMatch {
 		public byte ftScore;
 		public int arkScore;
 		public byte livesRemaining;
-		public PlayerEntry[] players;
+		public CPlayerInfo[] players;
+	}
+	
+	public static class CPlayerInfo {
+		public UUID uuid;
+		public String name;
+		public byte health;
+		public byte bulletsLeft;
+		public RifleMode firingMode;
 	}
 }

@@ -245,8 +245,8 @@ public class ArkanoidMatch {
 		
 		for (TeamInfo team : teams.values()) {
 			boolean allDead =
-				team.getPlayers().stream()
-				.allMatch(player -> team.getHealth(player) <= 0)
+				team.getPlayerInfos().stream()
+				.allMatch(player -> player.getHealth() <= 0)
 			;
 			
 			if (allDead) {
@@ -379,8 +379,13 @@ public class ArkanoidMatch {
 			List<PlayerEntry> players = new ArrayList<>();
 			for (ArkaPlayer p : team.getPlayers()) {
 				PlayerEntry pe = new PlayerEntry();
+				PlayerInfo pi = team.getPlayerInfo(p);
+				
 				pe.uuid = p.getUniqueId(); // UUID
-				pe.health = (byte) team.getHealth(p); // paddle HP
+				pe.name = p.getName(); // display name
+				pe.health = (byte) pi.getHealth(); // paddle HP
+				pe.rifleState = (byte) pi.getFiringMode().ordinal(); // rifle mode
+				pe.bulletsLeft = (byte) pi.getAKRounds();
 				players.add(pe);
 			}
 
@@ -403,9 +408,9 @@ public class ArkanoidMatch {
 	public class TeamInfo {
 
 		private final TeamColor teamColor;
-		private final LinkedHashMap<ArkaPlayer, Integer> playerHealth = new LinkedHashMap<>();
+		private final LinkedHashMap<ArkaPlayer, PlayerInfo> playerInfoMap = new LinkedHashMap<>();
 		private final List<ArkaPlayer> players;
-		
+
 		private int arkanoidScore;
 		private int livesRemaining;
 		private int ftScore;
@@ -413,14 +418,14 @@ public class ArkanoidMatch {
 
 		/**
 		 * Creates a new team instance.
-		 * 
+		 *
 		 * @param color   The team color.
 		 * @param members The players in the team.
 		 */
 		public TeamInfo(TeamColor color, List<ArkaPlayer> members) {
 			this.teamColor = color;
 			this.ftScore = 0;
-			this.players = members;
+			this.players = new ArrayList<>(members);
 			initializeForNewRound(members);
 		}
 
@@ -428,7 +433,7 @@ public class ArkanoidMatch {
 		 * Resets the team state for a new round.
 		 */
 		public void resetForNextRound() {
-			playerHealth.replaceAll((p, hp) -> Constants.PADDLE_MAX_HEALTH);
+			playerInfoMap.values().forEach(PlayerInfo::resetHealth);
 			this.arkanoidScore = 0;
 			this.livesRemaining = Constants.TEAM_STARTING_LIVES;
 			this.eliminated = false;
@@ -436,22 +441,10 @@ public class ArkanoidMatch {
 
 		private void initializeForNewRound(List<ArkaPlayer> members) {
 			for (ArkaPlayer p : members) {
-				playerHealth.put(p, Constants.PADDLE_MAX_HEALTH);
+				playerInfoMap.put(p, new PlayerInfo(p));
 			}
 			this.arkanoidScore = 0;
 			this.livesRemaining = Constants.TEAM_STARTING_LIVES;
-		}
-
-		public int getHealth(ArkaPlayer player) {
-			return playerHealth.get(player);
-		}
-
-		public void setHealth(ArkaPlayer player, int health) {
-			playerHealth.put(player, health);
-		}
-
-		public void damage(ArkaPlayer player, int amount) {
-			setHealth(player, getHealth(player) - amount);
 		}
 
 		public int getArkanoidScore() {
@@ -473,8 +466,9 @@ public class ArkanoidMatch {
 		}
 
 		public void loseLife() {
-			if (livesRemaining > 0)
+			if (livesRemaining > 0) {
 				livesRemaining--;
+			}
 			syncMatchStateWithClients();
 		}
 
@@ -486,12 +480,83 @@ public class ArkanoidMatch {
 			return eliminated;
 		}
 
+		public PlayerInfo getPlayerInfo(ArkaPlayer player) {
+			return playerInfoMap.get(player);
+		}
+		
 		public List<ArkaPlayer> getPlayers() {
 			return Collections.unmodifiableList(this.players);
+		}
+
+		public List<PlayerInfo> getPlayerInfos() {
+			return Collections.unmodifiableList(new ArrayList<>(playerInfoMap.values()));
 		}
 
 		public TeamColor getTeamColor() {
 			return teamColor;
 		}
+	}
+	
+	public class PlayerInfo {
+
+	    private final ArkaPlayer player;
+	    private int health;
+	    private RifleMode firingMode;
+	    private int akRounds;
+
+	    public PlayerInfo(ArkaPlayer player) {
+	        this.player = player;
+	        this.health = Constants.PADDLE_MAX_HEALTH;
+	        this.firingMode = RifleMode.SAFE;
+	        this.akRounds = 0;
+	    }
+
+	    public ArkaPlayer getPlayer() {
+	        return player;
+	    }
+	    
+	    public int getAKRounds() {
+			return akRounds;
+		}
+	    
+	    public void setAKRounds(int akRounds) {
+			this.akRounds = Math.max(0, Math.min(Constants.AK_47_MAG_SIZE, akRounds));
+		}
+	    
+	    public boolean pickupAKRounds(int amount) {
+	    	if (this.akRounds >= Constants.AK_47_MAG_SIZE) return false;
+	    	setAKRounds(getAKRounds() + amount);
+	    	return true;
+	    }
+	    
+	    public boolean fireRounds(int amount) {
+	    	if (this.akRounds <= 0 || getAKRounds() - amount < 0) return false;
+	    	setAKRounds(getAKRounds() - amount);
+	    	return true;
+	    }
+	    
+	    public RifleMode getFiringMode() {
+			return firingMode;
+		}
+
+	    public int getHealth() {
+	        return health;
+	    }
+
+	    public void setHealth(int health) {
+	        this.health = Math.max(0, Math.min(Constants.PADDLE_MAX_HEALTH, health));
+	    }
+
+	    public void damage(int amount) {
+	        setHealth(health - amount);
+	    }
+
+	    public void resetHealth() {
+	        this.health = Constants.PADDLE_MAX_HEALTH;
+	    }
+	    
+	    public String getName() {
+	    	return this.player.getName();
+	    }
 	}
 }

@@ -34,7 +34,7 @@ public class RoomOnePlayer extends Window{
         change_regime = new Button("Change level");
         exit_room = new Button("Exit Room");
         manager.print();
-        setwindowId("roomsingleid");
+        setWindowId("roomsingleid");
         setTitle("Room Single");
         initUI();
     }
@@ -46,7 +46,7 @@ public class RoomOnePlayer extends Window{
 
         changetomulti.setOnAction(e -> {
             RoomTwoPlayer multi = new RoomTwoPlayer(manager, account, "", "", "");
-            delay(0.5, () -> manager.show(multi, multi.getTitle(), multi.getwindowId()));
+            delay(0.5, () -> manager.show(multi, multi.getTitle(), multi.getWindowId()));
         });
 
         change_regime.setOnAction(e -> {
@@ -55,7 +55,7 @@ public class RoomOnePlayer extends Window{
 
         exit_room.setOnAction(e -> {
             Stack<WindowEntry> window = manager.getHistory();
-            while(!window.peek().getWindow().getwindowId().equals("menuonlineid")) {
+            while(!window.peek().getWindow().getWindowId().equals("menuonlineid")) {
                 manager.back();
             }
         });

@@ -47,7 +47,7 @@ public class LoginMenu extends Window{
         this.exit = new Button("Exit");
 
         manager.print();
-        setwindowId("loginid");
+        setWindowId("loginid");
         setTitle("Login");
         initUI();
     }
@@ -98,7 +98,7 @@ public class LoginMenu extends Window{
                 MenuOnline menu = new MenuOnline(manager, account);
                 delay(3, () -> {
                     label.setText("");
-                    manager.show(menu, menu.getTitle() , menu.getwindowId());
+                    manager.show(menu, menu.getTitle() , menu.getWindowId());
                 });
             }
             else {
@@ -108,12 +108,12 @@ public class LoginMenu extends Window{
 
         create.setOnAction(e -> {
             CreateAccount create = new CreateAccount(manager);
-            manager.show(create, create.getTitle() , create.getwindowId());
+            manager.show(create, create.getTitle() , create.getWindowId());
         });
 
         forgot.setOnAction(e -> {
             ForgotPassWord fPassWord = new ForgotPassWord(manager);
-            manager.show(fPassWord, fPassWord.getTitle(), fPassWord.getwindowId());
+            manager.show(fPassWord, fPassWord.getTitle(), fPassWord.getWindowId());
         });
 
         clearall.setOnAction(e -> {

@@ -43,7 +43,7 @@ public class CreateAccount extends Window {
         this.rPasswordField = new PasswordField();
         rPasswordField.setPromptText("re-enter the password");
 
-        setwindowId("createaccountid");
+        setWindowId("createaccountid");
         setTitle("Create Account");
         initUI();
     }
@@ -90,7 +90,7 @@ public class CreateAccount extends Window {
                 AccountManager.saveAccounts();
                 account = new Account(user, pass, name_);
                 MenuOnline menu = new MenuOnline(manager, account);
-                delay(2, () -> manager.show(menu, menu.getTitle(), menu.getwindowId()));
+                delay(2, () -> manager.show(menu, menu.getTitle(), menu.getWindowId()));
             }
             else if (check_account == 1) {
                 checknewaccount.setText("The account already exists | Account creation failed");

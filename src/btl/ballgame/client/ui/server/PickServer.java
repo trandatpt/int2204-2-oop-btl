@@ -4,99 +4,176 @@ import btl.ballgame.client.ui.login.LoginMenu;
 import btl.ballgame.client.ui.menu.Exit;
 import btl.ballgame.client.ui.window.Window;
 import btl.ballgame.client.ui.window.WindowManager;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuButton;
-import javafx.scene.control.MenuItem;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.paint.Color;
 
-public class PickServer extends Window{
-    WindowManager manager;
-    private Label label;
-    private Button offline;
-    private MenuButton onlineButton;
-    private MenuItem sv0;
-    private MenuItem sv1;
-    private Button online;
-    private Button exit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-    public PickServer(WindowManager manager, String server0, String server1) {
-        this.manager = manager;
-        label = new Label("");
-        offline = new Button("Offline");
-        sv0 = new MenuItem(server0);
-        sv1 = new MenuItem(server1);
-        onlineButton = new MenuButton("Select Server", null, sv0, sv1);
-        online = new Button("Online");
-        exit = new Button("Exit");
-        manager.print();
-        setTitle("Chọn server");
-        setwindowId("pickserverid");
-        initUI();
-    }
+public class PickServer extends Window {
 
-    @Override
-    public void initUI() {
-        offline.setOnAction(e -> {
-            label.setText("Offline");
-            LoginMenu login = new LoginMenu(manager);
-            manager.show(login, login.getTitle(), login.getwindowId());
-        });
+	private final WindowManager manager;
+	private final Label titleLabel;
+	private final Label statusLabel;
+	private final ComboBox<Object> serverDropdown;
+	private final TextField customServerBox;
+	private final Button connectButton;
+	private final Button offlineButton;
+	private final Button exitButton;
 
-        /**
-         * nhấn vào thì show ra, không trỏ vào thì hide
-         */
-        onlineButton.setOnMouseEntered(e -> onlineButton.show());
-        //onlineButton.setOnMouseExited(e -> onlineButton.hide());
+	public PickServer(WindowManager manager, PredefinedServer... predefinedServers) {
+		this.manager = manager;
+		this.titleLabel = new Label("CHOOSE SERVER");
+		this.statusLabel = new Label("");
+		this.serverDropdown = new ComboBox<>();
+		this.customServerBox = new TextField();
+		this.connectButton = new Button("Play Online");
+		this.offlineButton = new Button("Offline Mode");
+		this.exitButton = new Button("Exit");
 
-        sv0.setOnAction(e -> {
-            selectserver(onlineButton, sv0.getText());
-        });
+		setTitle("Server Selector");
+		setWindowId("pickserverid");
+		initUI(Arrays.asList(predefinedServers));
+	}
 
-        sv1.setOnAction(e -> {
-            selectserver(onlineButton, sv1.getText());
-        });
+	@Override
+	public void initUI() {
+	}
 
-        online.setOnAction(e -> {
-            if (onlineButton.getText().equals("Select Server")) {
-                System.out.println("server chưa được chọn");
-                label.setText("The server has not been selected");
-            }
-            else {
-                LoginMenu login = new LoginMenu(manager);
-                System.out.println("server đã được chọn là: " + onlineButton.getText());
-                System.out.println("Connect to server...");
+	public void initUI(List<PredefinedServer> predefinedServers) {
+		// ====== STYLE ======
+		this.setStyle("-fx-background-color: linear-gradient(to bottom, #1e1e1e, #2a2a2a);");
+		titleLabel.setFont(Font.font("Verdana", FontWeight.BOLD, 26));
+		titleLabel.setTextFill(Color.WHITE);
+		statusLabel.setTextFill(Color.LIGHTGRAY);
+		statusLabel.setFont(Font.font("Consolas", 14));
 
-                label.setText("The server has been selected as " + onlineButton.getText());
+		// ====== SERVER DROPDOWN ======
+		serverDropdown.getItems().addAll(predefinedServers);
+		serverDropdown.getItems().add("Custom Server");
+		serverDropdown.setPromptText("Select a server...");
+		serverDropdown.setMaxWidth(400);
+		serverDropdown.setMinHeight(30);
 
-                delay(1, () -> label.setText("Connecting..."));
-                delay(2, () -> {
-                    label.setText("");
-                    onlineButton.hide();
-                    onlineButton.setText("Select server");
-                    manager.show(login, login.getTitle(), login.getwindowId());
-                });
-            }
-        });
+		customServerBox.setPromptText("Enter custom server address...");
+		customServerBox.setMaxWidth(400);
+		customServerBox.setMinHeight(30);
+		customServerBox.setDisable(true);
+		
+		// Dropdown behavior
+		serverDropdown.setOnAction(e -> {
+			Object selected = serverDropdown.getValue();
+			if (selected instanceof PredefinedServer server) {
+				customServerBox.setText(server.getDomain());
+				customServerBox.setDisable(true);
+			} else {
+				customServerBox.clear();
+				customServerBox.setDisable(false);
+			}
+		});
 
-        exit.setOnAction(e -> {
-            Exit.cancelWindow();
-        });
+		// ====== BUTTONS ======
+		connectButton.setPrefWidth(300);
+		offlineButton.setPrefWidth(300);
+		exitButton.setPrefWidth(200);
 
-        VBox pick = new VBox(20, offline, online, onlineButton, exit);
-        pick.setAlignment(Pos.CENTER);
+		connectButton.setOnAction(e -> connectOnline());
+		offlineButton.setOnAction(e -> goOffline());
+		exitButton.setOnAction(e -> Exit.cancelWindow());
 
-        VBox server = new VBox(30, label, pick);
-        server.setAlignment(Pos.CENTER);
+		styleButton(connectButton, "#3cb371", "#2e8b57"); // green
+		styleButton(offlineButton, "#4682b4", "#36648b"); // blue
+		styleButton(exitButton, "#b22222", "#8b1a1a"); // red
 
-        this.getChildren().add(server);
-    }
+		// ====== LAYOUT ======
+		VBox serverBox = new VBox(10, new Label("Online Server:"), serverDropdown, customServerBox, connectButton);
+		((Label) serverBox.getChildren().get(0)).setTextFill(Color.WHITE);
+		serverBox.setAlignment(Pos.CENTER);
 
-    private void selectserver(MenuButton button, String servername) {
-        button.setText(servername);
-        button.hide();
-        System.out.println("đã chọn server: " + servername);
-    }
-    
+		VBox bottomButtons = new VBox(10, offlineButton, exitButton);
+		bottomButtons.setAlignment(Pos.CENTER);
+
+		VBox layout = new VBox(30, titleLabel, serverBox, statusLabel, bottomButtons);
+		layout.setAlignment(Pos.CENTER);
+		layout.setPadding(new Insets(40));
+
+		// Force center positioning, not relative sizing
+		StackPane.setAlignment(layout, Pos.CENTER);
+
+		this.getChildren().clear();
+		this.getChildren().add(layout);
+	}
+
+	private void connectOnline() {
+		Object selected = serverDropdown.getValue();
+
+		if (selected == null) {
+			statusLabel.setText("! Please select or enter a server.");
+			return;
+		}
+
+		String address;
+		if (selected instanceof PredefinedServer server) {
+			address = server.getDomain();
+		} else {
+			address = customServerBox.getText().trim();
+			if (address.isEmpty()) {
+				statusLabel.setText("❗ Please enter a custom server address.");
+				return;
+			}
+		}
+
+		statusLabel.setText("Connecting to " + address + "...");
+		delay(1, () -> {
+			LoginMenu login = new LoginMenu(manager);
+			manager.show(login, login.getTitle(), login.getWindowId());
+		});
+	}
+
+	private void goOffline() {
+		statusLabel.setText("Launching offline mode...");
+		delay(1, () -> {
+			LoginMenu login = new LoginMenu(manager);
+			manager.show(login, login.getTitle(), login.getWindowId());
+		});
+	}
+
+	private void styleButton(Button btn, String baseColor, String hoverColor) {
+		btn.setStyle("-fx-background-color: " + baseColor + "; -fx-text-fill: white; -fx-font-weight: bold;");
+		btn.setOnMouseEntered(e -> {
+			btn.setStyle("-fx-background-color: " + hoverColor + "; -fx-text-fill: white; -fx-font-weight: bold;");
+		});
+		btn.setOnMouseExited(e -> { 
+			btn.setStyle("-fx-background-color: " + baseColor + "; -fx-text-fill: white; -fx-font-weight: bold;");
+		});
+	}
+
+	public static class PredefinedServer {
+		private final String displayName;
+		private final String domain;
+
+		public PredefinedServer(String displayName, String domain) {
+			this.displayName = displayName;
+			this.domain = domain;
+		}
+
+		public String getDisplayName() {
+			return displayName;
+		}
+
+		public String getDomain() {
+			return domain;
+		}
+
+		@Override
+		public String toString() {
+			return displayName;
+		}
+	}
 }

@@ -2,9 +2,7 @@ package btl.ballgame.client.ui.window;
 
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
-/**
- * abstract class window có 1 nhiệm vụ duy nhất là tạo nội dung rồi đẩy vào scene
- */
+
 public abstract class Window extends StackPane {
     private String title;
     private String id;
@@ -13,13 +11,9 @@ public abstract class Window extends StackPane {
     protected Window() {
         this.title = "";
         this.id = "";
-        this.scene = new Scene(this, 800, 600);
+        this.scene = new Scene(this, 1280, 720);
     }
 
-    /**
-     *lấy Scene(nội dung trong window)
-     * @return
-     */
     public Scene getWindowScene() {
         return this.scene;
     }
@@ -32,11 +26,11 @@ public abstract class Window extends StackPane {
         return this.title;
     }
     
-    public void setwindowId(String id) {
+    public void setWindowId(String id) {
         this.id = id;
     }
 
-    public String getwindowId() {
+    public String getWindowId() {
         return this.id;
     }
 

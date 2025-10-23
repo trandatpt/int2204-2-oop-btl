@@ -27,7 +27,7 @@ public class ModeMulti extends Window {
         createroom = new Button("Create Multi Room");
         back = new Button("Back to Menu");
         manager.print();
-        setwindowId("multiid");
+        setWindowId("multiid");
         setTitle("Multi Player");
         initUI();
     }
@@ -37,12 +37,12 @@ public class ModeMulti extends Window {
         createroom.setOnAction(e -> {
             RoomTwoPlayer room = new RoomTwoPlayer(manager, account, "", "", "");
             manager.print();
-            delay(0.50, () -> manager.show(room, room.getTitle(), room.getwindowId()));
+            delay(0.50, () -> manager.show(room, room.getTitle(), room.getWindowId()));
         });
 
         back.setOnAction(e -> {
             Stack<WindowEntry> window = manager.getHistory();
-            while(!window.peek().getWindow().getwindowId().equals("menuonlineid")) {
+            while(!window.peek().getWindow().getWindowId().equals("menuonlineid")) {
                 manager.print();
                 manager.back();
             }

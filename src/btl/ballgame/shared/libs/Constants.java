@@ -13,12 +13,20 @@ public class Constants {
 	// misc constants
 	public static final int PADDLE_MAX_HEALTH = 100;
 	public static final int TEAM_STARTING_LIVES = 3;
+	public static final int AK_47_MAG_SIZE = 30;
 	
 	// enumerates
+	public static enum RifleMode {
+		SAFE, // khóa an toàn đóng
+		SEMI_AUTO, // phát một
+		FULL_AUTO, // liên thanh
+		// GDQP&AN
+	}
+	
 	/**
 	 * Represents the different phases a match can be in.
 	 */
-	public enum MatchPhase {
+	public static enum MatchPhase {
 		MATCH_IDLING, BRICK_WARFARE, AK47_MODE, CONCLUDED
 	}
 	

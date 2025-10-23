@@ -2,9 +2,7 @@ package btl.ballgame.client.ui.window;
 
 import java.util.Stack;
 import javafx.stage.Stage;
-/**
- * class WindowManager tạo ra cơ chế quay lại màn hình hoặc show màn hình mới
- */
+
 public class WindowManager {
     private final Stage stage;
     private final Stack<WindowEntry> history; 
@@ -14,13 +12,8 @@ public class WindowManager {
         this.history = new Stack<>();
     }
 
-    /**
-     * show ra màn hình với nội dung, title mới và add History vào Stack để có thể back lại
-     * @param window
-     * @param title
-     */
     public void show(Window window, String title, String id) {
-        window.setwindowId(id);
+        window.setWindowId(id);
         stage.setTitle(title);
         history.push(new WindowEntry(window, title, id));
         System.out.println(">>> pushed: " + id + " | size = " + history.size());
@@ -47,7 +40,7 @@ public class WindowManager {
     public void print() {
         Stack<WindowEntry> checkwindow = (Stack<WindowEntry>) history.clone(); // clone để không ảnh hưởng history
         for (WindowEntry entry : checkwindow) {
-            System.out.print(entry.getWindow().getwindowId() + " ");
+            System.out.print(entry.getWindow().getWindowId() + " ");
         }
         System.out.println();
     }

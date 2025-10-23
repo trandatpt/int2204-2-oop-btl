@@ -1,6 +1,5 @@
 package btl.ballgame.client;
 
-import java.applet.Applet;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.UUID;
@@ -20,8 +19,6 @@ import btl.ballgame.client.net.systems.CSEntityRegistry;
 import btl.ballgame.client.net.systems.CSWorld;
 import btl.ballgame.client.net.systems.entities.CEntityBrickNormal;
 import btl.ballgame.client.net.systems.entities.CEntityWreckingBall;
-import btl.ballgame.client.ui.login.LoginMenu;
-import btl.ballgame.client.ui.window.WindowManager;
 import btl.ballgame.protocol.PacketCodec;
 import btl.ballgame.protocol.PacketRegistry;
 import btl.ballgame.protocol.ProtoUtils;
@@ -39,8 +36,6 @@ import btl.ballgame.protocol.packets.out.PacketPlayOutMatchMetadata;
 import btl.ballgame.protocol.packets.out.PacketPlayOutPing;
 import btl.ballgame.shared.libs.EntityType;
 import btl.ballgame.shared.libs.Utils;
-import javafx.application.Application;
-import javafx.stage.Stage;
 
 public class ArkanoidClientCore {
 	private CServerConnection connection;
@@ -59,10 +54,10 @@ public class ArkanoidClientCore {
 		this.registerPacketHandlers();
 		this.registerEntities();
 		
-	// 	this.connection = new CServerConnection(
-	// 		new Socket(serverAddress, port), this
-	// 	);
-	// }
+		this.connection = new CServerConnection(
+			new Socket(serverAddress, port), this
+		);
+	}
 	
 	private void registerPacketHandlers() {
 		// connection/protocol handlers
@@ -92,16 +87,16 @@ public class ArkanoidClientCore {
 		));
 	}
 	
-	// public void registerUser(String username, String password, String repeatPassword) {
-	// 	if (!password.equals(repeatPassword)) {
-	// 		throw new IllegalArgumentException("Passwords do not match.");
-	// 	}
+	public void registerUser(String username, String password, String repeatPassword) {
+		if (!password.equals(repeatPassword)) {
+			throw new IllegalArgumentException("Passwords do not match.");
+		}
 		
-	// 	connection.sendPacket(new PacketPlayInClientUserCreation(
-	// 		username, // Login credentials
-	// 		Utils.SHA256(password) //
-	// 	));
-	// }
+		connection.sendPacket(new PacketPlayInClientUserCreation(
+			username, // Login credentials
+			Utils.SHA256(password) // 
+		));
+	}
 	
 	public void setUser(String userName, UUID uuid) {
 		this.clientPlayer = new ClientPlayer(userName, uuid);
@@ -128,26 +123,19 @@ public class ArkanoidClientCore {
 		this.entityRegistry.registerEntity(EntityType.ENTITY_BRICK_NORMAL, CEntityBrickNormal::new);
 	}
 	
-	// public CSEntityRegistry getEntityRegistry() {
-	// 	return entityRegistry;
-	// }
+	public CSEntityRegistry getEntityRegistry() {
+		return entityRegistry;
+	}
 	
-	// public PacketRegistry getRegistry() {
-	// 	return registry;
-	// }
+	public PacketRegistry getRegistry() {
+		return registry;
+	}
 	
-	// public PacketCodec codec() {
-	// 	return codec;
-	// }
+	public PacketCodec codec() {
+		return codec;
+	}
 	
-	// public CServerConnection getConnection() {
-	// 	return connection;
-	// }
-
-	@Override
-	public void start(Stage stage) throws Exception {
-		WindowManager manager = new WindowManager(stage);
-		LoginMenu login = new LoginMenu(manager);
-		manager.show(login, "Login", login.getId());
+	public CServerConnection getConnection() {
+		return connection;
 	}
 }
