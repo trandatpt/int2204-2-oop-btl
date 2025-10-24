@@ -539,6 +539,9 @@ public class ArkanoidMatch {
 		}
 	}
 
+	/**
+	 * Perlin noise 2D algorithm.
+	 */
 	private static class PerlinNoise2D {
 		private static final int[] permutation = makePermutation();
 		private static int[] makePermutation() {
