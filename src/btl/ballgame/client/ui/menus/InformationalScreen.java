@@ -22,10 +22,16 @@ public class InformationalScreen extends Screen {
 	
 	private List<Node> screenButtons = new ArrayList<>();
 	private String content;
-	
+	private String miniTitle;
+		
 	public InformationalScreen(String title, String content) {
+		this(title, null, content);
+	}
+	
+	public InformationalScreen(String title, String miniTitle, String content) {
 		super(title); // base Screen constructor
 		this.content = content;
+		this.miniTitle = miniTitle;
 	}
 	
 	public void setText(String content) {
@@ -68,10 +74,16 @@ public class InformationalScreen extends Screen {
 			this.screenButtons.toArray(Node[]::new)
 		);
 		buttonsLayout.setAlignment(Pos.CENTER);
-		VBox infoLayout = new VBox(40,
-			informational,
-			buttonsLayout
-		);
+		VBox infoLayout = new VBox(40);
+		if (miniTitle != null) {
+			// the small text above the informational text
+			Label mini = this.createElement("miniText", new Label(this.miniTitle));
+			mini.setTextFill(Color.LIGHTGRAY);
+			mini.setFont(Font.font(15));
+			infoLayout.getChildren().add(mini);
+		}
+		infoLayout.getChildren().add(informational);
+		infoLayout.getChildren().add(buttonsLayout);
 		infoLayout.setAlignment(Pos.CENTER);
 
 		// general layout

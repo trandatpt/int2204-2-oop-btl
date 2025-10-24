@@ -2,11 +2,26 @@ package btl.ballgame.client.ui.menus;
 
 import btl.ballgame.client.ArkanoidGame;
 import btl.ballgame.client.ui.menus.ServerSelector.PredefinedServer;
+import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
 public class MenuUtils {
+	public static void connectionLostScreen(String reason) {
+		Platform.runLater(() -> {
+			InformationalScreen disconnected = new InformationalScreen(
+				"Disconnected from server", 
+				"Connection Lost",
+				reason
+			);
+			disconnected.addButton("Return to Server Selector", () -> {
+				MenuUtils.displayServerSelector();
+			});
+			ArkanoidGame.manager().setScreen(disconnected);
+		});
+	}
+	
 	public static void displayLoginScreen() {
 		if (ArkanoidGame.core() == null) {
 			displayServerSelector();

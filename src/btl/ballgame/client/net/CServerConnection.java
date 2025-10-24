@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import btl.ballgame.client.ArkanoidClientCore;
+import btl.ballgame.client.ui.menus.MenuUtils;
 import btl.ballgame.protocol.ConnectionCtx;
 import btl.ballgame.protocol.ProtoUtils;
 import btl.ballgame.protocol.packets.NetworkPacket;
@@ -156,7 +157,8 @@ public class CServerConnection implements ConnectionCtx {
 			} catch (IOException e) {}
 		}
 		closeConnection();
-		System.out.println("[CLIENT] Disconnected for: " + reason);
+		// tell the user that the connection is lost
+		MenuUtils.connectionLostScreen(reason);
 	}
 	
 	/**
@@ -196,22 +198,14 @@ public class CServerConnection implements ConnectionCtx {
 	 */
 	private void handleConnectionException(Throwable e) {
 		if (closed) return;
-		if (e instanceof EOFException) {
-			handleGracefulDisconnect(); // the client probably died, so /shrug
-			return;
-		}
 		if (e instanceof SocketException) {
-			closeWithNotify("Connection reset by peer");
+			closeWithNotify("java.net.SocketException: Connection reset by peer");
 			return;
 		}
 		if (e instanceof SocketTimeoutException) {
 			closeWithNotify("Timed out");
 			return;
 		}
-		if (e instanceof IOException) {
-			closeWithNotify("Network error");
-			return;
-		}
-		closeWithNotify(e.getClass().getName() + ": " + e.getMessage());
+		closeWithNotify(e.toString());
 	}
 }

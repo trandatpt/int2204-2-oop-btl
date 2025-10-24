@@ -262,9 +262,9 @@ public class PlayerConnection implements ConnectionCtx {
 			return;
 		}
 		if (e instanceof IOException) {
-			closeWithNotify("Network error");
+			closeWithNotify("Network error: " + e.toString());
 			return;
 		}
-		closeWithNotify(e.getClass().getName() + ": " + e.getMessage());
+		closeWithNotify(e.toString());
 	}
 }

@@ -14,7 +14,7 @@ public class ClientNetworkManager {
 		// like Minecraft's multiplayer screen
 		InformationalScreen infoScreen = new InformationalScreen(
 			"Connecting to \"" + address + "\"...",
-			"Connecting to Server..."
+			"Connecting to this server..."
 		);
 		
 		// launch another thread to handle the connection
@@ -32,7 +32,8 @@ public class ClientNetworkManager {
 					// error screen, like minecraft
 					InformationalScreen errorScreen = new InformationalScreen(
 						"Connection Error!",
-						"Unable to connect to this server: " + e.toString()
+						"Failed to connect to this server",
+						e.toString()
 					);
 					errorScreen.addButton("Return to Server Selector", () -> {
 						MenuUtils.displayServerSelector();
