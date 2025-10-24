@@ -14,7 +14,7 @@ public class ServerLoginAckHandle implements PacketHandler<PacketPlayOutLoginAck
 	public void handle(PacketPlayOutLoginAck packet, CServerConnection context) {
 		ArkanoidClientCore client = context.client;
 		if (!packet.isSuccessful()) {
-			Platform.runLater(() -> MenuUtils.displayLoginScreen());
+			Platform.runLater(MenuUtils::displayLoginScreen);
 			return;
 		}
 		client.setUser(packet.getUserName(), packet.getServerSideUUID());

@@ -3,7 +3,7 @@ package btl.ballgame.protocol.packets;
 import btl.ballgame.protocol.PacketByteBuf;
 
 /**
- * <h1>NetworkPacket — Base Class for PennyWort Protocol Packets</h1>
+ * <h1>NetworkPacket - Base Class for PennyWort Protocol Packets</h1>
  *
  * <p>{@code NetworkPacket} is the fundamental abstraction for every data packet
  * transmitted through the <b>PennyWort Protocol</b>. Each inbound or outbound

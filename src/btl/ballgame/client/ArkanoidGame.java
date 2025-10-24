@@ -36,7 +36,7 @@ public class ArkanoidGame extends Application {
 
 	public static void createCore(Socket socket) throws IOException {
 		core = new ArkanoidClientCore(socket);
-		Platform.runLater(() -> MenuUtils.displayLoginScreen());
+		Platform.runLater(MenuUtils::displayLoginScreen);
 	}
 
 	public static ArkanoidClientCore core() {
