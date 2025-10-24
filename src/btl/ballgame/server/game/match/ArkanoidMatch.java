@@ -76,9 +76,6 @@ public class ArkanoidMatch {
 		testPerlinBricks();
 	}
 
-	/**
- * Sinh gạch ngẫu nhiên bằng Perlin noise để test.
- */
 	public void testPerlinBricks() {
 		int cols = 12;
 		int rows = 10;
@@ -90,19 +87,11 @@ public class ArkanoidMatch {
 
 		for (int row = 0; row < rows; row++) {
 			for (int col = 0; col < cols; col++) {
-				// Lấy giá trị noise tại ô (col, row)
                 double n = PerlinNoise2D.noise(col * 0.3, row * 0.3);
-                double val = (n + 1) / 2.0; // [-1,1] → [0,1]
-
-                // Giá trị thấp => bỏ qua (trống)
+                double val = (n + 1) / 2.0;
                 if (val < 0.4) continue;
-				// Tạo brick
-                EntityBrick brick = new EntityBrick(
-                    world.nextEntityId(),
-                    new Location(world,
-                    startX + col * brickWidth,
-                    startY + row * brickHeight,
-                    0)
+                EntityBrick brick = new EntityBrick( world.nextEntityId(),
+					new Location(world, startX + col * brickWidth, startY + row * brickHeight,0)
                 );
 			world.addEntity(brick);
             }
@@ -214,47 +203,6 @@ public class ArkanoidMatch {
 		});
 	}
 
-	// private static final class Perlin2D {
-	// 	private final int[] p = new int[512];
-	// 	Perlin2D(long seed){
-	// 		int[] perm = new int[256];
-    //         for(int i=0;i<256;i++) perm[i]=i;
-    //         Random rnd = new Random(seed);
-    //         for(int i=255;i>0;i--){
-    //             int j=rnd.nextInt(i+1);
-    //             int t=perm[i]; perm[i]=perm[j]; perm[j]=t;
-    //         }
-    //     for(int i=0;i<512;i++) p[i]=perm[i&255];
-    //     }
-    //     private static double fade(double t){ return t*t*t*(t*(t*6-15)+10); }
-    //     private static double lerp(double t,double a,double b){ return a+t*(b-a); }
-    //     private static double grad(int h,double x,double y){
-    //         h &= 7; // 8 grads
-    //         double u = (h<4)?x:y;
-    //         double v = (h<4)?y:x;
-    //         return ((h&1)==0?u:-u) + ((h&2)==0?v:-v);
-    //     }
-    //     /** classic Perlin in [-1,1] */
-    //     double noise(double x,double y){
-    //         int X=((int)Math.floor(x))&255, Y=((int)Math.floor(y))&255;
-    //         x-=Math.floor(x); y-=Math.floor(y);
-    //         double u=fade(x), v=fade(y);
-    //         int A=p[X]+Y, B=p[X+1]+Y, AA=p[A], AB=p[A+1], BA=p[B], BB=p[B+1];
-    //         double n00=grad(p[AA],x,y), n10=grad(p[BA],x-1,y);
-    //         double n01=grad(p[AB],x,y-1), n11=grad(p[BB],x-1,y-1);
-    //         double nx0=lerp(u,n00,n10),   nx1=lerp(u,n01,n11);
-    //         return lerp(v,nx0,nx1);
-    //     }
-    //     /** fBm (sum nhiều octave), trả về [0,1] */
-    //     double fbm(double x,double y,int oct,double lac,double gain){
-    //         double amp=1, freq=1, sum=0, norm=0;
-    //         for(int i=0;i<oct;i++){
-    //             sum += amp*noise(x*freq,y*freq);
-    //             norm+=amp; amp*=gain; freq*=lac;
-    //         }
-    //         return (sum/norm)*0.5+0.5;
-    //     }
-    // }
 	/**
 	 * Returns the TeamInfo for a given player.
 	 * 
@@ -485,8 +433,8 @@ public class ArkanoidMatch {
 		}
 
 		this.world.broadcastPackets(new PacketPlayOutMatchMetadata(
-			(byte) getGameMode().ordinal(), 
-			(byte) getCurrentPhase().ordinal(), 
+			(byte) getGameMode().ordinal(),
+			(byte) getCurrentPhase().ordinal(),
 			getRoundIndex(),
 			teamEntries.toArray(TeamEntry[]::new)
 		));
@@ -596,7 +544,9 @@ public class ArkanoidMatch {
 		private static int[] makePermutation() {
         int[] p = new int[512];
         int[] base = new int[256];
-        for (int i = 0; i < 256; i++) base[i] = i;
+        for (int i = 0; i < 256; i++) {
+			base[i] = i;
+		}
         Random rand = new Random();
         for (int i = 255; i > 0; i--) {
             int j = rand.nextInt(i + 1);
@@ -613,8 +563,12 @@ public class ArkanoidMatch {
 
     private static class Vec2 {
         double x, y;
-        Vec2(double x, double y) { this.x = x; this.y = y; }
-        double dot(Vec2 other) { return x * other.x + y * other.y; }
+        Vec2(double x, double y) {
+			this.x = x; this.y = y;
+		}
+        double dot(Vec2 other) {
+			return x * other.x + y * other.y;
+		}
     }
 
     private static Vec2 getConstantVector(int v) {
