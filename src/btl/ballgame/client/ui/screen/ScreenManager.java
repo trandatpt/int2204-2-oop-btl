@@ -40,6 +40,8 @@ public class ScreenManager {
 		} else {
 			stage.getScene().setRoot(newScreen);
 		}
+		
+		newScreen.requestFocus();
 		currentScreen = newScreen;
 	}
 

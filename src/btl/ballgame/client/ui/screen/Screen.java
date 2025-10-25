@@ -45,9 +45,11 @@ public abstract class Screen extends StackPane {
 		return (T) node;
 	}
 	
-	public void addElement(String id, Node node) {
+	@SuppressWarnings("unchecked")
+	public <T extends Node> T addElement(String id, Node node) {
 		this.createElement(id, node);
 		this.getChildren().add(node);
+		return (T) node;
 	}
 	
 	public void addElement(Node node) {

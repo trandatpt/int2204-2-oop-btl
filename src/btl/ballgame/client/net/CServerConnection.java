@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import btl.ballgame.client.ArkanoidClientCore;
+import btl.ballgame.client.ArkanoidGame;
 import btl.ballgame.client.ui.menus.MenuUtils;
 import btl.ballgame.protocol.ConnectionCtx;
 import btl.ballgame.protocol.ProtoUtils;
@@ -179,6 +180,8 @@ public class CServerConnection implements ConnectionCtx {
 		}
 		// stop the dispatcher thread
 		this.packetDispatcherThread.interrupt();
+		// nullify the reference to the core class
+		ArkanoidGame.destroyCore();
 	}
 	
 	/**
@@ -198,6 +201,10 @@ public class CServerConnection implements ConnectionCtx {
 	 */
 	private void handleConnectionException(Throwable e) {
 		if (closed) return;
+		if (e instanceof EOFException) {
+			closeWithNotify("java.io.EOFException: Server closed connection");
+			return;
+		}
 		if (e instanceof SocketException) {
 			closeWithNotify("java.net.SocketException: Connection reset by peer");
 			return;

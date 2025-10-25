@@ -68,6 +68,12 @@ public class LoginScreen extends Screen {
 				return;
 			}
 			
+			if (!user.matches("^[a-zA-Z0-9_]{3,16}$")) {
+				statusLabel.setText("Username must be 3-16 characters and use only letters, numbers, or underscores!");
+				statusLabel.setTextFill(Color.RED);
+				return;
+			}
+			
 			core.login(user, pass);
 			InformationalScreen loggingIn = new InformationalScreen(
 				"Logging in...",
@@ -98,8 +104,7 @@ public class LoginScreen extends Screen {
 			disconnectButton
 		);
 		((Label) loginBox.getChildren().get(0)).setTextFill(Color.WHITE);
-		((Label) loginBox.getChildren().get(3)).setTextFill(Color.WHITE); // hacky lil shit
-		((Label) loginBox.getChildren().get(6)).setTextFill(Color.WHITE);
+		((Label) loginBox.getChildren().get(6)).setTextFill(Color.WHITE); // lil shit
 		loginBox.setAlignment(Pos.CENTER);
 
 		// general layout

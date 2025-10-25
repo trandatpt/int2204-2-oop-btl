@@ -4,12 +4,12 @@ import btl.ballgame.client.net.systems.CSInterpolatedEntity;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class CEntityWreckingBall extends CSInterpolatedEntity {
+public class CEntityPaddle extends CSInterpolatedEntity {
 	@Override
 	public void render(GraphicsContext cv) {
 		super.render(cv);
 		
-		cv.setFill(Color.RED);
+		cv.setFill(Color.AQUA);
 		cv.fillRect(getRenderX(), getRenderY(), getWidth(), getHeight());
 		cv.setFill(Color.BLACK);
 	}

@@ -19,15 +19,25 @@ public class Constants {
 	public static enum RifleMode {
 		SAFE, // khóa an toàn đóng
 		SEMI_AUTO, // phát một
-		FULL_AUTO, // liên thanh
+		FULL_AUTO; // liên thanh
 		// GDQP&AN
+		
+	    private static final RifleMode[] values = values();
+	    public static RifleMode of(int ordinal) {
+	        return values[ordinal];
+	    }
 	}
 	
 	/**
 	 * Represents the different phases a match can be in.
 	 */
 	public static enum MatchPhase {
-		MATCH_IDLING, BRICK_WARFARE, AK47_MODE, CONCLUDED
+		MATCH_IDLING, BRICK_WARFARE, AK47_MODE, CONCLUDED;
+		
+	    private static final MatchPhase[] values = values();
+	    public static MatchPhase of(int ordinal) {
+	        return values[ordinal];
+	    }
 	}
 	
 	public static enum VoidSide {
@@ -35,16 +45,19 @@ public class Constants {
 	}
 	
 	public static enum TeamColor {
-		RED, BLUE
+		RED, BLUE;
+		
+	    private static final TeamColor[] values = values();
+	    public static TeamColor of(int ordinal) {
+	        return values[ordinal];
+	    }
 	}
 	
 	public static enum ArkanoidMode {
 		SOLO_ENDLESS(true),
 		
 		ONE_VERSUS_ONE(false),
-		TWO_VERSUS_TWO(false),
-		
-		BOSS_RAID(false); // TODO
+		TWO_VERSUS_TWO(false);
 		
 		private boolean sp;
 		ArkanoidMode(boolean singlePlayer) {
@@ -54,5 +67,10 @@ public class Constants {
 		public boolean isSinglePlayer() {
 			return sp;
 		}
+		
+	    private static final ArkanoidMode[] values = values();
+	    public static ArkanoidMode of(int ordinal) {
+	        return values[ordinal];
+	    }
 	}
 }

@@ -3,6 +3,8 @@ package btl.ballgame.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
+import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -10,18 +12,26 @@ import btl.ballgame.server.game.EntityRegistry;
 import btl.ballgame.server.game.entities.breakable.EntityBrick;
 import btl.ballgame.server.game.entities.dynamic.EntityPaddle;
 import btl.ballgame.server.game.entities.dynamic.EntityWreckingBall;
+import btl.ballgame.server.game.match.ArkanoidMatch;
 import btl.ballgame.server.net.NetworkManager;
 import btl.ballgame.server.net.PlayerConnection;
 import btl.ballgame.server.net.handle.ClientDisconnectHandle;
 import btl.ballgame.server.net.handle.ClientLoginHandle;
+import btl.ballgame.server.net.handle.ClientPaddleInputHandle;
+import btl.ballgame.server.net.handle.ClientPongHandle;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.EntityType;
+import btl.ballgame.shared.libs.Constants.ArkanoidMode;
 import btl.ballgame.shared.libs.Constants.MatchPhase;
+import btl.ballgame.shared.libs.Constants.TeamColor;
 import btl.ballgame.protocol.PacketCodec;
 import btl.ballgame.protocol.PacketRegistry;
 import btl.ballgame.protocol.ProtoUtils;
 import btl.ballgame.protocol.packets.in.PacketPlayInClientLogin;
 import btl.ballgame.protocol.packets.in.PacketPlayInDisconnect;
+import btl.ballgame.protocol.packets.in.PacketPlayInPaddleInput;
+import btl.ballgame.protocol.packets.in.PacketPlayInPong;
+import btl.ballgame.protocol.packets.out.PacketPlayOutWorldInit;
 
 public class ArkanoidServer {
 	public static final int VERSION_NUMERIC = 1;
@@ -68,14 +78,27 @@ public class ArkanoidServer {
 		}
 	}
 	
+	private long globalTicksPassed = 0;
 	public void startDedicatedServer() {
 		System.out.println("[TEST] Started dedi server");
 		
-		// notify all network dispatchers to flush queued packets at
-		// the tick rate
+		// notify all network dispatchers to flush queued packets every
+		// 33 milliseconds (1 tick)
 		Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
+			if (globalTicksPassed % (10 * ArkanoidServer.TICKS_PER_SECOND) == 0) { // 3s, 30tps
+				netMan.pingAllClients();
+			}
 			netMan.notifyAllDispatcher();
+			++globalTicksPassed;
 		}, 0, ArkanoidServer.MS_PER_TICK, TimeUnit.MILLISECONDS);
+		
+		new Thread(() -> {
+			Scanner scanner = new Scanner(System.in);
+			while (true) {
+				String line = scanner.nextLine();
+				handleCommand(line);
+			}
+		}, "CII/COI").start();
 		
 		// begin listening to player connection
 		while (true) {
@@ -91,6 +114,31 @@ public class ArkanoidServer {
 		}
 	}
 	
+	private void handleCommand(String line) {
+		String[] parts = line.split(" ");
+		String cmd = parts[0].toLowerCase();
+
+		switch (cmd) {
+		case "stop":
+			System.out.println("Shutting down server...");
+			netMan.disconnectAll("Server closed");
+			System.exit(0);
+			break;
+		case "kick":
+			playerManager.getPlayer(parts[1]).kick("bruh");
+			break;
+		case "test": {
+			ArkanoidMatch match = new ArkanoidMatch(ArkanoidMode.SOLO_ENDLESS);
+			match.assignTeam(TeamColor.RED, Arrays.asList(playerManager.getPlayer(parts[1])));
+			match.start();
+			break;
+		}
+		default:
+			System.out.println("Unknown command: " + line);
+			break;
+		}
+	}
+	
 	private void registerServerEntities() {
 		// active participants
 		this.entityRegistry.registerEntity(EntityType.ENTITY_PADDLE, EntityPaddle.class);
@@ -103,6 +151,8 @@ public class ArkanoidServer {
 	private void registerPacketHandlers() {
 		this.registry.registerHandler(PacketPlayInClientLogin.class, new ClientLoginHandle());
 		this.registry.registerHandler(PacketPlayInDisconnect.class, new ClientDisconnectHandle());
+		this.registry.registerHandler(PacketPlayInPong.class, new ClientPongHandle());
+		this.registry.registerHandler(PacketPlayInPaddleInput.class, new ClientPaddleInputHandle());
 	}
 	
 	public EntityRegistry getEntityRegistry() {

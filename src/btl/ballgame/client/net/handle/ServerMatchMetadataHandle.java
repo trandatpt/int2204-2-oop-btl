@@ -11,7 +11,9 @@ public class ServerMatchMetadataHandle implements PacketHandler<PacketPlayOutMat
 	public void handle(PacketPlayOutMatchMetadata packet, CServerConnection context) {
 		ArkanoidClientCore client = context.client;
 		if (client.getActiveMatch() == null) {
-			client.setActiveMatch(new ClientArkanoidMatch(packet.getMode()));
+			// the server sent absolute bullshit
+			context.closeWithNotify("Invalid server to client state!");
+			return;
 		}
 		
 		client.getActiveMatch().applyMetadata(packet);

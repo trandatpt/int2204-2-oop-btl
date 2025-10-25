@@ -3,13 +3,14 @@ package btl.ballgame.server;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
 import btl.ballgame.server.net.PlayerConnection;
 
 public class PlayerManager {
-	private Map<UUID, ArkaPlayer> trackingPlayers = Collections.synchronizedMap(new HashMap<>());
+	private Map<UUID, ArkaPlayer> trackingPlayers = Collections.synchronizedMap(new LinkedHashMap<>());
 	
 	public ArkaPlayer addPlayer(PlayerConnection connection, String userName) {
 		ArkaPlayer player = new ArkaPlayer(userName, connection);

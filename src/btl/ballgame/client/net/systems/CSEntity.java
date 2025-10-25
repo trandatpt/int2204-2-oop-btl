@@ -136,12 +136,12 @@ public abstract class CSEntity implements IRenderInfo {
 	// for rendering ----
 	@Override
 	public int getRenderX() {
-		return this.serverLocation.getX();
+		return this.serverLocation.getX() - (this.getWidth() >> 1);
 	}
 	
 	@Override
 	public int getRenderY() {
-		return this.serverLocation.getY();
+		return this.serverLocation.getY() - (this.getWidth() >> 1);
 	}
 	
 	@Override

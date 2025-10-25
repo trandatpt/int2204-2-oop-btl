@@ -78,7 +78,7 @@ public class EntityWreckingBall extends WorldEntity {
 	 * @param speed Speed in units per tick.
 	 */
 	public void setSpeed(float speed) {
-		this.speed = speed / ArkanoidServer.TICKS_PER_SECOND;
+		this.speed = speed / Constants.TICKS_PER_SECOND;
 	}
 	
 	/**
@@ -141,11 +141,8 @@ public class EntityWreckingBall extends WorldEntity {
 		if (getBoundingBox().minY < 0) {
 			// if the world has a ceiling, bounces down
 			if (world.hasCeiling()) {
-				pushWorld.y = -getBoundingBox().minX;
-				worldNormal = Math.abs(pushWorld.x) > Math.abs(pushWorld.y) 
-					? new Vector2f(Math.signum(pushWorld.x), 0)
-					: new Vector2f(0, 1)
-				;
+				pushWorld.y = -getBoundingBox().minY;
+				worldNormal = new Vector2f(0, 1);
 				bouncedFromWorld = true;
 			} else {
 				// if the world has no ceiling, the user just lost a ball
@@ -226,7 +223,5 @@ public class EntityWreckingBall extends WorldEntity {
 				ib.damage(1);
 			}
 		}
-		
-		//WorldVisualizer.updateVV(getId(), direction.clone().multiply(5));
 	}
 }

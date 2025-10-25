@@ -21,6 +21,7 @@ public class ProtoUtils {
 		PLAYIN_USER_LOG_IN         = 0x002,
 		PLAYIN_USER_SIGN_UP        = 0x003,
 		PLAYIN_PONG                = 0x004,
+		PLAYIN_PADDLE_INPUT        = 0x005,
 		// outbound packets (server -> client)
 		PLAYOUT_LOGIN_ACK 		   = 0xC00,
 		PLAYOUT_CLOSE_SOCKET 	   = 0xC01,
@@ -30,8 +31,9 @@ public class ProtoUtils {
 		PLAYOUT_ENTITY_METADATA    = 0xC05,
 		PLAYOUT_ENTITY_BB_SIZE     = 0xC06,
 		PLAYOUT_ENTITY_DESTROY     = 0xC07,
-		PLAYOUT_WORLD_INIT         = 0xC08,
-		PLAYOUT_MATCH_META_UPDATE  = 0xC09
+		PLAYOUT_MATCH_JOIN         = 0xC08,
+		PLAYOUT_WORLD_INIT         = 0xC09,
+		PLAYOUT_MATCH_META_UPDATE  = 0xC0A
 	;
 	
 	/**
@@ -49,6 +51,7 @@ public class ProtoUtils {
 		registry.registerPacket(PLAYIN_USER_LOG_IN, PacketPlayInClientLogin.class, PacketPlayInClientLogin::new);
 		registry.registerPacket(PLAYIN_USER_SIGN_UP, PacketPlayInClientUserCreation.class, PacketPlayInClientUserCreation::new);
 		registry.registerPacket(PLAYIN_PONG, PacketPlayInPong.class, PacketPlayInPong::new);
+		registry.registerPacket(PLAYIN_PADDLE_INPUT, PacketPlayInPaddleInput.class, PacketPlayInPaddleInput::new);
 		
 		// PLAYOUT (Server -> Client)
 		registry.registerPacket(PLAYOUT_CLOSE_SOCKET, PacketPlayOutCloseSocket.class, PacketPlayOutCloseSocket::new);
@@ -61,6 +64,7 @@ public class ProtoUtils {
 		registry.registerPacket(PLAYOUT_ENTITY_BB_SIZE, PacketPlayOutEntityBBSizeUpdate.class, PacketPlayOutEntityBBSizeUpdate::new);
 		registry.registerPacket(PLAYOUT_ENTITY_DESTROY, PacketPlayOutEntityDestroy.class, PacketPlayOutEntityDestroy::new);
 		registry.registerPacket(PLAYOUT_WORLD_INIT, PacketPlayOutWorldInit.class, PacketPlayOutWorldInit::new);
+		registry.registerPacket(PLAYOUT_MATCH_JOIN, PacketPlayOutMatchJoin.class, PacketPlayOutMatchJoin::new);
 		registry.registerPacket(PLAYOUT_MATCH_META_UPDATE, PacketPlayOutMatchMetadata.class, PacketPlayOutMatchMetadata::new);
 	}
 }

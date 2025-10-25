@@ -14,16 +14,24 @@ import btl.ballgame.shared.libs.Constants.RifleMode;
 import btl.ballgame.shared.libs.Constants.TeamColor;
 
 public class ClientArkanoidMatch {
-	private ArkanoidMode mode;
+	private final ArkanoidMode mode;
 	private CSWorld gameWorld;
 	
 	private MatchPhase phase = MatchPhase.MATCH_IDLING;
 	private int roundIndex = 0;
 	
-	public Map<TeamColor, CTeamInfo> teams = new HashMap<>();
+	private Map<TeamColor, CTeamInfo> teams = new HashMap<>();
+	private final Map<UUID, String> uuidToName;
 	
-	public ClientArkanoidMatch(ArkanoidMode mode) {
+	/**
+	 * Construct an ArkanoidMatch representation on the client-side.
+	 * 
+	 * @param mode the gamemode
+	 * @param uuidToName the map that maps UUID to the player's name
+	 */
+	public ClientArkanoidMatch(ArkanoidMode mode, Map<UUID, String> uuidToName) {
 		this.mode = mode;
+		this.uuidToName = uuidToName;
 	}
 	
 	public CSWorld getGameWorld() {
@@ -56,47 +64,67 @@ public class ClientArkanoidMatch {
 	 * Syncs this client-side match state with a metadata packet from the server.
 	 */
 	public void applyMetadata(PacketPlayOutMatchMetadata packet) {
-		this.mode = packet.getMode();
 		this.phase = packet.getPhase();
 		this.roundIndex = packet.getRoundIndex();
 		
-		teams.clear();
-		for (TeamEntry teamEntry : packet.getTeams()) {
-			CTeamInfo teamInfo = new CTeamInfo();
-			teamInfo.teamColor = TeamColor.values()[teamEntry.teamColor];
-			teamInfo.ftScore = teamEntry.ftScore;
-			teamInfo.arkScore = teamEntry.arkScore;
-			teamInfo.livesRemaining = teamEntry.livesRemaining;
-			PlayerEntry pentry[] = teamEntry.players;
-			CPlayerInfo cpis[] = new CPlayerInfo[pentry.length];
-			for (int i = 0; i < cpis.length; i++) {
+		// copy the data from the packet (efficiently)
+		for (TeamEntry team : packet.getTeams()) {
+			CTeamInfo teamInfo = teams.computeIfAbsent(
+				TeamColor.of(team.teamColor), 
+				k -> new CTeamInfo(TeamColor.of(team.teamColor))
+			);
+			teamInfo.ftScore = team.ftScore;
+			teamInfo.arkScore = team.arkScore;
+			teamInfo.livesRemaining = team.livesRemaining;
+			
+			// copy players data (optimize later)
+			PlayerEntry players[] = team.players;
+			CPlayerInfo playerInfos[] = new CPlayerInfo[players.length];
+			
+			for (int i = 0; i < playerInfos.length; i++) {
 				CPlayerInfo cpi = new CPlayerInfo();
-				PlayerEntry pe = pentry[i];
+				PlayerEntry pe = players[i];
+				
 				cpi.uuid = pe.uuid;
-				cpi.name = pe.name;
 				cpi.health = pe.health;
-				cpi.firingMode = RifleMode.values()[pe.rifleState];
+				cpi.firingMode = RifleMode.of(pe.rifleState);
 				cpi.bulletsLeft = pe.bulletsLeft;
-				cpis[i] = cpi;
+				
+				playerInfos[i] = cpi;
 			}
 			
-			teams.put(teamInfo.teamColor, teamInfo);
+			teamInfo.players = playerInfos;
 		}
 	}
 	
-	public static class CTeamInfo {
-		public TeamColor teamColor;
+	public class CTeamInfo {
+		public final TeamColor teamColor;
 		public byte ftScore;
 		public int arkScore;
 		public byte livesRemaining;
 		public CPlayerInfo[] players;
+		
+		public CTeamInfo(TeamColor color) {
+			this.teamColor = color;
+		}
 	}
 	
-	public static class CPlayerInfo {
+	public class CPlayerInfo {
 		public UUID uuid;
-		public String name;
 		public byte health;
 		public byte bulletsLeft;
 		public RifleMode firingMode;
+		
+		/**
+		 * goofy ahh function name
+		 * @return true if this instance belongs to "me" (the client's player)
+		 */
+		public boolean isMe() {
+			return ArkanoidGame.core().getPlayer().getUniqueId().equals(uuid);
+		}
+		
+		public String getName() {
+			return uuidToName.get(this.uuid);
+		}
 	}
 }

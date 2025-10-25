@@ -2,6 +2,7 @@ package btl.ballgame.client;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Map;
 import java.util.UUID;
 
 import btl.ballgame.client.net.CServerConnection;
@@ -11,6 +12,7 @@ import btl.ballgame.client.net.handle.ServerEntityMetadataUpdateHandle;
 import btl.ballgame.client.net.handle.ServerEntityPositionUpdateHandle;
 import btl.ballgame.client.net.handle.ServerEntitySpawnHandle;
 import btl.ballgame.client.net.handle.ServerLoginAckHandle;
+import btl.ballgame.client.net.handle.ServerMatchInitHandle;
 import btl.ballgame.client.net.handle.ServerMatchMetadataHandle;
 import btl.ballgame.client.net.handle.ServerPingHandle;
 import btl.ballgame.client.net.handle.ServerWorldInitHandle;
@@ -18,6 +20,7 @@ import btl.ballgame.client.net.handle.ServerSocketCloseHandle;
 import btl.ballgame.client.net.systems.CSEntityRegistry;
 import btl.ballgame.client.net.systems.CSWorld;
 import btl.ballgame.client.net.systems.entities.CEntityBrickNormal;
+import btl.ballgame.client.net.systems.entities.CEntityPaddle;
 import btl.ballgame.client.net.systems.entities.CEntityWreckingBall;
 import btl.ballgame.protocol.PacketCodec;
 import btl.ballgame.protocol.PacketRegistry;
@@ -32,6 +35,7 @@ import btl.ballgame.protocol.packets.out.PacketPlayOutEntityPosition;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntitySpawn;
 import btl.ballgame.protocol.packets.out.PacketPlayOutWorldInit;
 import btl.ballgame.protocol.packets.out.PacketPlayOutLoginAck;
+import btl.ballgame.protocol.packets.out.PacketPlayOutMatchJoin;
 import btl.ballgame.protocol.packets.out.PacketPlayOutMatchMetadata;
 import btl.ballgame.protocol.packets.out.PacketPlayOutPing;
 import btl.ballgame.shared.libs.EntityType;
@@ -44,6 +48,8 @@ public class ArkanoidClientCore {
 	private CSEntityRegistry entityRegistry;
 	
 	private ClientPlayer clientPlayer;
+	
+	// match related information
 	private ClientArkanoidMatch activeMatch;
 	
 	public ArkanoidClientCore(Socket socket) throws IOException {
@@ -63,6 +69,7 @@ public class ArkanoidClientCore {
 		this.registry.registerHandler(PacketPlayOutLoginAck.class, new ServerLoginAckHandle());
 		this.registry.registerHandler(PacketPlayOutPing.class, new ServerPingHandle());
 		// more to add
+		this.registry.registerHandler(PacketPlayOutMatchJoin.class, new ServerMatchInitHandle());
 		this.registry.registerHandler(PacketPlayOutWorldInit.class, new ServerWorldInitHandle());
 		this.registry.registerHandler(PacketPlayOutMatchMetadata.class, new ServerMatchMetadataHandle());
 		this.registry.registerHandler(PacketPlayOutEntitySpawn.class, new ServerEntitySpawnHandle());
@@ -120,7 +127,8 @@ public class ArkanoidClientCore {
 		return clientPlayer;
 	}
 	
-	private void registerEntities() {		
+	private void registerEntities() {
+		this.entityRegistry.registerEntity(EntityType.ENTITY_PADDLE, CEntityPaddle::new);
 		this.entityRegistry.registerEntity(EntityType.ENTITY_BALL, CEntityWreckingBall::new);
 		this.entityRegistry.registerEntity(EntityType.ENTITY_BRICK_NORMAL, CEntityBrickNormal::new);
 	}

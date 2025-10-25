@@ -20,8 +20,9 @@ public class DataWatcherEntry {
 			case 0 -> buffer.readInt8();
 			case 1 -> buffer.readInt16();
 			case 2 -> buffer.readInt32();
-			case 3 -> buffer.readFloat32();
-			case 4 -> buffer.readU8String();
+			case 3 -> buffer.readInt64();
+			case 4 -> buffer.readFloat32();
+			case 5 -> buffer.readU8String();
 			default -> throw new IllegalArgumentException("Unknown type id: " + typeId);
 		};
 		return new DataWatcherEntry(keyId, typeId, value);
@@ -34,8 +35,9 @@ public class DataWatcherEntry {
 			case 0 -> buffer.writeInt8((byte) value);
 			case 1 -> buffer.writeInt16((short) value);
 			case 2 -> buffer.writeInt32((int) value);
-			case 3 -> buffer.writeFloat32((float) value);
-			case 4 -> buffer.writeU8String((String) value);
+			case 3 -> buffer.writeInt64((long) value);
+			case 4 -> buffer.writeFloat32((float) value);
+			case 5 -> buffer.writeU8String((String) value);
 			default -> throw new IllegalArgumentException("Unknown type id: " + typeId);
 		}
 	}

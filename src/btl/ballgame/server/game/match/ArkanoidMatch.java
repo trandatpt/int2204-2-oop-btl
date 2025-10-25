@@ -4,7 +4,9 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import btl.ballgame.protocol.packets.out.PacketPlayOutMatchJoin;
 import btl.ballgame.protocol.packets.out.PacketPlayOutMatchMetadata;
+import btl.ballgame.protocol.packets.out.PacketPlayOutWorldInit;
 import btl.ballgame.protocol.packets.out.PacketPlayOutMatchMetadata.PlayerEntry;
 import btl.ballgame.protocol.packets.out.PacketPlayOutMatchMetadata.TeamEntry;
 import btl.ballgame.server.ArkaPlayer;
@@ -23,36 +25,57 @@ import btl.ballgame.shared.libs.Vector2f;
  * PvP arena mode. Tracks rounds, scores, team states, and match phases.
  */
 public class ArkanoidMatch {
-
 	private final ArkanoidMode gameMode;
 	private final WorldServer world;
+	private final UUID matchId;
+	
 	private boolean matchStarted = false;
 	private MatchPhase currentPhase = MatchPhase.MATCH_IDLING;
 	private TeamColor winner = null;
+	
 	private int roundIndex = 1;
 
 	private final Map<TeamColor, TeamInfo> teams = new HashMap<>();
 	private final Map<ArkaPlayer, TeamColor> teamMap = new HashMap<>();
 	private final Map<ArkaPlayer, EntityPaddle> paddlesMap = new HashMap<>();
-
+	
 	static final int PADDLE_SPACING = 40;
 	static final int BASE_MARGIN = 60;
 
 	/**
 	 * Creates a new ArkanoidMatch instance.
 	 * 
-	 * @param mode The game mode (CLASSIC or PVP_ARENA).
+	 * @param mode The game mode
 	 */
 	public ArkanoidMatch(ArkanoidMode mode) {
 		this.gameMode = mode;
 		this.world = new WorldServer(this, 600, 800);
+		this.matchId = UUID.randomUUID();
 		
 		Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
-			if (currentPhase != MatchPhase.MATCH_IDLING && currentPhase != MatchPhase.CONCLUDED) {
+			if (matchStarted && currentPhase != MatchPhase.CONCLUDED) {
 				this.world.tick();
 				this.onMatchTick();
 			}
 		}, 0, ArkanoidServer.MS_PER_TICK, TimeUnit.MILLISECONDS);
+	}
+	
+	public void start() {
+		Map<UUID, String> nameMatch = new HashMap<>();
+		getPlayers().forEach(p -> {
+			nameMatch.put(p.getUniqueId(), p.getName());
+		});
+		
+		getPlayers().forEach(player -> {
+			player.playerConnection.sendPacket(new PacketPlayOutMatchJoin(matchId, gameMode, nameMatch));
+		});
+		this.syncMatchStateWithClients();
+		getPlayers().forEach(player -> {
+			player.playerConnection.sendPacket(new PacketPlayOutWorldInit(world));
+		});
+		this.prepareMatch();
+		this.matchStarted = true;
+		changePhase(MatchPhase.BRICK_WARFARE);
 	}
 
 	/**
@@ -84,10 +107,10 @@ public class ArkanoidMatch {
 			// the ball falls into the respective paddle
 			// the ball will fall down (+1) if the team is the upper one
 			// and fly up (-1) if lower
-			Vector2f initial = isBottomTeam ? new Vector2f(0, -1) : new Vector2f(0, 1);
+			Vector2f initial = isBottomTeam ? new Vector2f(0, 1) : new Vector2f(0, -1);
 			EntityWreckingBall ball = new EntityWreckingBall(world.nextEntityId(),
 				new Location(world, world.getWidth() / 2, // middle the screen
-					(isBottomTeam ? -1 : 1) * 120, // a little higher than the base
+					world.getWidth() / 2, // a little higher than the base
 					initial // initial flying vector
 				)
 			);
@@ -359,8 +382,12 @@ public class ArkanoidMatch {
 	 * 
 	 * @return The round number.
 	 */
-	public int getRoundIndex() {
+	public int getCurrentRound() {
 		return roundIndex;
+	}
+	
+	public UUID getMatchId() {
+		return matchId;
 	}
 
 	/**
@@ -378,11 +405,10 @@ public class ArkanoidMatch {
 			
 			List<PlayerEntry> players = new ArrayList<>();
 			for (ArkaPlayer p : team.getPlayers()) {
-				PlayerEntry pe = new PlayerEntry();
 				PlayerInfo pi = team.getPlayerInfo(p);
+				PlayerEntry pe = new PlayerEntry();
 				
 				pe.uuid = p.getUniqueId(); // UUID
-				pe.name = p.getName(); // display name
 				pe.health = (byte) pi.getHealth(); // paddle HP
 				pe.rifleState = (byte) pi.getFiringMode().ordinal(); // rifle mode
 				pe.bulletsLeft = (byte) pi.getAKRounds();
@@ -394,9 +420,8 @@ public class ArkanoidMatch {
 		}
 
 		this.world.broadcastPackets(new PacketPlayOutMatchMetadata(
-			(byte) getGameMode().ordinal(), 
 			(byte) getCurrentPhase().ordinal(), 
-			getRoundIndex(),
+			(short) getCurrentRound(),
 			teamEntries.toArray(TeamEntry[]::new)
 		));
 	}

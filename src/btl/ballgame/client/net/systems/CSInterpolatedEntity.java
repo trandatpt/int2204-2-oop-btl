@@ -34,7 +34,7 @@ public abstract class CSInterpolatedEntity extends CSEntity {
 	private long lastDimUpdateNanos;
 	
 	// use these to render (w,h FROM TOP LEFT)
-	protected int renderWidth, renderHeight;
+	private int renderWidth, renderHeight;
 	
 	@Override
 	public void onBeforeBBSizeUpdate() {
@@ -43,6 +43,11 @@ public abstract class CSInterpolatedEntity extends CSEntity {
 		this.oldWidth = intLerp(oldWidth, getWidth(), alpha);
 		this.oldHeight = intLerp(oldHeight, getHeight(), alpha);
 		this.lastDimUpdateNanos = System.nanoTime();
+	}
+	
+	@Override
+	public void onAfterLocationUpdate() {
+		System.out.println(getMutableServerLocation());
 	}
 	
 	// ---- RENDER LOOP ----
@@ -71,12 +76,12 @@ public abstract class CSInterpolatedEntity extends CSEntity {
 	// for rendering smooth visuals (standardized)
 	@Override
 	public int getRenderX() {
-		return this.renderX;
+		return this.renderX - (this.renderWidth >> 1);
 	}
 	
 	@Override
 	public int getRenderY() {
-		return this.renderY;
+		return this.renderY - (this.renderHeight >> 1);
 	}
 	
 	@Override

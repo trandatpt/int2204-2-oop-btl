@@ -6,14 +6,30 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import btl.ballgame.protocol.packets.out.IPacketPlayOut;
+import btl.ballgame.protocol.packets.out.PacketPlayOutPing;
 
 public class NetworkManager {
+	private static final PacketPlayOutPing PING_PACKET = new PacketPlayOutPing();
 	private final Set<PlayerConnection> connections = Collections.synchronizedSet(new LinkedHashSet<>());	
 	
 	public void notifyAllDispatcher() {
-		for (PlayerConnection conn : connections) {
-			conn.notifyDispatcher();
+		synchronized (connections) {
+			for (PlayerConnection conn : connections) {
+				conn.notifyDispatcher();
+			}
 		}
+	}
+	
+	public void disconnectAll(String reason) {
+		synchronized (connections) {
+			for (PlayerConnection conn : connections) {
+				conn.closeWithNotify(reason);
+			}
+		}
+	}
+	
+	public void pingAllClients() {
+		broadcast(PING_PACKET);
 	}
 	
 	public void track(PlayerConnection conn) {

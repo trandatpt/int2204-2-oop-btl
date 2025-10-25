@@ -4,10 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 
-import btl.ballgame.client.ui.menus.LoginScreen;
 import btl.ballgame.client.ui.menus.MenuUtils;
-import btl.ballgame.client.ui.menus.ServerSelector;
-import btl.ballgame.client.ui.menus.ServerSelector.PredefinedServer;
 import btl.ballgame.client.ui.screen.ScreenManager;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -29,6 +26,19 @@ public class ArkanoidGame extends Application {
 
 		root.show();
 	}
+	
+	@Override
+	public void stop() throws Exception {
+		try {
+			// do some cleanup
+			if (core != null) {
+				core.disconnect(); // gracefully terminate the connection
+			}
+		} finally {
+			// kill the jvm anyway
+			System.exit(0);
+		}
+	}
 
 	public static ScreenManager manager() {
 		return manager;
@@ -37,6 +47,10 @@ public class ArkanoidGame extends Application {
 	public static void createCore(Socket socket) throws IOException {
 		core = new ArkanoidClientCore(socket);
 		Platform.runLater(MenuUtils::displayLoginScreen);
+	}
+	
+	public static void destroyCore() {
+		core = null;
 	}
 
 	public static ArkanoidClientCore core() {

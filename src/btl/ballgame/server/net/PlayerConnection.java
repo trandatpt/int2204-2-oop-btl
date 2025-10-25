@@ -230,6 +230,8 @@ public class PlayerConnection implements ConnectionCtx {
 		this.packetDispatcherThread.interrupt();
 		// untrack this instance
 		server.getNetworkManager().untrack(this);
+		// debug info
+		System.out.println("[Network] User with IP: " + clientSocket.getInetAddress().toString() + " disconnected!");
 		// notify the internal server impl to handle quit event
 		if (owner == null) return;
 		owner.onPlayerConnectionClose();

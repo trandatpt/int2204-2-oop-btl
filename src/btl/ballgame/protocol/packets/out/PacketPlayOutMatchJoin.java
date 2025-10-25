@@ -1,0 +1,60 @@
+package btl.ballgame.protocol.packets.out;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import btl.ballgame.protocol.PacketByteBuf;
+import btl.ballgame.protocol.packets.NetworkPacket;
+import btl.ballgame.shared.libs.Constants.ArkanoidMode;
+
+public class PacketPlayOutMatchJoin extends NetworkPacket implements IPacketPlayOut {
+	public PacketPlayOutMatchJoin() {}
+	
+	private ArkanoidMode arkanoidMode;
+	private UUID matchId;
+	private Map<UUID, String> nameMap;
+	
+	public PacketPlayOutMatchJoin(UUID matchId, ArkanoidMode mode, Map<UUID, String> nameMap) {
+		this.matchId = matchId;
+		this.nameMap = nameMap;
+		this.arkanoidMode = mode;
+	}
+	
+	public UUID getMatchId() {
+		return matchId;
+	}
+	
+	public Map<UUID, String> getNameMap() {
+		return nameMap;
+	}
+	
+	public ArkanoidMode getArkanoidMode() {
+		return arkanoidMode;
+	}
+	
+	@Override
+	public void write(PacketByteBuf buf) {
+		buf.writeInt8((byte) arkanoidMode.ordinal());
+		buf.writeInt64(matchId.getMostSignificantBits());
+		buf.writeInt64(matchId.getLeastSignificantBits());
+		buf.writeInt8((byte) nameMap.size());
+		nameMap.forEach((uuid, name) -> {
+			buf.writeInt64(uuid.getMostSignificantBits());
+			buf.writeInt64(uuid.getLeastSignificantBits());
+			buf.writeU8String(name);
+		});
+	}
+
+	@Override
+	public void read(PacketByteBuf buf) {
+		this.arkanoidMode = ArkanoidMode.of(buf.readInt8());
+		this.matchId = new UUID(buf.readInt64(), buf.readInt64()); // MSB, LSB
+		int size = buf.readInt8(); 
+		this.nameMap = new HashMap<>(size);
+		for (int i = 0; i < size; i++) {
+			UUID playerUuid = new UUID(buf.readInt64(), buf.readInt64());
+			this.nameMap.put(playerUuid, buf.readU8String());
+		}
+	}
+ }

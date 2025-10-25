@@ -8,6 +8,15 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
 public class MenuUtils {
+	public static void showLoadingScreen(String reason) {
+		Platform.runLater(() -> {
+			InformationalScreen loading = new InformationalScreen(
+				reason, "", reason
+			);
+			ArkanoidGame.manager().setScreen(loading);
+		});
+	}
+	
 	public static void connectionLostScreen(String reason) {
 		Platform.runLater(() -> {
 			InformationalScreen disconnected = new InformationalScreen(
