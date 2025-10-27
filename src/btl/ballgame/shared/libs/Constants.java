@@ -5,6 +5,7 @@ public class Constants {
 	public static final int HP_META_KEY = 0xA;
 	public static final int PADDLE_OWNER_MKEY = 0xB01;
 	public static final int MISC_META_KEY = 0xFFF;
+	public static final int BUFF_TYPE_META = 36;
 	
 	// misc constants
 	public static final int PADDLE_MAX_HEALTH = 100;
@@ -25,6 +26,12 @@ public class Constants {
 	public static enum TeamColor {
 		RED, BLUE
 	}
+	
+	public static enum BuffType {
+        PADDLE_EXPAND,
+        PIERCING_BALL,
+        MULTI_BALL
+    }
 	
 	public static enum ArkanoidMode {
 		SOLO_ENDLESS(true),

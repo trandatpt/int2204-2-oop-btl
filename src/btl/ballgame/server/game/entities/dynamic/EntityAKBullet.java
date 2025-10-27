@@ -8,3 +8,4 @@ public abstract class EntityAKBullet extends EntityDynamic {
 		super(id, location);
 	}
 }
+
