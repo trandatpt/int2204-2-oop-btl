@@ -12,11 +12,11 @@ import btl.ballgame.shared.UnknownPacketException;
  * <b>PennyWort Protocol (PWP)</b>, the network protocol used by
  * the Arkanoid game server and client to exchange packets.
  *
- * <h3>Packet Format (PWP v0.36)</h3>
+ * <h3>Packet Format (PWP v0.36-A)</h3>
  * Each packet is serialized as follows:
  * <pre>
  * [int32 length]        - Total size of the following buffer (bytes)
- * [int32 packetId]      - 32-bit ID identifying the packet type
+ * [int16 packetId]      - 16-bit ID identifying the packet type (nonstandard)
  * [payload bytes...]    - Packet payload
  * </pre>
  *
@@ -25,6 +25,9 @@ import btl.ballgame.shared.UnknownPacketException;
  * On the receiving side, it reads the buffer, extracts the ID,
  * and uses the {@link PacketRegistry} to reconstruct the proper
  * {@link NetworkPacket} subclass.
+ * 
+ * @apiNote PWP v0.36-A is an implementation-specific standard,
+ * lowering the packet address space to 16-bit
  */
 public class PacketCodec {
 	/** registry maps: packet IDs -> classes and constructors. */
@@ -49,7 +52,8 @@ public class PacketCodec {
 	public void writePacket(DataOutputStream out, NetworkPacket packet) throws IOException {
 		PacketByteBuf buf = PacketByteBuf.malloc(36); // initial, dynamic buffer of 32 + 4 bytes
 		
-		buf.writeInt32(registry.packetToId(packet.getClass())); // the packet ID
+		// squashed to an int16 to save 2 bytes!
+		buf.writeInt16((short) registry.packetToId(packet.getClass())); // the packet ID
 		packet.write(buf); // the packet payload
 		
 		byte buffer[] = buf.dump(); 
@@ -71,7 +75,7 @@ public class PacketCodec {
 	@SuppressWarnings("unchecked")
 	public <T extends NetworkPacket> T readPacket(DataInputStream in) throws IOException, UnknownPacketException {
 		PacketByteBuf buf = PacketByteBuf.consume(in);
-		int packetId = buf.readInt32();
+		int packetId = buf.readInt16(); // impl-specific
 		
 		NetworkPacket networkPacket = registry.create(packetId);
 		networkPacket.read(buf);

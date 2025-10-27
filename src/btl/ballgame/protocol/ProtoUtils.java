@@ -14,7 +14,7 @@ import btl.ballgame.protocol.packets.out.*;
 public class ProtoUtils {
 	public static final int PROTOCOL_VERSION = 0x1836;
 	
-	public static final int 
+	public static final short
 		// inbound packets (client -> server)
 		PLAYIN_CLIENT_HELLO  	   = 0x000,
 		PLAYIN_DISCONNECT		   = 0x001,
@@ -22,6 +22,7 @@ public class ProtoUtils {
 		PLAYIN_USER_SIGN_UP        = 0x003,
 		PLAYIN_PONG                = 0x004,
 		PLAYIN_PADDLE_INPUT        = 0x005,
+		PLAYIN_FIRING_MODE_CHANGE  = 0x006,
 		// outbound packets (server -> client)
 		PLAYOUT_LOGIN_ACK 		   = 0xC00,
 		PLAYOUT_CLOSE_SOCKET 	   = 0xC01,
@@ -52,7 +53,8 @@ public class ProtoUtils {
 		registry.registerPacket(PLAYIN_USER_SIGN_UP, PacketPlayInClientUserCreation.class, PacketPlayInClientUserCreation::new);
 		registry.registerPacket(PLAYIN_PONG, PacketPlayInPong.class, PacketPlayInPong::new);
 		registry.registerPacket(PLAYIN_PADDLE_INPUT, PacketPlayInPaddleInput.class, PacketPlayInPaddleInput::new);
-		
+		registry.registerPacket(PLAYIN_FIRING_MODE_CHANGE, PacketPlayInChangeFireMode.class, PacketPlayInChangeFireMode::new);
+
 		// PLAYOUT (Server -> Client)
 		registry.registerPacket(PLAYOUT_CLOSE_SOCKET, PacketPlayOutCloseSocket.class, PacketPlayOutCloseSocket::new);
 		registry.registerPacket(PLAYOUT_LOGIN_ACK, PacketPlayOutLoginAck.class, PacketPlayOutLoginAck::new);
