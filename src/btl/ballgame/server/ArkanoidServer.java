@@ -94,16 +94,19 @@ public class ArkanoidServer {
 	private long globalTicksPassed = 0;
 	public void startDedicatedServer() {
 		System.out.println("[TEST] Started dedi server");
-		
-		// notify all network dispatchers to flush queued packets every
-		// 33 milliseconds (1 tick)
-		Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
+
+		var executor = Executors.newScheduledThreadPool(1);
+		// ping every clients every 5s
+		executor.scheduleAtFixedRate(() -> {
 			if (globalTicksPassed % (5 * ArkanoidServer.TICKS_PER_SECOND) == 0) { // 5s, 30tps
 				netMan.pingAllClients();
 			}
-			netMan.notifyAllDispatcher();
 			++globalTicksPassed;
 		}, 0, ArkanoidServer.MS_PER_TICK, TimeUnit.MILLISECONDS);
+		
+		executor.scheduleAtFixedRate(() -> {
+			netMan.notifyAllDispatcher();
+		}, 0, ArkanoidServer.MS_PER_TICK / 2, TimeUnit.MILLISECONDS);
 		
 		new Thread(() -> {
 			Scanner scanner = new Scanner(System.in);

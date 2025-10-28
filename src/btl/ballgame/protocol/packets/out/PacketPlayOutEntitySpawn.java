@@ -55,7 +55,7 @@ public class PacketPlayOutEntitySpawn extends NetworkPacket implements IPacketPl
 	@Override
 	public void write(PacketByteBuf buffer) {
 		buffer.writeInt8(this.entityTypeId);
-		buffer.writeInt32(this.entityId);
+		buffer.writeInt16((short) this.entityId);
 		this.metadata.write(buffer);
 		// write spawn location
 		buffer.writeInt16((short) this.spawnLocation.getX());
@@ -69,7 +69,7 @@ public class PacketPlayOutEntitySpawn extends NetworkPacket implements IPacketPl
 	@Override
 	public void read(PacketByteBuf buffer) {
 		this.entityTypeId = buffer.readInt8();
-		this.entityId = buffer.readInt32();
+		this.entityId = buffer.readInt16();
 		this.metadata = new DataWatcher();
 		this.metadata.read(buffer);
 		this.spawnLocation = new Location(null, 

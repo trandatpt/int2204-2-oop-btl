@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.UUID;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -61,7 +62,7 @@ public class ArkanoidClientCore {
 	private ClientArkanoidMatch activeMatch;
 	private CEntityPaddleLocal controlPaddle;
 	
-	private ScheduledFuture<?> clientTickTask;
+	private ScheduledExecutorService clientExecutor;
 	private int currentTick;
 	
 	public ArkanoidClientCore(Socket socket) throws IOException {
@@ -73,10 +74,10 @@ public class ArkanoidClientCore {
 		this.registerEntities();
 		
 		this.connection = new CServerConnection(socket, this);
-		
-		// this is the client tick task (33ms, 30 TPS)
-		this.clientTickTask = Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
-			// tick the tickable entities
+		this.clientExecutor = Executors.newScheduledThreadPool(1);
+
+		// this is the client tick task, runs at 30 TPS
+		clientExecutor.scheduleAtFixedRate(() -> {
 			CSWorld world = getActiveWorld();
 			if (world != null) {
 				for (CSEntity entity : world.getAllEntities()) {
@@ -85,10 +86,14 @@ public class ArkanoidClientCore {
 					}
 				}
 			}
-			// notify the network dispatcher to flush queued packets
-			this.connection.notifyDispatcher();
 			++currentTick;
 		}, 0, Constants.MS_PER_TICK, TimeUnit.MILLISECONDS);
+		
+		// this is the client packet dispatcher task, runs at 60TPS (60hz)
+		clientExecutor.scheduleAtFixedRate(() -> {
+			// notify the network dispatcher to flush queued packets
+			this.connection.notifyDispatcher();
+		}, 0, Constants.MS_PER_TICK / 2, TimeUnit.MILLISECONDS);
 	}
 	
 	private void registerPacketHandlers() {
@@ -191,8 +196,8 @@ public class ArkanoidClientCore {
 	}
 	
 	public void cleanup() {
-		if (clientTickTask != null) {
-			this.clientTickTask.cancel(true);
+		if (clientExecutor != null) {
+			this.clientExecutor.shutdownNow();
 		}
 	}
 }
