@@ -9,7 +9,9 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Semaphore;
 
 import btl.ballgame.client.ArkanoidClientCore;
 import btl.ballgame.client.ArkanoidGame;
@@ -40,12 +42,14 @@ public class CServerConnection implements ConnectionCtx {
 	private DataInputStream receiveStream;
 	private DataOutputStream sendStream;
 	
-	private LinkedBlockingQueue<NetworkPacket> dispatchQueue = new LinkedBlockingQueue<>();
+	private ConcurrentLinkedDeque<NetworkPacket> dispatchQueue = new ConcurrentLinkedDeque<>();
 	
 	private boolean closed = false;
 	
 	private Thread packetListenerThread;
 	private Thread packetDispatcherThread;
+	
+	private final Semaphore flushSignal = new Semaphore(0); // basically a notifier
 	
 	public final ArkanoidClientCore client;
 	
@@ -94,15 +98,13 @@ public class CServerConnection implements ConnectionCtx {
 			Thread.currentThread().setName("CServerConnection: Packet Dispatcher Thread");
 			while (true) {
 				try {
-					NetworkPacket first = dispatchQueue.take(); // this blocks until there's something to pick up
-					List<NetworkPacket> batch = new ArrayList<>();
-					batch.add(first);
-					dispatchQueue.drainTo(batch); // grab any other queued packets immediately
+					flushSignal.acquire(); // block until flushSignal release
 					synchronized (sendStream) {
-						for (NetworkPacket p : batch) {
+						for (NetworkPacket p : dispatchQueue) {
 							client.codec().writePacket(sendStream, p);
 						}
 						sendStream.flush();
+						dispatchQueue.clear();
 					}
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
@@ -115,6 +117,14 @@ public class CServerConnection implements ConnectionCtx {
 		
 		this.packetDispatcherThread.start();
 		this.packetListenerThread.start();
+	}
+	
+    /**
+     * Signals the internal packet dispatcher thread to wake up and flush
+     * all pending packets currently queued for the server.
+     */
+	public void notifyDispatcher() {
+	    flushSignal.release();
 	}
 	
 	/**

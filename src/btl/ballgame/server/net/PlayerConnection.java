@@ -10,7 +10,10 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import btl.ballgame.protocol.ConnectionCtx;
 import btl.ballgame.protocol.ProtoUtils;
@@ -36,6 +39,8 @@ import btl.ballgame.server.ArkaPlayer;
  * </ul>
  */
 public class PlayerConnection implements ConnectionCtx {
+	private static final ScheduledExecutorService GLOBAL_SCHEDULER = Executors.newSingleThreadScheduledExecutor();
+	
 	private Socket clientSocket;
 	private DataInputStream receiveStream;
 	private DataOutputStream sendStream;
@@ -50,7 +55,10 @@ public class PlayerConnection implements ConnectionCtx {
 	private Thread packetListenerThread;
 	private Thread packetDispatcherThread;
 	
-	private final Semaphore flushSignal = new Semaphore(0);
+	private final Semaphore flushSignal = new Semaphore(0); // basically a notifier
+	
+	// special flag
+	private boolean validClient = false; // every connection is garbage until proven otherwise
 	
 	/**
 	 * Creates a new {@link PlayerConnection} for the given client socket and
@@ -88,6 +96,7 @@ public class PlayerConnection implements ConnectionCtx {
 			Thread.currentThread().setName("PlayerConnection: Packet Listener Thread");
 			while (!closed) {
 				try {
+					Thread.sleep(50);
 					// read the next packet from the stream
 					NetworkPacket packet = server.codec().readPacket(receiveStream);
 					// find the handle of the packet and then invoke it
@@ -105,6 +114,7 @@ public class PlayerConnection implements ConnectionCtx {
 			while (true) {
 				try {
 					flushSignal.acquire(); // block until flushSignal release
+					Thread.sleep(50);
 					synchronized (sendStream) {
 						if (this.dispatchQueue.isEmpty()) continue;
 						for (NetworkPacket p : dispatchQueue) {
@@ -124,6 +134,30 @@ public class PlayerConnection implements ConnectionCtx {
 		
 		this.packetDispatcherThread.start();
 		this.packetListenerThread.start();
+		
+		// allow this connection 1 second to prove that it is not garbage
+		GLOBAL_SCHEDULER.schedule(() -> {
+			if (!this.isValidClient()) {
+				this.closeConnection();
+			}
+		}, 1, TimeUnit.SECONDS);
+	}
+	
+	/**
+	 * @return true if this connection has successfully completed 
+	 *  the client-hello handshake.
+	 */
+	public boolean isValidClient() {
+		return this.validClient;
+	}
+	
+	/**
+	 * Mark this connection as a "valid" client.
+	 * 
+	 * Basically this connection has completed a client-hello handshake.
+	 */
+	public void completeHandshake() {
+		this.validClient = true; // set this to true so it wont be killed
 	}
 	
     /**
@@ -199,11 +233,20 @@ public class PlayerConnection implements ConnectionCtx {
 	 * @param reason the reason for closing the connection
 	 */
 	public void closeWithNotify(String reason) {
+		this.dispatchLastPacketAndClose(new PacketPlayOutCloseSocket(reason));
+	}
+	
+	/**
+	 * Closes the connection gracefully with an last packet.
+	 * 
+	 * @param lastPacket the last packet to send before closing
+	 */
+	public void dispatchLastPacketAndClose(IPacketPlayOut lastPacket) {
 		if (closed) return;
-		// dispatch a disconnect reason immediately, this bypasses the queue
+		// dispatch the last packet immediately, this bypasses the queue
 		synchronized (sendStream) {
 			try {
-				server.codec().writePacket(sendStream, new PacketPlayOutCloseSocket(reason));
+				server.codec().writePacket(sendStream, (NetworkPacket) lastPacket);
 				sendStream.flush();
 			} catch (IOException e) {}
 		}

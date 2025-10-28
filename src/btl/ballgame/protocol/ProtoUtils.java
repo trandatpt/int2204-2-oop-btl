@@ -24,17 +24,18 @@ public class ProtoUtils {
 		PLAYIN_PADDLE_INPUT        = 0x005,
 		PLAYIN_FIRING_MODE_CHANGE  = 0x006,
 		// outbound packets (server -> client)
-		PLAYOUT_LOGIN_ACK 		   = 0xC00,
-		PLAYOUT_CLOSE_SOCKET 	   = 0xC01,
-		PLAYOUT_PING               = 0xC02,
-		PLAYOUT_ENTITY_SPAWN       = 0xC03,
-		PLAYOUT_ENTITY_POSITION    = 0xC04,
-		PLAYOUT_ENTITY_METADATA    = 0xC05,
-		PLAYOUT_ENTITY_BB_SIZE     = 0xC06,
-		PLAYOUT_ENTITY_DESTROY     = 0xC07,
-		PLAYOUT_MATCH_JOIN         = 0xC08,
-		PLAYOUT_WORLD_INIT         = 0xC09,
-		PLAYOUT_MATCH_META_UPDATE  = 0xC0A
+		PLAYOUT_CLIENT_HELLO_ACK   = 0xC00,
+		PLAYOUT_LOGIN_ACK 		   = 0xC01,
+		PLAYOUT_CLOSE_SOCKET 	   = 0xC02,
+		PLAYOUT_PING               = 0xC03,
+		PLAYOUT_ENTITY_SPAWN       = 0xC04,
+		PLAYOUT_ENTITY_POSITION    = 0xC05,
+		PLAYOUT_ENTITY_METADATA    = 0xC06,
+		PLAYOUT_ENTITY_BB_SIZE     = 0xC07,
+		PLAYOUT_ENTITY_DESTROY     = 0xC08,
+		PLAYOUT_MATCH_JOIN         = 0xC09,
+		PLAYOUT_WORLD_INIT         = 0xC0A,
+		PLAYOUT_MATCH_META_UPDATE  = 0xC0B
 	;
 	
 	/**
@@ -47,15 +48,16 @@ public class ProtoUtils {
 	 */
 	public static void registerMutualPackets(PacketRegistry registry) {
 		// PLAYIN (Client -> Server)
-		registry.registerPacket(PLAYIN_CLIENT_HELLO, PacketPlayInClientLogin.class, PacketPlayInClientLogin::new);
+		registry.registerPacket(PLAYIN_CLIENT_HELLO, PacketPlayInClientHello.class, PacketPlayInClientHello::new);
 		registry.registerPacket(PLAYIN_DISCONNECT, PacketPlayInDisconnect.class, PacketPlayInDisconnect::new);
 		registry.registerPacket(PLAYIN_USER_LOG_IN, PacketPlayInClientLogin.class, PacketPlayInClientLogin::new);
 		registry.registerPacket(PLAYIN_USER_SIGN_UP, PacketPlayInClientUserCreation.class, PacketPlayInClientUserCreation::new);
 		registry.registerPacket(PLAYIN_PONG, PacketPlayInPong.class, PacketPlayInPong::new);
-		registry.registerPacket(PLAYIN_PADDLE_INPUT, PacketPlayInPaddleInput.class, PacketPlayInPaddleInput::new);
+		registry.registerPacket(PLAYIN_PADDLE_INPUT, PacketPlayInPaddleControl.class, PacketPlayInPaddleControl::new);
 		registry.registerPacket(PLAYIN_FIRING_MODE_CHANGE, PacketPlayInChangeFireMode.class, PacketPlayInChangeFireMode::new);
-
+		
 		// PLAYOUT (Server -> Client)
+		registry.registerPacket(PLAYOUT_CLIENT_HELLO_ACK, PacketPlayOutHelloAck.class, PacketPlayOutHelloAck::new);
 		registry.registerPacket(PLAYOUT_CLOSE_SOCKET, PacketPlayOutCloseSocket.class, PacketPlayOutCloseSocket::new);
 		registry.registerPacket(PLAYOUT_LOGIN_ACK, PacketPlayOutLoginAck.class, PacketPlayOutLoginAck::new);
 		registry.registerPacket(PLAYOUT_PING, PacketPlayOutPing.class, PacketPlayOutPing::new);

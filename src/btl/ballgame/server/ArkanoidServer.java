@@ -16,22 +16,23 @@ import btl.ballgame.server.game.match.ArkanoidMatch;
 import btl.ballgame.server.net.NetworkManager;
 import btl.ballgame.server.net.PlayerConnection;
 import btl.ballgame.server.net.handle.ClientDisconnectHandle;
+import btl.ballgame.server.net.handle.ClientHelloHandle;
 import btl.ballgame.server.net.handle.ClientLoginHandle;
 import btl.ballgame.server.net.handle.ClientPaddleInputHandle;
 import btl.ballgame.server.net.handle.ClientPongHandle;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.EntityType;
+import btl.ballgame.shared.libs.external.Json;
 import btl.ballgame.shared.libs.Constants.ArkanoidMode;
-import btl.ballgame.shared.libs.Constants.MatchPhase;
 import btl.ballgame.shared.libs.Constants.TeamColor;
 import btl.ballgame.protocol.PacketCodec;
 import btl.ballgame.protocol.PacketRegistry;
 import btl.ballgame.protocol.ProtoUtils;
+import btl.ballgame.protocol.packets.in.PacketPlayInClientHello;
 import btl.ballgame.protocol.packets.in.PacketPlayInClientLogin;
 import btl.ballgame.protocol.packets.in.PacketPlayInDisconnect;
-import btl.ballgame.protocol.packets.in.PacketPlayInPaddleInput;
+import btl.ballgame.protocol.packets.in.PacketPlayInPaddleControl;
 import btl.ballgame.protocol.packets.in.PacketPlayInPong;
-import btl.ballgame.protocol.packets.out.PacketPlayOutWorldInit;
 
 public class ArkanoidServer {
 	public static final int VERSION_NUMERIC = 1;
@@ -43,7 +44,7 @@ public class ArkanoidServer {
 	private static ArkanoidServer server = null;
 	
 	public static void main(String[] args) {
-		server = new ArkanoidServer(3636);
+		server = new ArkanoidServer();
 		server.startDedicatedServer();
 	}
 	
@@ -60,9 +61,21 @@ public class ArkanoidServer {
 	
 	private EntityRegistry entityRegistry;
 	
-	public ArkanoidServer(int port) {
+	private DataManager dataManager;
+	
+	// misc data
+	private int serverPort;
+	private int maxPlayers;
+	
+	public ArkanoidServer() {
 		try {
-			this.serverSocket = new ServerSocket(port);
+			this.dataManager = new DataManager();
+			
+			Json serverProperties = dataManager.getServerProperties();
+			this.serverPort = serverProperties.at("tcp-port").asInteger();
+			this.maxPlayers = serverProperties.at("max-players").asInteger();
+			
+			this.serverSocket = new ServerSocket(this.serverPort);
 			this.registry = new PacketRegistry();
 			this.codec = new PacketCodec(registry);
 			ProtoUtils.registerMutualPackets(this.registry);
@@ -85,7 +98,7 @@ public class ArkanoidServer {
 		// notify all network dispatchers to flush queued packets every
 		// 33 milliseconds (1 tick)
 		Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
-			if (globalTicksPassed % (10 * ArkanoidServer.TICKS_PER_SECOND) == 0) { // 3s, 30tps
+			if (globalTicksPassed % (5 * ArkanoidServer.TICKS_PER_SECOND) == 0) { // 5s, 30tps
 				netMan.pingAllClients();
 			}
 			netMan.notifyAllDispatcher();
@@ -96,7 +109,11 @@ public class ArkanoidServer {
 			Scanner scanner = new Scanner(System.in);
 			while (true) {
 				String line = scanner.nextLine();
-				handleCommand(line);
+				try {
+					handleCommand(line);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}, "CII/COI").start();
 		
@@ -149,10 +166,11 @@ public class ArkanoidServer {
 	}
 
 	private void registerPacketHandlers() {
+		this.registry.registerHandler(PacketPlayInClientHello.class, new ClientHelloHandle());
 		this.registry.registerHandler(PacketPlayInClientLogin.class, new ClientLoginHandle());
 		this.registry.registerHandler(PacketPlayInDisconnect.class, new ClientDisconnectHandle());
 		this.registry.registerHandler(PacketPlayInPong.class, new ClientPongHandle());
-		this.registry.registerHandler(PacketPlayInPaddleInput.class, new ClientPaddleInputHandle());
+		this.registry.registerHandler(PacketPlayInPaddleControl.class, new ClientPaddleInputHandle());
 	}
 	
 	public EntityRegistry getEntityRegistry() {
@@ -173,5 +191,14 @@ public class ArkanoidServer {
 	
 	public PlayerManager getPlayerManager() {
 		return playerManager;
+	}
+	
+	public DataManager getDataManager() {
+		return dataManager;
+	}
+	
+	// misc
+	public int getMaxPlayers() {
+		return maxPlayers;
 	}
 }

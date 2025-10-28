@@ -1,14 +1,14 @@
 package btl.ballgame.server.net.handle;
 
 import btl.ballgame.protocol.packets.PacketHandler;
-import btl.ballgame.protocol.packets.in.PacketPlayInPaddleInput;
+import btl.ballgame.protocol.packets.in.PacketPlayInPaddleControl;
 import btl.ballgame.server.ArkaPlayer;
 import btl.ballgame.server.game.match.ArkanoidMatch;
 import btl.ballgame.server.net.PlayerConnection;
 
-public class ClientPaddleInputHandle implements PacketHandler<PacketPlayInPaddleInput, PlayerConnection> {
+public class ClientPaddleInputHandle implements PacketHandler<PacketPlayInPaddleControl, PlayerConnection> {
 	@Override
-	public void handle(PacketPlayInPaddleInput packet, PlayerConnection context) {
+	public void handle(PacketPlayInPaddleControl packet, PlayerConnection context) {
 		if (!context.hasPlayer()) {
 			context.closeForViolation();
 			return;

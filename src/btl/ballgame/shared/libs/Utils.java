@@ -15,6 +15,10 @@ public class Utils {
 		return (int) lerp(v0, v1, t);
 	}
 	
+	public static int clamp(int value, int min, int max) {
+		return Math.max(min, Math.min(max, value));
+	}
+	
 	private static String bytesToHex(byte[] hash) {
 		StringBuilder hexString = new StringBuilder(2 * hash.length);
 		for (int i = 0; i < hash.length; i++) {

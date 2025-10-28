@@ -45,11 +45,6 @@ public abstract class CSInterpolatedEntity extends CSEntity {
 		this.lastDimUpdateNanos = System.nanoTime();
 	}
 	
-	@Override
-	public void onAfterLocationUpdate() {
-		System.out.println(getMutableServerLocation());
-	}
-	
 	// ---- RENDER LOOP ----
 	protected final void computeLerps() {
 		float posAlpha = getAlpha(lastPosUpdateNanos);

@@ -6,6 +6,8 @@ import java.net.Socket;
 
 import btl.ballgame.client.ui.menus.MenuUtils;
 import btl.ballgame.client.ui.screen.ScreenManager;
+import btl.ballgame.protocol.ProtoUtils;
+import btl.ballgame.protocol.packets.in.PacketPlayInClientHello;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.image.Image;
@@ -46,10 +48,17 @@ public class ArkanoidGame extends Application {
 
 	public static void createCore(Socket socket) throws IOException {
 		core = new ArkanoidClientCore(socket);
-		Platform.runLater(MenuUtils::displayLoginScreen);
+		// tell the server what protocol version we're rocking
+		core.getConnection().sendPacket(new PacketPlayInClientHello(
+			ProtoUtils.PROTOCOL_VERSION
+		));
 	}
 	
 	public static void destroyCore() {
+		if (core != null) {
+			core.disconnect();
+			core.cleanup();
+		}
 		core = null;
 	}
 

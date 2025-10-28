@@ -31,6 +31,21 @@ public class MenuUtils {
 		});
 	}
 	
+	public static void failedToConnectScreen(String reason) {
+		Platform.runLater(() -> {
+			// error screen, like minecraft
+			InformationalScreen errorScreen = new InformationalScreen(
+				"Connection Error!",
+				"Failed to connect to this server",
+				reason
+			);
+			errorScreen.addButton("Return to Server Selector", () -> {
+				MenuUtils.displayServerSelector();
+			});
+			ArkanoidGame.manager().setScreen(errorScreen);
+		});
+	}
+	
 	public static void displayLoginScreen() {
 		if (ArkanoidGame.core() == null) {
 			displayServerSelector();

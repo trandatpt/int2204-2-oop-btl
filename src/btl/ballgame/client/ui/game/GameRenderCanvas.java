@@ -3,8 +3,9 @@ package btl.ballgame.client.ui.game;
 import btl.ballgame.client.ArkanoidGame;
 import btl.ballgame.client.ClientArkanoidMatch;
 import btl.ballgame.client.net.systems.CSWorld;
+import btl.ballgame.client.net.systems.entities.CEntityPaddleLocal;
 import btl.ballgame.client.ui.screen.Screen;
-import btl.ballgame.protocol.packets.in.PacketPlayInPaddleInput;
+import btl.ballgame.protocol.packets.in.PacketPlayInPaddleControl;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -13,6 +14,8 @@ import javafx.scene.paint.Color;
 public class GameRenderCanvas extends Screen {
 	private CSWorld world;
 	private ClientArkanoidMatch match;
+	
+	public static CEntityPaddleLocal local;
 	
 	public GameRenderCanvas() {
 		super("game");
@@ -49,27 +52,20 @@ public class GameRenderCanvas extends Screen {
 		this.setFocusTraversable(true);
 		this.setOnKeyPressed(event -> {
 		    switch (event.getCode()) {
-		        case LEFT -> leftPressed = true;
-		        case RIGHT -> rightPressed = true;
+		        case LEFT -> local.setLeftPressed(leftPressed = true);
+		        case RIGHT -> local.setRightPressed(rightPressed = true);
 		        default -> {}
 		    }
-		    sendPaddleInput();
 		});
 		this.setOnKeyReleased(event -> {
 		    switch (event.getCode()) {
-		        case LEFT -> leftPressed = false;
-		        case RIGHT -> rightPressed = false;
+		        case LEFT -> local.setLeftPressed(leftPressed = false);
+		        case RIGHT -> local.setRightPressed(rightPressed = false);
 		        default -> {}
 		    }
 		});
 	}
 	
-	private void sendPaddleInput() {
-		ArkanoidGame.core().getConnection().sendPacket(
-			new PacketPlayInPaddleInput(leftPressed, rightPressed)
-		);
-	}
-
 	@Override
 	public void onRemove() {
 		

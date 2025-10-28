@@ -8,7 +8,6 @@ import btl.ballgame.protocol.packets.out.PacketPlayOutPing;
 public class ServerPingHandle implements PacketHandler<PacketPlayOutPing, CServerConnection> {
 	@Override
 	public void handle(PacketPlayOutPing packet, CServerConnection context) {
-		System.out.println("the server pinged!");
 		context.sendPacket(new PacketPlayInPong());
 	}
 }

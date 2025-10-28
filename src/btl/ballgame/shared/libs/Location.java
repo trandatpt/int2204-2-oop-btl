@@ -4,6 +4,10 @@ public class Location {
 	private IWorld world;
 	private int x, y, rot;
 	
+	public Location(int x, int y, int rot) {
+		setWorld(null); setX(x); setY(y); setRotation(rot);
+	}
+	
 	public Location(IWorld world, int x, int y, int rot) {
 		setWorld(world); setX(x); setY(y); setRotation(rot);
 	}

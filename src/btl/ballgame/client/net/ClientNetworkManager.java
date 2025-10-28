@@ -28,18 +28,7 @@ public class ClientNetworkManager {
 			} catch (IOException e) {
 				// if the user is the one "cancelling" this connection, dont show that screen
 				if (Thread.currentThread().isInterrupted()) return;
-				Platform.runLater(() -> {
-					// error screen, like minecraft
-					InformationalScreen errorScreen = new InformationalScreen(
-						"Connection Error!",
-						"Failed to connect to this server",
-						e.toString()
-					);
-					errorScreen.addButton("Return to Server Selector", () -> {
-						MenuUtils.displayServerSelector();
-					});
-					ArkanoidGame.manager().setScreen(errorScreen);
-				});
+				MenuUtils.failedToConnectScreen(e.toString());
 			}
 		}, "CNM:ConnectionThread");
 		infoScreen.addButton("Cancel", () -> {

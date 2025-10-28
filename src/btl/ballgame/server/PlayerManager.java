@@ -34,6 +34,10 @@ public class PlayerManager {
 		return trackingPlayers.values();
 	}
 	
+	public int total() {
+		return this.trackingPlayers.size();
+	}
+	
 	public ArkaPlayer getPlayer(UUID uniqueId) {
 		return trackingPlayers.get(uniqueId);
 	}

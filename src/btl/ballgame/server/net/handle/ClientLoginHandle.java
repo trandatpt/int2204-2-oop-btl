@@ -16,7 +16,7 @@ public class ClientLoginHandle implements PacketHandler<PacketPlayInClientLogin,
 		}
 		
 		String username = packet.who();
-		String passwordHash = packet.getPasswordHash();
+		String passwordHash = packet.getPassword();
 		
 		// username predicates (enforced on both client + server)
 		if (!username.matches("^[a-zA-Z0-9_]{3,16}$")) {

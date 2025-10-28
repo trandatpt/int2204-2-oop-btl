@@ -2,8 +2,10 @@ package btl.ballgame.client;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import btl.ballgame.client.net.CServerConnection;
 import btl.ballgame.client.net.handle.ServerEntityBBSizeUpdateHandle;
@@ -11,14 +13,17 @@ import btl.ballgame.client.net.handle.ServerEntityDestroyHandle;
 import btl.ballgame.client.net.handle.ServerEntityMetadataUpdateHandle;
 import btl.ballgame.client.net.handle.ServerEntityPositionUpdateHandle;
 import btl.ballgame.client.net.handle.ServerEntitySpawnHandle;
+import btl.ballgame.client.net.handle.ServerHelloAckHandle;
 import btl.ballgame.client.net.handle.ServerLoginAckHandle;
 import btl.ballgame.client.net.handle.ServerMatchInitHandle;
 import btl.ballgame.client.net.handle.ServerMatchMetadataHandle;
 import btl.ballgame.client.net.handle.ServerPingHandle;
 import btl.ballgame.client.net.handle.ServerWorldInitHandle;
 import btl.ballgame.client.net.handle.ServerSocketCloseHandle;
+import btl.ballgame.client.net.systems.CSEntity;
 import btl.ballgame.client.net.systems.CSEntityRegistry;
 import btl.ballgame.client.net.systems.CSWorld;
+import btl.ballgame.client.net.systems.ITickableCEntity;
 import btl.ballgame.client.net.systems.entities.CEntityBrickNormal;
 import btl.ballgame.client.net.systems.entities.CEntityPaddle;
 import btl.ballgame.client.net.systems.entities.CEntityWreckingBall;
@@ -33,11 +38,13 @@ import btl.ballgame.protocol.packets.out.PacketPlayOutEntityDestroy;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntityMetadata;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntityPosition;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntitySpawn;
+import btl.ballgame.protocol.packets.out.PacketPlayOutHelloAck;
 import btl.ballgame.protocol.packets.out.PacketPlayOutWorldInit;
 import btl.ballgame.protocol.packets.out.PacketPlayOutLoginAck;
 import btl.ballgame.protocol.packets.out.PacketPlayOutMatchJoin;
 import btl.ballgame.protocol.packets.out.PacketPlayOutMatchMetadata;
 import btl.ballgame.protocol.packets.out.PacketPlayOutPing;
+import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.EntityType;
 import btl.ballgame.shared.libs.Utils;
 
@@ -52,6 +59,9 @@ public class ArkanoidClientCore {
 	// match related information
 	private ClientArkanoidMatch activeMatch;
 	
+	private ScheduledFuture<?> clientTickTask;
+	private int currentTick;
+	
 	public ArkanoidClientCore(Socket socket) throws IOException {
 		this.registry = new PacketRegistry();
 		this.codec = new PacketCodec(this.registry);
@@ -61,10 +71,27 @@ public class ArkanoidClientCore {
 		this.registerEntities();
 		
 		this.connection = new CServerConnection(socket, this);
+		
+		// this is the client tick task (33ms, 30 TPS)
+		this.clientTickTask = Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
+			// tick the tickable entities
+			CSWorld world = getActiveWorld();
+			if (world != null) {
+				for (CSEntity entity : world.getAllEntities()) {
+					if (entity instanceof ITickableCEntity tickable) {
+						tickable.onTick();
+					}
+				}
+			}
+			// notify the network dispatcher to flush queued packets
+			this.connection.notifyDispatcher();
+			++currentTick;
+		}, 0, Constants.MS_PER_TICK, TimeUnit.MILLISECONDS);
 	}
 	
 	private void registerPacketHandlers() {
 		// connection/protocol handlers
+		this.registry.registerHandler(PacketPlayOutHelloAck.class, new ServerHelloAckHandle());
 		this.registry.registerHandler(PacketPlayOutCloseSocket.class, new ServerSocketCloseHandle());
 		this.registry.registerHandler(PacketPlayOutLoginAck.class, new ServerLoginAckHandle());
 		this.registry.registerHandler(PacketPlayOutPing.class, new ServerPingHandle());
@@ -87,8 +114,7 @@ public class ArkanoidClientCore {
 	public void login(String username, String password) {
 		connection.sendPacket(new PacketPlayInClientLogin(
 			username, // Login credentials
-			Utils.SHA256(password), // 
-			ProtoUtils.PROTOCOL_VERSION
+			password // 
 		));
 	}
 	
@@ -147,5 +173,15 @@ public class ArkanoidClientCore {
 	
 	public CServerConnection getConnection() {
 		return connection;
+	}
+	
+	public int getTick() {
+		return currentTick;
+	}
+	
+	public void cleanup() {
+		if (clientTickTask != null) {
+			this.clientTickTask.cancel(true);
+		}
 	}
 }
