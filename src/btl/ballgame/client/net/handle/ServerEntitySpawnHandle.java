@@ -1,5 +1,6 @@
 package btl.ballgame.client.net.handle;
 
+import btl.ballgame.client.ArkanoidClientCore;
 import btl.ballgame.client.net.CServerConnection;
 import btl.ballgame.client.net.systems.CSEntity;
 import btl.ballgame.client.net.systems.CSWorld;
@@ -37,6 +38,7 @@ public class ServerEntitySpawnHandle implements PacketHandler<PacketPlayOutEntit
 			 && CEntityPaddleLocal.isOwnedByThisClient(packet.getDataWatcher())
 			) {
 				entity = new CEntityPaddleLocal(); // this looks bad, but trust me, its worth it
+				context.client.setControlPaddle((CEntityPaddleLocal) entity);
 			} else {
 				entity = context.client.getEntityRegistry().create(packet.getEntityTypeId());
 			}

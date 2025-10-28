@@ -13,7 +13,7 @@ import btl.ballgame.shared.libs.Utils;
 import btl.ballgame.shared.libs.Constants.TeamColor;
 
 public class EntityPaddle extends ControllableEntity {
-	public static final int PADDLE_STEP = 20, MAX_INPUTS_PER_TICK = 15;
+	static final int MAX_INPUTS_PER_TICK = 15;
 	
 	// attrib
 	private boolean lowerPaddle;
@@ -52,8 +52,7 @@ public class EntityPaddle extends ControllableEntity {
 	 * @param packet
 	 */
 	public void enqueueMove(PacketPlayInPaddleControl packet) {
-		if (Double.isNaN(packet.getClientX())) {
-			// what the fuck
+		if (!packet.isLeft() && !packet.isRight()) {
 			return;
 		}
 		moveQueue.add(packet);
@@ -70,21 +69,29 @@ public class EntityPaddle extends ControllableEntity {
 	public boolean isLowerPaddle() {
 		return lowerPaddle;
 	}
-
-	public void receivePositionFromClient(int x) {
+	
+	/**
+	 * Move the paddle in the X axis
+	 * @param relX relative x
+	 */
+	private void move(int relX) {
 		AABB bb = getBoundingBox();
 		int halfWidth = (int) (bb.getWidth()) >> 1;
 	    int maxX = world.getWidth() - halfWidth;
-	    int newX = Utils.clamp(x, halfWidth, maxX);
-	    
-	    if (Math.abs(newX - getLocation().getX()) > PADDLE_STEP) {
-	    	if (newX - getLocation().getX() > PADDLE_STEP) newX = getLocation().getX() + PADDLE_STEP;
-	    	if (newX - getLocation().getX() < -PADDLE_STEP) newX = getLocation().getX() - PADDLE_STEP;
-	    }
-	    
+	    // centered entity system
+	    int newX = Utils.clamp(getLocation().getX() + relX, halfWidth, maxX);
 	    if (newX != getLocation().getX()) {
 	        teleport(getLocation().setX(newX));
 	    }
+	}
+
+
+	public void moveRight() {
+		this.move(Constants.PADDLE_MOVE_UNITS);
+	}
+	
+	public void moveLeft() {
+		this.move(-Constants.PADDLE_MOVE_UNITS);
 	}
 	
 	@Override
@@ -103,7 +110,12 @@ public class EntityPaddle extends ControllableEntity {
 		// prevent malicious clients from spamming
 		while (!moveQueue.isEmpty() && processed < MAX_INPUTS_PER_TICK) {
 			PacketPlayInPaddleControl packet = moveQueue.poll();
-			receivePositionFromClient(packet.getClientX());
+			if (packet.isLeft()) {
+				moveLeft();
+			}
+			if (packet.isRight()) {
+				moveRight();
+			}
 			++processed;
 		}
 	}

@@ -145,8 +145,9 @@ public class ArkanoidServer {
 			playerManager.getPlayer(parts[1]).kick("bruh");
 			break;
 		case "test": {
-			ArkanoidMatch match = new ArkanoidMatch(ArkanoidMode.SOLO_ENDLESS);
+			ArkanoidMatch match = new ArkanoidMatch(ArkanoidMode.ONE_VERSUS_ONE);
 			match.assignTeam(TeamColor.RED, Arrays.asList(playerManager.getPlayer(parts[1])));
+			match.assignTeam(TeamColor.BLUE, Arrays.asList(playerManager.getPlayer(parts[2])));
 			match.start();
 			break;
 		}

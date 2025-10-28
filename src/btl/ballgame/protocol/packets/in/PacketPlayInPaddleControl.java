@@ -6,22 +6,29 @@ import btl.ballgame.protocol.packets.NetworkPacket;
 public class PacketPlayInPaddleControl extends NetworkPacket implements IPacketPlayIn {
 	public PacketPlayInPaddleControl() {}; /* for packet decoding */
 	
-	private int clientX; 
-	public PacketPlayInPaddleControl(int clientX) {
-		this.clientX = clientX;
+	static final byte LEFT_MASK = 0b10, RIGHT_MASK = 0b01;
+	
+	private byte inputs; 
+	public PacketPlayInPaddleControl(boolean left, boolean right) {
+		if (left) inputs |= LEFT_MASK;
+		if (right) inputs |= RIGHT_MASK; 
 	}
 	
-	public int getClientX() {
-		return clientX;
+	public boolean isLeft() {
+		return (inputs & LEFT_MASK) != 0;
+	}
+	
+	public boolean isRight() {
+		return (inputs & RIGHT_MASK) != 0;
 	}
 	
 	@Override
 	public void write(PacketByteBuf buffer) {
-		buffer.writeInt32(this.clientX);
+		buffer.writeInt8(this.inputs);
 	}
 
 	@Override
 	public void read(PacketByteBuf buffer) {
-		this.clientX = buffer.readInt32();
+		this.inputs = buffer.readInt8();
 	}
 }

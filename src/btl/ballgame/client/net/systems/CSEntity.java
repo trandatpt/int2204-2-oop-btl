@@ -124,6 +124,10 @@ public abstract class CSEntity implements IRenderInfo {
 		return boundingBox;
 	}
 	
+	public CSWorld getWorld() {
+		return (CSWorld) serverLocation.getWorld();
+	}
+	
 	public int getWidth() {
 		return width;
 	}
@@ -141,7 +145,7 @@ public abstract class CSEntity implements IRenderInfo {
 	
 	@Override
 	public int getRenderY() {
-		return this.serverLocation.getY() - (this.getWidth() >> 1);
+		return this.serverLocation.getY() - (this.getHeight() >> 1);
 	}
 	
 	@Override

@@ -1,11 +1,10 @@
 package btl.ballgame.client.ui.game;
 
+import btl.ballgame.client.ArkanoidClientCore;
 import btl.ballgame.client.ArkanoidGame;
 import btl.ballgame.client.ClientArkanoidMatch;
 import btl.ballgame.client.net.systems.CSWorld;
-import btl.ballgame.client.net.systems.entities.CEntityPaddleLocal;
 import btl.ballgame.client.ui.screen.Screen;
-import btl.ballgame.protocol.packets.in.PacketPlayInPaddleControl;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -15,16 +14,12 @@ public class GameRenderCanvas extends Screen {
 	private CSWorld world;
 	private ClientArkanoidMatch match;
 	
-	public static CEntityPaddleLocal local;
-	
 	public GameRenderCanvas() {
 		super("game");
 		this.match = ArkanoidGame.core().getActiveMatch();
 		this.world = match.getGameWorld();
 	}
 	
-	private boolean leftPressed = false;
-	private boolean rightPressed = false;
 	@Override
 	public void onInit() {
 		Canvas canvas = addElement("gameCanvas", new Canvas(
@@ -49,18 +44,23 @@ public class GameRenderCanvas extends Screen {
 	}
 	
 	private void listenToKeys() {
+		ArkanoidClientCore core = ArkanoidGame.core();
 		this.setFocusTraversable(true);
 		this.setOnKeyPressed(event -> {
+			var paddle = core.getPaddle();
+			if (paddle == null) return;
 		    switch (event.getCode()) {
-		        case LEFT -> local.setLeftPressed(leftPressed = true);
-		        case RIGHT -> local.setRightPressed(rightPressed = true);
+		        case LEFT -> paddle.setMoveLeft(true);
+		        case RIGHT -> paddle.setMoveRight(true);
 		        default -> {}
 		    }
 		});
 		this.setOnKeyReleased(event -> {
+			var paddle = core.getPaddle();
+			if (paddle == null) return;
 		    switch (event.getCode()) {
-		        case LEFT -> local.setLeftPressed(leftPressed = false);
-		        case RIGHT -> local.setRightPressed(rightPressed = false);
+		        case LEFT -> paddle.setMoveLeft(false);
+		        case RIGHT -> paddle.setMoveRight(false);
 		        default -> {}
 		    }
 		});

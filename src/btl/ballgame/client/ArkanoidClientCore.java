@@ -26,6 +26,7 @@ import btl.ballgame.client.net.systems.CSWorld;
 import btl.ballgame.client.net.systems.ITickableCEntity;
 import btl.ballgame.client.net.systems.entities.CEntityBrickNormal;
 import btl.ballgame.client.net.systems.entities.CEntityPaddle;
+import btl.ballgame.client.net.systems.entities.CEntityPaddleLocal;
 import btl.ballgame.client.net.systems.entities.CEntityWreckingBall;
 import btl.ballgame.protocol.PacketCodec;
 import btl.ballgame.protocol.PacketRegistry;
@@ -58,6 +59,7 @@ public class ArkanoidClientCore {
 	
 	// match related information
 	private ClientArkanoidMatch activeMatch;
+	private CEntityPaddleLocal controlPaddle;
 	
 	private ScheduledFuture<?> clientTickTask;
 	private int currentTick;
@@ -138,7 +140,12 @@ public class ArkanoidClientCore {
 	}
 	
 	public void setActiveMatch(ClientArkanoidMatch activeMatch) {
+		this.controlPaddle = null; // a new match, remove the old paddle reference
 		this.activeMatch = activeMatch;
+	}
+	
+	public void setControlPaddle(CEntityPaddleLocal paddle) {
+		this.controlPaddle = paddle;
 	}
 	
 	public ClientArkanoidMatch getActiveMatch() {
@@ -173,6 +180,10 @@ public class ArkanoidClientCore {
 	
 	public CServerConnection getConnection() {
 		return connection;
+	}
+	
+	public CEntityPaddleLocal getPaddle() {
+		return controlPaddle;
 	}
 	
 	public int getTick() {

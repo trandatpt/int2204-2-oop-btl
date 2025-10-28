@@ -96,7 +96,6 @@ public class PlayerConnection implements ConnectionCtx {
 			Thread.currentThread().setName("PlayerConnection: Packet Listener Thread");
 			while (!closed) {
 				try {
-					Thread.sleep(50);
 					// read the next packet from the stream
 					NetworkPacket packet = server.codec().readPacket(receiveStream);
 					// find the handle of the packet and then invoke it
@@ -114,7 +113,6 @@ public class PlayerConnection implements ConnectionCtx {
 			while (true) {
 				try {
 					flushSignal.acquire(); // block until flushSignal release
-					Thread.sleep(50);
 					synchronized (sendStream) {
 						if (this.dispatchQueue.isEmpty()) continue;
 						for (NetworkPacket p : dispatchQueue) {

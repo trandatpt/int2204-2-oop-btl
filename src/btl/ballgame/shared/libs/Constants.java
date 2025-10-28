@@ -11,6 +11,7 @@ public class Constants {
 	public static final int MISC_META_KEY = 0xFFF;
 	
 	// misc constants
+	public static final int PADDLE_MOVE_UNITS = 10;
 	public static final int PADDLE_MAX_HEALTH = 100;
 	public static final int TEAM_STARTING_LIVES = 3;
 	public static final int AK_47_MAG_SIZE = 30;
