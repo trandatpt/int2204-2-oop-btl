@@ -8,6 +8,7 @@ import btl.ballgame.shared.libs.AABB;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.DataWatcher;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 import static btl.ballgame.shared.libs.Utils.clamp;
 
@@ -19,6 +20,9 @@ public class CEntityPaddleLocal extends CEntityPaddle implements ITickableCEntit
 	@Override
 	public void render(GraphicsContext cv) {
 		super.render(cv);
+		cv.setFill(Color.YELLOW);
+		cv.fillRect(getRenderX(), getRenderY(), getWidth(), getHeight());
+		cv.setFill(Color.BLACK);
 	}
 	
 	@Override

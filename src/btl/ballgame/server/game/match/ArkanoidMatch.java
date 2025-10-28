@@ -107,7 +107,6 @@ public class ArkanoidMatch {
 			// the ball falls into the respective paddle
 			// the ball will fall down (+1) if the team is the upper one
 			// and fly up (-1) if lower
-			for (int i =0; i < 36; i++) {
 			Vector2f initial = isBottomTeam ? new Vector2f(0, 1) : new Vector2f(0, -1);
 			EntityWreckingBall ball = new EntityWreckingBall(world.nextEntityId(),
 				new Location(world, world.getWidth() / 2, // middle the screen
@@ -117,7 +116,6 @@ public class ArkanoidMatch {
 			);
 			ball.setPrimaryBall(true);
 			world.addEntity(ball);
-			}
 		}
 	}
 	
