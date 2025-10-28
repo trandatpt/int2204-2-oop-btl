@@ -6,12 +6,10 @@ import btl.ballgame.client.ClientPlayer;
 import btl.ballgame.client.net.CServerConnection;
 import btl.ballgame.client.net.systems.CSEntity;
 import btl.ballgame.client.net.systems.CSWorld;
-import btl.ballgame.client.net.systems.entities.CEntityPaddle;
 import btl.ballgame.client.net.systems.entities.CEntityPaddleLocal;
 import btl.ballgame.protocol.packets.PacketHandler;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntitySpawn;
 import btl.ballgame.shared.UnknownEntityException;
-import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.EntityType;
 
 public class ServerEntitySpawnHandle implements PacketHandler<PacketPlayOutEntitySpawn, CServerConnection> {
@@ -40,7 +38,6 @@ public class ServerEntitySpawnHandle implements PacketHandler<PacketPlayOutEntit
 			if (packet.getEntityTypeId() == EntityType.ENTITY_PADDLE.ordinal()
 			 && CEntityPaddleLocal.isOwnedByThisClient(packet.getDataWatcher())
 			) {
-				System.out.println("SPAWNED");
 				entity = new CEntityPaddleLocal(); // this looks bad, but trust me, its worth it
 				context.client.setControlPaddle((CEntityPaddleLocal) entity);
 			} else {

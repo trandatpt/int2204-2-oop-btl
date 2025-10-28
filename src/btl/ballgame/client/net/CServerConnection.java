@@ -65,6 +65,7 @@ public class CServerConnection implements ConnectionCtx {
 	public CServerConnection(Socket socket, ArkanoidClientCore client) throws IOException {
 		this.socket = socket;
 		this.client = client;
+		socket.setTcpNoDelay(true);
 		
 		this.sendStream = new DataOutputStream(socket.getOutputStream());
 		this.receiveStream = new DataInputStream(socket.getInputStream());
