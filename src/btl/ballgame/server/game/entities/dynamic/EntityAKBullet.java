@@ -7,15 +7,16 @@ import btl.ballgame.shared.libs.Location;
 import btl.ballgame.shared.libs.Vector2f;
 
 /**
- * Vien dan cua sung AK47(version 1)
- * - vien dan co ban chua co ly thuyet vat ly
+ * Vien dan cua sung AK47(version 2)
+ * - vien dan co luc can khong khi, mat nang luong khi va cham, dao dong nhe khi va cham
  */
 public class EntityAKBullet extends WorldEntity {
 
-    private static final float INITIAL_VELOCITY = 8f; // v0
-    private static final float SLOW_DOWN = 0.92f;	  // toc do giam dan khi va cham
-    private static final float MIN_SPEED = 3f;		  // vmin
-    private static final int MAX_BRICK_PIERCE = 10;   // so gach toi da xuyen qua duoc
+    private static final float INITIAL_VELOCITY = 9f; // v0
+	private static final float AIR_RESISTANCE = 0.01f; // luc can khong khi (1%)
+    private static final float ENERGY_LOSS = 0.8f;	  // mat nang luong khi va cham
+    private static final float MIN_SPEED = 2.5f;		  // vmin
+    private static final int MAX_BRICK_PIERCE = 5;   // so gach toi da xuyen qua duoc
     private static final int DAMAGE = 1;			  // -1hp cua gach
 
     private Vector2f velocity;
@@ -30,7 +31,7 @@ public class EntityAKBullet extends WorldEntity {
 	 */
     public EntityAKBullet(int id, Location location) {
         super(id, location);
-        this.setBoundingBox(6, 6);
+        this.setBoundingBox(10, 6);
         Vector2f dir = location.getDirection().normalize();
         this.velocity = new Vector2f(dir).multiply(INITIAL_VELOCITY);
     }
@@ -38,6 +39,9 @@ public class EntityAKBullet extends WorldEntity {
     @Override
     protected void tick() {
         if (removed) return;
+
+		velocity.multiply(1 - AIR_RESISTANCE); // luc can khong khi
+
         Location location = this.getLocation();
         location.add(velocity);
         this.setLocation(location);
@@ -47,7 +51,15 @@ public class EntityAKBullet extends WorldEntity {
             if (entity instanceof BreakableEntity brick) {
                 brick.damage(DAMAGE);
                 pierceBrickCount++;
-                velocity.multiply(SLOW_DOWN);
+
+                velocity.multiply((float)Math.sqrt(ENERGY_LOSS)); // E = 1/2 mv^2 => v ~ sqrt(E)
+
+				/*
+				 * Hieu ung rung khi va cham voi gach
+				 * Dan se lech 1 chut sang trai/phai tren/duoi, giong dao dong nhe
+				 */
+				velocity.setX(velocity.getX() + (float)(Math.random() - 0.5) * 0.4f);
+				velocity.setY(velocity.getY() + (float)(Math.random() - 0.5) * 0.4f);
 
                 if (velocity.length() < MIN_SPEED || pierceBrickCount >= MAX_BRICK_PIERCE) {
                     destroy();
