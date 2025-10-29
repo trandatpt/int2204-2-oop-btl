@@ -1,47 +1,24 @@
 package btl.ballgame.server.game.entities.breakable;
 
+import btl.ballgame.server.game.WorldEntity;
 import btl.ballgame.server.game.entities.BreakableEntity;
 import btl.ballgame.shared.libs.Location;
 
-public class EntityExplosiveBrick extends BreakableEntity {
-
+public class EntityExplosiveBrick extends EntityBrick {
 	public EntityExplosiveBrick(int id, Location location) {
 		super(id, location);
 	}
 
 	@Override
-	protected void tick() {
-	}
-
-	@Override
-	public int getWidth() {
-		return 48;
-	}
-
-	@Override
-	public int getHeight() {
-		return 18;
-	}
-	
-	@Override
-	public int getMaxHealth() {
-		return 1;
-	}
-
-	@Override
 	public void onObjectBroken() {
-		double radius = 50;
-        Location pos = getLocation();
-        for (var e : world.getEntities()) {
-            if (e instanceof BreakableEntity && e != this) {
-                Location other = e.getLocation();
-                double dx = other.getX() - pos.getX();
-                double dy = other.getY() - pos.getY();
-                if (Math.abs(dx) <= radius && Math.abs(dy) <= radius) {
-                    ((BreakableEntity)e).damage(999);
-                }
-            }
-        }
-        this.remove();
+		// các thực thể trong khoảng 50 unit
+		var nearby = world.getNearbyEntities(getBoundingBox().expand(50));
+		nearby.remove(this); // hàm trên trả về cả bản thân nên bỏ đi
+		for (WorldEntity entity : nearby) {
+			if (entity instanceof BreakableEntity be) {
+				be.damage(1_000); // deals 1000 damage
+			}
+		}
+		this.remove();
 	}
 }

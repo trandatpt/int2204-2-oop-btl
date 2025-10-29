@@ -6,10 +6,10 @@ public class Constants {
 	public static final int NS_PER_TICK = (int) 1_000_000_000f / TICKS_PER_SECOND;
 	
 	// meta keys (datawatcher)
-	public static final int HP_META_KEY = 0xA;
-	public static final int PADDLE_OWNER_META = 0xB;
-	public static final int MISC_META_KEY = 0xFFF;
-	public static final int BUFF_TYPE_META = 36;
+	public static final short HP_META_KEY = 0xA0;
+	public static final short PADDLE_OWNER_META = 0xA1;
+	public static final short BUFF_TYPE_META = 0xB0;
+	public static final short BRICK_TINT_META = 0xB1;
 	
 	// misc constants
 	public static final int PADDLE_MOVE_UNITS = 15;
