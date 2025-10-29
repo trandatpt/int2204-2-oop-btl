@@ -36,7 +36,7 @@ public abstract class WorldEntity {
 	private Set<LevelChunk> occupiedChunks = new HashSet<>();
 	
 	/** entity location and size metadata */
-	protected WorldServer world;	
+	protected WorldServer world;
 	protected int x, y, rot; // NOTE: the location stored here is the center of the entity
 	// to compute the upper left corner, use x - width / 2
 	protected DataWatcher dataWatcher;
@@ -268,9 +268,11 @@ public abstract class WorldEntity {
 		this.computeBoundingBox();
 		
 		// broadcast the dimensions change
-		this.getWorld().broadcastPackets(new PacketPlayOutEntityBBSizeUpdate(
-			getId(), this.width, this.height
-		));
+		if (this.isActive()) this.getWorld().broadcastPackets(
+			new PacketPlayOutEntityBBSizeUpdate(
+				getId(), this.width, this.height
+			)
+		);
 	}
 	
 	/** Recomputes the bounding box centered on the entity's current location. */
@@ -324,12 +326,10 @@ public abstract class WorldEntity {
 		new HashSet<>(occupiedChunks).forEach(chunk -> {
 			leaveChunk(chunk);
 		});
-		if (getLocation().getWorld() instanceof WorldServer ws) {
-			ws.removeEntityFromRegistry(this);
-		}
 		
+		this.world.removeEntityFromRegistry(this);
 		// notifies clients to despawn the entity
-		this.getWorld().broadcastPackets(new PacketPlayOutEntityDestroy(getId()));
+		this.world.broadcastPackets(new PacketPlayOutEntityDestroy(getId()));
 	}
 	
 	/**

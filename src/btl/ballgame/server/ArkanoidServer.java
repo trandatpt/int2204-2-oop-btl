@@ -13,6 +13,7 @@ import btl.ballgame.server.game.entities.breakable.EntityBrick;
 import btl.ballgame.server.game.entities.dynamic.EntityPaddle;
 import btl.ballgame.server.game.entities.dynamic.EntityWreckingBall;
 import btl.ballgame.server.game.match.ArkanoidMatch;
+import btl.ballgame.server.game.match.MatchSettings;
 import btl.ballgame.server.net.NetworkManager;
 import btl.ballgame.server.net.PlayerConnection;
 import btl.ballgame.server.net.handle.ClientDisconnectHandle;
@@ -94,16 +95,19 @@ public class ArkanoidServer {
 	private long globalTicksPassed = 0;
 	public void startDedicatedServer() {
 		System.out.println("[TEST] Started dedi server");
-		
-		// notify all network dispatchers to flush queued packets every
-		// 33 milliseconds (1 tick)
-		Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
+
+		var executor = Executors.newScheduledThreadPool(1);
+		// ping every clients every 5s
+		executor.scheduleAtFixedRate(() -> {
 			if (globalTicksPassed % (5 * ArkanoidServer.TICKS_PER_SECOND) == 0) { // 5s, 30tps
 				netMan.pingAllClients();
 			}
-			netMan.notifyAllDispatcher();
 			++globalTicksPassed;
 		}, 0, ArkanoidServer.MS_PER_TICK, TimeUnit.MILLISECONDS);
+		
+		executor.scheduleAtFixedRate(() -> {
+			netMan.notifyAllDispatcher();
+		}, 0, ArkanoidServer.MS_PER_TICK / 2, TimeUnit.MILLISECONDS);
 		
 		new Thread(() -> {
 			Scanner scanner = new Scanner(System.in);
@@ -145,8 +149,9 @@ public class ArkanoidServer {
 			playerManager.getPlayer(parts[1]).kick("bruh");
 			break;
 		case "test": {
-			ArkanoidMatch match = new ArkanoidMatch(ArkanoidMode.ONE_VERSUS_ONE);
+			ArkanoidMatch match = new ArkanoidMatch(new MatchSettings(ArkanoidMode.TWO_VERSUS_TWO, 3, 180, 1));
 			match.assignTeam(TeamColor.RED, Arrays.asList(playerManager.getPlayer(parts[1])));
+
 			match.assignTeam(TeamColor.BLUE, Arrays.asList(playerManager.getPlayer(parts[2])));
 			match.start();
 			break;

@@ -32,12 +32,6 @@ public class WorldServer implements IWorld {
 	/** chunk registry, mapped by the coordinate hash as the key */
 	private Map<Long, LevelChunk> chunks = new HashMap<>();
 	
-	private int idRegistry = 0;
-	
-	public int nextEntityId() {
-		return idRegistry++;
-	}
-	
 	/** entity registry, mapped by the entity ID */
 	private LinkedHashMap<Integer, WorldEntity> entities = new LinkedHashMap<>();
 	private List<WorldEntity> entitiesToBeRemoved = new ArrayList<>();
@@ -236,7 +230,7 @@ public class WorldServer implements IWorld {
 		// are members of this world
 		this.broadcastPackets(new PacketPlayOutEntitySpawn(
 			(byte) type.ordinal(), 
-			entity.getId(), 
+			(short) entity.getId(), 
 			entity.getWatcher(), 
 			entity.getLocation(),
 			entity.getBoundingBox()
@@ -285,5 +279,27 @@ public class WorldServer implements IWorld {
 			}
 		}
 		return nearby;
+	}
+	
+	// this is for quickies only
+	private int currentId = 0;
+	
+    /**
+     * Returns the next available entity ID.
+     *
+     * @return the next integer ID
+     */
+	public int nextEntityId() {
+		return currentId++;
+	}
+	
+    /**
+     * Squashes the entity ID counter to zero.
+     *
+     * @apiNote Use this method with caution, as it may result 
+     * in previously assigned IDs being reused!!!
+     */
+	public void squashIdCounter() {
+		currentId = 0;
 	}
 }

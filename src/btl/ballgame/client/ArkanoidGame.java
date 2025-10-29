@@ -15,7 +15,6 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 public class ArkanoidGame extends Application {
-	public static final Image LOGO = new Image(new File("assets/arkgo.png").toURI().toString());
 	private static ArkanoidClientCore core = null;
 	private static ScreenManager manager;
 

@@ -16,16 +16,11 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import btl.ballgame.protocol.ConnectionCtx;
-import btl.ballgame.protocol.ProtoUtils;
 import btl.ballgame.protocol.packets.NetworkPacket;
 import btl.ballgame.protocol.packets.PacketHandler;
 import btl.ballgame.protocol.packets.out.IPacketPlayOut;
 import btl.ballgame.protocol.packets.out.PacketPlayOutCloseSocket;
-import btl.ballgame.protocol.packets.out.PacketPlayOutEntityMetadata;
-import btl.ballgame.protocol.packets.out.PacketPlayOutEntityPosition;
 import btl.ballgame.server.ArkanoidServer;
-import btl.ballgame.shared.libs.DataWatcher;
-import btl.ballgame.shared.libs.Location;
 import btl.ballgame.server.ArkaPlayer;
 
 /**
@@ -67,7 +62,7 @@ public class PlayerConnection implements ConnectionCtx {
 	 * 
 	 * @apiNote This connection uses a PASSIVE DISPATCHER model!<br>
 	 * Outbound packets (to the client) are not pushed automatically.
-	 * To trigger transmission, {@link PlayerConnection#notifyDispatcher()} 
+	 * To trigger transmission, {@link PlayerConnection#notifyDispatcher()}
 	 * must be called!
 	 * 
 	 * @param server the game server managing this connection
@@ -75,7 +70,7 @@ public class PlayerConnection implements ConnectionCtx {
 	 * @throws IOException if an I/O error occurs when creating the input/output
 	 *                     streams
 	 */
-	@SuppressWarnings("unchecked")    
+	@SuppressWarnings("unchecked")
 	public PlayerConnection(ArkanoidServer server, Socket socket) throws IOException {
 		this.server = server;
 		this.clientSocket = socket;
@@ -116,11 +111,18 @@ public class PlayerConnection implements ConnectionCtx {
 					flushSignal.acquire(); // block until flushSignal release
 					synchronized (sendStream) {
 						if (this.dispatchQueue.isEmpty()) continue;
-						for (NetworkPacket p : dispatchQueue) {
+						// prevent some bullshit race condition
+						// by draining the queue before doing shit
+						List<NetworkPacket> toDispatch = new ArrayList<>();
+						NetworkPacket packet;
+						while ((packet = dispatchQueue.poll()) != null) {
+							toDispatch.add(packet);
+						}
+						// dispatch
+						for (NetworkPacket p : toDispatch) {
 							server.codec().writePacket(sendStream, p);
 						}
 						sendStream.flush();
-						dispatchQueue.clear();
 					}
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();

@@ -3,18 +3,18 @@ package btl.ballgame.shared.libs;
 import btl.ballgame.protocol.PacketByteBuf;
 
 public class DataWatcherEntry {
-	public final int keyId;
+	public final short keyId;
 	public final byte typeId;
 	public final Object value;
 
-	public DataWatcherEntry(int keyId, byte typeId, Object value) {
+	public DataWatcherEntry(short keyId, byte typeId, Object value) {
 		this.keyId = keyId;
 		this.typeId = typeId;
 		this.value = value;
 	}
 
 	public static DataWatcherEntry read(PacketByteBuf buffer) {
-		int keyId = buffer.readInt32();
+		short keyId = buffer.readInt16();
 		byte typeId = buffer.readInt8();
 		Object value = switch (typeId) {
 			case 0 -> buffer.readInt8();
@@ -29,7 +29,7 @@ public class DataWatcherEntry {
 	}
 
 	public void write(PacketByteBuf buffer) {
-		buffer.writeInt32(keyId);
+		buffer.writeInt16(keyId);
 		buffer.writeInt8(typeId);
 		switch (typeId) {
 			case 0 -> buffer.writeInt8((byte) value);

@@ -6,15 +6,21 @@ public class Constants {
 	public static final int NS_PER_TICK = (int) 1_000_000_000f / TICKS_PER_SECOND;
 	
 	// meta keys (datawatcher)
-	public static final int HP_META_KEY = 0xA;
-	public static final int PADDLE_OWNER_META = 0xB;
-	public static final int MISC_META_KEY = 0xFFF;
+	public static final short HP_META_KEY = 0xA0;
+	public static final short PADDLE_OWNER_META = 0xA1;
+	public static final short BUFF_TYPE_META = 0xB0;
+	public static final short BRICK_TINT_META = 0xB1;
+	public static final short BALL_PRIMARY_META = 0xB2;
 	
 	// misc constants
-	public static final int PADDLE_MOVE_UNITS = 10;
+	public static final int PADDLE_MOVE_UNITS = 15;
 	public static final int PADDLE_MAX_HEALTH = 100;
 	public static final int TEAM_STARTING_LIVES = 3;
 	public static final int AK_47_MAG_SIZE = 30;
+	
+	// size consts
+	public static final int BRICK_WIDTH = 40;
+	public static final int BRICK_HEIGHT = 15;
 	
 	// enumerates
 	public static enum RifleMode {
@@ -33,7 +39,7 @@ public class Constants {
 	 * Represents the different phases a match can be in.
 	 */
 	public static enum MatchPhase {
-		MATCH_IDLING, BRICK_WARFARE, AK47_MODE, CONCLUDED;
+		MATCH_IDLING, MATCH_ACTIVE, CONCLUDED;
 		
 	    private static final MatchPhase[] values = values();
 	    public static MatchPhase of(int ordinal) {
@@ -53,6 +59,12 @@ public class Constants {
 	        return values[ordinal];
 	    }
 	}
+	
+	public static enum BuffType {
+        PADDLE_EXPAND,
+        PIERCING_BALL,
+        MULTI_BALL
+    }
 	
 	public static enum ArkanoidMode {
 		SOLO_ENDLESS(true),

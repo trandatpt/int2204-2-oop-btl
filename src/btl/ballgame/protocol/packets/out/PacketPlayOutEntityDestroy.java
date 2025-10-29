@@ -18,11 +18,11 @@ public class PacketPlayOutEntityDestroy extends NetworkPacket implements IPacket
 	
 	@Override
 	public void write(PacketByteBuf buffer) {
-		buffer.writeInt32(this.entityId);
+		buffer.writeInt16((short) this.entityId);
 	}
 
 	@Override
 	public void read(PacketByteBuf buffer) {
-		this.entityId = buffer.readInt32();
+		this.entityId = buffer.readInt16();
 	}
  }

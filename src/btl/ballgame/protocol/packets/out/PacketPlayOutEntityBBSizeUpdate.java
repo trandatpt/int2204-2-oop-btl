@@ -29,14 +29,14 @@ public class PacketPlayOutEntityBBSizeUpdate extends NetworkPacket implements IP
 	
 	@Override
 	public void write(PacketByteBuf buffer) {
-		buffer.writeInt32(this.entityId);
+		buffer.writeInt16((short) this.entityId);
 		buffer.writeInt16((short) this.entityWidth);
 		buffer.writeInt16((short) this.entityHeight);
 	}
 
 	@Override
 	public void read(PacketByteBuf buffer) {
-		this.entityId = buffer.readInt32();
+		this.entityId = buffer.readInt16();
 		this.entityWidth = buffer.readInt16();
 		this.entityHeight = buffer.readInt16();
 	}

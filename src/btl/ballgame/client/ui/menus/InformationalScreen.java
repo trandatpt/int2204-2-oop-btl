@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import btl.ballgame.client.ArkanoidGame;
+import btl.ballgame.client.CSAssets;
 import btl.ballgame.client.ui.screen.Screen;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -59,7 +60,7 @@ public class InformationalScreen extends Screen {
 
 		// ARKANOID LOGO
 		ImageView logo = this.createElement("logo", new ImageView(
-			ArkanoidGame.LOGO
+			CSAssets.LOGO
 		));
 		logo.setPreserveRatio(true);
 		logo.setFitWidth(500);

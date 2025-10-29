@@ -30,7 +30,7 @@ public class LoginScreen extends Screen {
 
 		// ARKANOID LOGO
 		ImageView logo = this.createElement("logo", new ImageView(
-			ArkanoidGame.LOGO
+			CSAssets.LOGO
 		));
 
 		logo.setPreserveRatio(true);
