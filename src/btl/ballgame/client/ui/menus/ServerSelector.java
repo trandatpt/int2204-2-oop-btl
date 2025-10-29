@@ -16,6 +16,7 @@ import java.util.List;
 
 import btl.ballgame.client.ArkanoidGame;
 import btl.ballgame.client.net.ClientNetworkManager;
+import btl.ballgame.client.ui.audio.SoundManager;
 import btl.ballgame.client.ui.screen.Screen;
 
 public class ServerSelector extends Screen {
@@ -36,6 +37,9 @@ public class ServerSelector extends Screen {
 		ImageView logo = this.createElement("logo", new ImageView(
 			ArkanoidGame.LOGO
 		));
+
+		SoundManager.onInit();
+		SoundManager.playloop("MenuSound");
 		logo.setPreserveRatio(true);
 		logo.setFitWidth(500);
 		

@@ -29,6 +29,7 @@ public class LoginScreen extends Screen {
 		ImageView logo = this.createElement("logo", new ImageView(
 			ArkanoidGame.LOGO
 		));
+
 		logo.setPreserveRatio(true);
 		logo.setFitWidth(500);
 		

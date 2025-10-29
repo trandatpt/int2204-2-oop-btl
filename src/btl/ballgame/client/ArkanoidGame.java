@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 
+import btl.ballgame.client.ui.audio.SoundManager;
 import btl.ballgame.client.ui.menus.MenuUtils;
 import btl.ballgame.client.ui.screen.ScreenManager;
 import btl.ballgame.protocol.ProtoUtils;
@@ -33,6 +34,7 @@ public class ArkanoidGame extends Application {
 	public void stop() throws Exception {
 		try {
 			// do some cleanup
+			SoundManager.stopAllSounds();
 			if (core != null) {
 				core.disconnect(); // gracefully terminate the connection
 			}
