@@ -98,6 +98,8 @@ public class AABB {
 
 	/**
 	 * Move (translate) this AABB by dx, dy.
+	 * 
+	 * @return the moved copy of this AABB
 	 */
 	public AABB move(int dx, int dy) {
 		return new AABB(minX + dx, minY + dy, maxX + dx, maxY + dy);
@@ -105,6 +107,8 @@ public class AABB {
 
 	/**
 	 * Expand this AABB by a given amount in all directions.
+	 * 
+	 * @return the expanded copy of this AABB
 	 */
 	public AABB expand(int amount) {
 		return new AABB(minX - amount, minY - amount, maxX + amount, maxY + amount);

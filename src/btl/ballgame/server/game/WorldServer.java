@@ -230,7 +230,7 @@ public class WorldServer implements IWorld {
 		// are members of this world
 		this.broadcastPackets(new PacketPlayOutEntitySpawn(
 			(byte) type.ordinal(), 
-			entity.getId(), 
+			(short) entity.getId(), 
 			entity.getWatcher(), 
 			entity.getLocation(),
 			entity.getBoundingBox()

@@ -9,9 +9,11 @@ import java.util.Map;
 /**
  * DataWatcher is a utility class for tracking key-value pairs of
  * an Entity or others, suitable for use on both the client and the server
+ * <br>
+ * A DataWatcher can only hold up to 65,536 keys at once (int16 limit).
  */
 public class DataWatcher {
-	private final Map<Integer, DataWatcherEntry> entries;
+	private final Map<Short, DataWatcherEntry> entries;
 
 	public DataWatcher() {
 		this.entries = new HashMap<>();
@@ -25,7 +27,7 @@ public class DataWatcher {
 	 * @param value the value to watch
 	 * @throws IllegalArgumentException if the value type is not supported
 	 */
-	public void watch(int keyId, Object value) {
+	public void watch(short keyId, Object value) {
 		// implicit boolean cast
 		if (value instanceof Boolean b) {
 			value = (byte) (b ? 1 : 0);
@@ -42,7 +44,7 @@ public class DataWatcher {
 	 *
 	 * @param keyId the identifier of the key to remove
 	 */
-	public void unwatch(int keyId) {
+	public void unwatch(short keyId) {
 		entries.remove(keyId);
 	}
 	
@@ -52,7 +54,7 @@ public class DataWatcher {
 	 * @param keyId the identifier of the key
 	 * @return the value of the key, or null if the key is not watched
 	 */
-	public Object get(int keyId) {
+	public Object get(short keyId) {
 		DataWatcherEntry entry = entries.get(keyId);
 		return entry != null ? entry.value : null;
 	}
@@ -69,7 +71,7 @@ public class DataWatcher {
 	 * Format: [size][key id 1][type id 1][value 1]...
 	 */
 	public void write(PacketByteBuf buffer) {
-		buffer.writeInt32(entries.size());
+		buffer.writeInt16((short) entries.size());
 		for (DataWatcherEntry entry : entries.values()) {
 			entry.write(buffer);
 		}
@@ -80,7 +82,7 @@ public class DataWatcher {
 	 */
 	public void read(PacketByteBuf buffer) {
 		entries.clear();
-		int len = buffer.readInt32();
+		short len = buffer.readInt16();
 		for (int i = 0; i < len; ++i) {
 			DataWatcherEntry dw = DataWatcherEntry.read(buffer);
 			entries.put(dw.keyId, dw);

@@ -3,6 +3,7 @@ package btl.ballgame.server.game.entities;
 import btl.ballgame.server.game.WorldEntity;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.Location;
+import btl.ballgame.shared.libs.Utils;
 
 /**
  * Represents a dynamic/static entity in the game world that can take damage
@@ -46,7 +47,7 @@ public abstract class BreakableEntity extends WorldEntity {
      * @param health the new health value
      */
 	public void setHealth(int health) {
-		this.remainingHealth = Math.min(getMaxHealth(), Math.max(0, health));
+		this.remainingHealth = Utils.clamp(health, 0, getMaxHealth());
 		this.dataWatcher.watch(Constants.HP_META_KEY, this.remainingHealth);
 		this.updateMetadata();
 	}

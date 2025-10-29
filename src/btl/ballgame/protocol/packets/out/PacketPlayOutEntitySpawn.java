@@ -8,7 +8,7 @@ import btl.ballgame.shared.libs.Location;
 
 public class PacketPlayOutEntitySpawn extends NetworkPacket implements IPacketPlayOut {
 	private byte entityTypeId;
-	private int entityId;
+	private short entityId;
 	private DataWatcher metadata;
 	private Location spawnLocation;
 	private int entityWidth, entityHeight;
@@ -16,7 +16,7 @@ public class PacketPlayOutEntitySpawn extends NetworkPacket implements IPacketPl
 	public PacketPlayOutEntitySpawn() {};
 	
 	public PacketPlayOutEntitySpawn(
-		byte entityTypeId, int entityId, 
+		byte entityTypeId, short entityId, 
 		DataWatcher dataWatcher, 
 		Location location, AABB boundingBox
 	) {
@@ -55,7 +55,7 @@ public class PacketPlayOutEntitySpawn extends NetworkPacket implements IPacketPl
 	@Override
 	public void write(PacketByteBuf buffer) {
 		buffer.writeInt8(this.entityTypeId);
-		buffer.writeInt16((short) this.entityId);
+		buffer.writeInt16(this.entityId);
 		this.metadata.write(buffer);
 		// write spawn location
 		buffer.writeInt16((short) this.spawnLocation.getX());
