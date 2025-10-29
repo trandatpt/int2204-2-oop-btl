@@ -268,9 +268,11 @@ public abstract class WorldEntity {
 		this.computeBoundingBox();
 		
 		// broadcast the dimensions change
-		this.getWorld().broadcastPackets(new PacketPlayOutEntityBBSizeUpdate(
-			getId(), this.width, this.height
-		));
+		if (this.isActive()) this.getWorld().broadcastPackets(
+			new PacketPlayOutEntityBBSizeUpdate(
+				getId(), this.width, this.height
+			)
+		);
 	}
 	
 	/** Recomputes the bounding box centered on the entity's current location. */
@@ -324,12 +326,10 @@ public abstract class WorldEntity {
 		new HashSet<>(occupiedChunks).forEach(chunk -> {
 			leaveChunk(chunk);
 		});
-		if (getLocation().getWorld() instanceof WorldServer ws) {
-			ws.removeEntityFromRegistry(this);
-		}
 		
+		this.world.removeEntityFromRegistry(this);
 		// notifies clients to despawn the entity
-		this.getWorld().broadcastPackets(new PacketPlayOutEntityDestroy(getId()));
+		this.world.broadcastPackets(new PacketPlayOutEntityDestroy(getId()));
 	}
 	
 	/**

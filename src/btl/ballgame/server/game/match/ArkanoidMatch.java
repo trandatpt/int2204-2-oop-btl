@@ -75,7 +75,7 @@ public class ArkanoidMatch {
 		});
 		this.prepareMatch();
 		this.matchStarted = true;
-		changePhase(MatchPhase.BRICK_WARFARE);
+		changePhase(MatchPhase.MATCH_ACTIVE);
 	}
 
 	/**

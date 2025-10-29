@@ -10,14 +10,12 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
 import btl.ballgame.client.ArkanoidClientCore;
 import btl.ballgame.client.ArkanoidGame;
 import btl.ballgame.client.ui.menus.MenuUtils;
 import btl.ballgame.protocol.ConnectionCtx;
-import btl.ballgame.protocol.ProtoUtils;
 import btl.ballgame.protocol.packets.NetworkPacket;
 import btl.ballgame.protocol.packets.PacketHandler;
 import btl.ballgame.protocol.packets.in.IPacketPlayIn;
@@ -101,11 +99,18 @@ public class CServerConnection implements ConnectionCtx {
 				try {
 					flushSignal.acquire(); // block until flushSignal release
 					synchronized (sendStream) {
-						for (NetworkPacket p : dispatchQueue) {
+						// prevent some bullshit race condition
+						// by draining the queue before doing shit
+						List<NetworkPacket> toDispatch = new ArrayList<>();
+						NetworkPacket packet;
+						while ((packet = dispatchQueue.poll()) != null) {
+							toDispatch.add(packet);
+						}
+						// dispatch
+						for (NetworkPacket p : toDispatch) {
 							client.codec().writePacket(sendStream, p);
 						}
 						sendStream.flush();
-						dispatchQueue.clear();
 					}
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();

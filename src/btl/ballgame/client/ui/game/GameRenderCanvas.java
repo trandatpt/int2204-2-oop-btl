@@ -2,6 +2,7 @@ package btl.ballgame.client.ui.game;
 
 import btl.ballgame.client.ArkanoidClientCore;
 import btl.ballgame.client.ArkanoidGame;
+import btl.ballgame.client.CSAssets;
 import btl.ballgame.client.ClientArkanoidMatch;
 import btl.ballgame.client.net.systems.CSWorld;
 import btl.ballgame.client.ui.screen.Screen;
@@ -22,6 +23,13 @@ public class GameRenderCanvas extends Screen {
 	
 	@Override
 	public void onInit() {
+		setStyle(
+			"-fx-background-image: url('" + CSAssets.VS_BACKGROUND + "');" + 
+			"-fx-background-size: cover;" + 
+			"-fx-background-position: center center;" + 
+			"-fx-background-repeat: no-repeat;"
+		);
+		
 		Canvas canvas = addElement("gameCanvas", new Canvas(
 			world.getWidth(), world.getHeight()
 		));
@@ -35,7 +43,6 @@ public class GameRenderCanvas extends Screen {
 			public void handle(long now) {
 				ctx.setFill(Color.BLACK);
 				ctx.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-				
 				world.getAllEntities().forEach(e -> e.render(ctx));
 			}
 		}.start();

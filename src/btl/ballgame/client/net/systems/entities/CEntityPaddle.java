@@ -1,7 +1,6 @@
 package btl.ballgame.client.net.systems.entities;
 
 import btl.ballgame.client.net.systems.CSInterpolatedEntity;
-import btl.ballgame.shared.libs.Constants;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 

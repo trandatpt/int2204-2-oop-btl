@@ -28,6 +28,9 @@ public class PlayerManager {
 		ArkaPlayer player = getPlayer(uniqueId);
 		if (player == null) return;
 		trackingPlayers.remove(uniqueId);
+		if (player.getCurrentGame() != null) {
+			player.getCurrentGame().onPlayerLeft(player);
+		}
 	}
 	
 	public Collection<ArkaPlayer> getOnlinePlayers() {

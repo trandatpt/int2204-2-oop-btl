@@ -11,10 +11,14 @@ public class Constants {
 	public static final int MISC_META_KEY = 0xFFF;
 	
 	// misc constants
-	public static final int PADDLE_MOVE_UNITS = 10;
+	public static final int PADDLE_MOVE_UNITS = 15;
 	public static final int PADDLE_MAX_HEALTH = 100;
 	public static final int TEAM_STARTING_LIVES = 3;
 	public static final int AK_47_MAG_SIZE = 30;
+	
+	// size consts
+	public static final int BRICK_WIDTH = 40;
+	public static final int BRICK_HEIGHT = 15;
 	
 	// enumerates
 	public static enum RifleMode {
@@ -33,7 +37,7 @@ public class Constants {
 	 * Represents the different phases a match can be in.
 	 */
 	public static enum MatchPhase {
-		MATCH_IDLING, BRICK_WARFARE, AK47_MODE, CONCLUDED;
+		MATCH_IDLING, MATCH_ACTIVE, CONCLUDED;
 		
 	    private static final MatchPhase[] values = values();
 	    public static MatchPhase of(int ordinal) {

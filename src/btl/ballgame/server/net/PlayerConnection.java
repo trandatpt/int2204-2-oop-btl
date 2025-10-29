@@ -16,16 +16,11 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import btl.ballgame.protocol.ConnectionCtx;
-import btl.ballgame.protocol.ProtoUtils;
 import btl.ballgame.protocol.packets.NetworkPacket;
 import btl.ballgame.protocol.packets.PacketHandler;
 import btl.ballgame.protocol.packets.out.IPacketPlayOut;
 import btl.ballgame.protocol.packets.out.PacketPlayOutCloseSocket;
-import btl.ballgame.protocol.packets.out.PacketPlayOutEntityMetadata;
-import btl.ballgame.protocol.packets.out.PacketPlayOutEntityPosition;
 import btl.ballgame.server.ArkanoidServer;
-import btl.ballgame.shared.libs.DataWatcher;
-import btl.ballgame.shared.libs.Location;
 import btl.ballgame.server.ArkaPlayer;
 
 /**
@@ -116,11 +111,18 @@ public class PlayerConnection implements ConnectionCtx {
 					flushSignal.acquire(); // block until flushSignal release
 					synchronized (sendStream) {
 						if (this.dispatchQueue.isEmpty()) continue;
-						for (NetworkPacket p : dispatchQueue) {
+						// prevent some bullshit race condition
+						// by draining the queue before doing shit
+						List<NetworkPacket> toDispatch = new ArrayList<>();
+						NetworkPacket packet;
+						while ((packet = dispatchQueue.poll()) != null) {
+							toDispatch.add(packet);
+						}
+						// dispatch
+						for (NetworkPacket p : toDispatch) {
 							server.codec().writePacket(sendStream, p);
 						}
 						sendStream.flush();
-						dispatchQueue.clear();
 					}
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();

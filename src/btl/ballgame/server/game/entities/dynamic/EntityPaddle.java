@@ -38,7 +38,7 @@ public class EntityPaddle extends ControllableEntity {
 		super(id, location);
 		this.player = p;
 		this.team = team;
-		setBoundingBox(96, 18);
+		setBoundingBox(88, 16);
 	}
 	
 	public TeamColor getTeam() {

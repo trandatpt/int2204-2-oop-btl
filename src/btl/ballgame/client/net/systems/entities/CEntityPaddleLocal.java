@@ -10,12 +10,13 @@ import btl.ballgame.shared.libs.DataWatcher;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-import static btl.ballgame.shared.libs.Utils.clamp;
+import static btl.ballgame.shared.libs.Utils.*;
 
 public class CEntityPaddleLocal extends CEntityPaddle implements ITickableCEntity {
 	private boolean moveLeft = false, moveRight = false;
 	// this is the speculative position of the client
 	private int clientX;
+	private boolean canMove = true; // this is set by the server
 	
 	@Override
 	public void render(GraphicsContext cv) {
@@ -27,14 +28,20 @@ public class CEntityPaddleLocal extends CEntityPaddle implements ITickableCEntit
 	
 	@Override
 	public int getRenderX() {
-		return clientX - (getWidth() >> 1);
+		// this could get choppy, so lerp the shit out of it
+		return intLerp(oldX, clientX, getAlpha(lastTickNano)) - (getWidth() >> 1);
 	}
 	
+	private int oldX;
+	private long lastTickNano;
 	@Override
 	public void onTick() {
-		if (!moveLeft && !moveRight) {
+		if (!this.canMove || (!moveLeft && !moveRight)) {
 			return; // prevent from wasting data
 		}
+		// setting up lerp
+		this.oldX = this.clientX;
+		this.lastTickNano = System.nanoTime();
 		// if the user pressed L or R this tick, move accordingly 
 		if (moveLeft) move(-Constants.PADDLE_MOVE_UNITS);
 		if (moveRight) move(Constants.PADDLE_MOVE_UNITS);
@@ -68,6 +75,9 @@ public class CEntityPaddleLocal extends CEntityPaddle implements ITickableCEntit
 		// drifted too far (> 20 units)
 		int serverX = getMutableServerLocation().getX();
 		if (Math.abs(serverX - clientX) > Constants.PADDLE_MOVE_UNITS * 2) {
+			// setting up lerp
+			this.oldX = this.clientX;
+			this.lastTickNano = System.nanoTime();
 			this.clientX = serverX;
 		}
 	}
@@ -78,6 +88,12 @@ public class CEntityPaddleLocal extends CEntityPaddle implements ITickableCEntit
 	
 	public void setMoveRight(boolean moveRight) {
 		this.moveRight = moveRight;
+	}
+	
+	public void setCanMoveStatus(boolean canMove) {
+		this.canMove = canMove;
+		// sync the position immediately
+		this.clientX = getServerLocation().getX();
 	}
 	
 	/**

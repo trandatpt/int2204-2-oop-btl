@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import btl.ballgame.client.ArkanoidGame;
+import btl.ballgame.client.CSAssets;
 import btl.ballgame.client.net.ClientNetworkManager;
 import btl.ballgame.client.ui.screen.Screen;
 
@@ -34,7 +35,7 @@ public class ServerSelector extends Screen {
 
 		// ARKANOID LOGO
 		ImageView logo = this.createElement("logo", new ImageView(
-			ArkanoidGame.LOGO
+			CSAssets.LOGO
 		));
 		logo.setPreserveRatio(true);
 		logo.setFitWidth(500);

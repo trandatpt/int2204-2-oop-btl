@@ -23,7 +23,7 @@ public class EntityWreckingBall extends WorldEntity {
 	public static final float DEFAULT_SPEED = 320.0f;
 
 	/** Default ball radius (in pixels/units). */
-	public static final int DEFAULT_BALL_RADIUS = 32;
+	public static final int DEFAULT_BALL_RADIUS = 25;
 
 	/** Current movement speed. */
 	private float speed;
@@ -144,13 +144,13 @@ public class EntityWreckingBall extends WorldEntity {
 				pushWorld.y = -getBoundingBox().minY;
 				worldNormal = new Vector2f(0, 1);
 				bouncedFromWorld = true;
-			} else {
+			} else if (getBoundingBox().minY < -30) {
 				// if the world has no ceiling, the user just lost a ball
 				this.world.getHandle().onBallFallIntoVoid(this, VoidSide.CEILING);
 			}
 		} 
 		// floor handle (there's no floor, so the ball is lost)
-		else if (getBoundingBox().maxY > worldHeight) {
+		else if (getBoundingBox().maxY > worldHeight + 30) {
 			this.world.getHandle().onBallFallIntoVoid(this, VoidSide.FLOOR);
 		}
 		

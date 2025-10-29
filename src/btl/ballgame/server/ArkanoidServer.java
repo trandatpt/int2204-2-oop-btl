@@ -13,6 +13,7 @@ import btl.ballgame.server.game.entities.breakable.EntityBrick;
 import btl.ballgame.server.game.entities.dynamic.EntityPaddle;
 import btl.ballgame.server.game.entities.dynamic.EntityWreckingBall;
 import btl.ballgame.server.game.match.ArkanoidMatch;
+import btl.ballgame.server.game.match.MatchSettings;
 import btl.ballgame.server.net.NetworkManager;
 import btl.ballgame.server.net.PlayerConnection;
 import btl.ballgame.server.net.handle.ClientDisconnectHandle;
@@ -148,8 +149,9 @@ public class ArkanoidServer {
 			playerManager.getPlayer(parts[1]).kick("bruh");
 			break;
 		case "test": {
-			ArkanoidMatch match = new ArkanoidMatch(ArkanoidMode.ONE_VERSUS_ONE);
+			ArkanoidMatch match = new ArkanoidMatch(new MatchSettings(ArkanoidMode.TWO_VERSUS_TWO, 3, 180, 1));
 			match.assignTeam(TeamColor.RED, Arrays.asList(playerManager.getPlayer(parts[1])));
+
 			match.assignTeam(TeamColor.BLUE, Arrays.asList(playerManager.getPlayer(parts[2])));
 			match.start();
 			break;
