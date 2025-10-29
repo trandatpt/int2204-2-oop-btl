@@ -132,7 +132,7 @@ public class ArkanoidClientCore {
 		
 		connection.sendPacket(new PacketPlayInClientUserCreation(
 			username, // Login credentials
-			Utils.SHA256(password) // 
+			Utils.SHA256(password) //
 		));
 	}
 	
