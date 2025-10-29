@@ -73,7 +73,7 @@ public class ServerSelector extends Screen {
 		// SYSTEM BUTTONS
 		Button connectButton = this.createElement("connectButton", new Button("Join Server"));
 		Button offlineButton = this.createElement("offlineButton", new Button("Play Offline"));
-		Button exitButton = this.createElement("offlineButton", new Button("Quit Game"));
+		Button exitButton = this.createElement("exitButton", new Button("Quit Game"));
 
 		connectButton.setPrefWidth(300);
 		offlineButton.setPrefWidth(300);

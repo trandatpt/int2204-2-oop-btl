@@ -85,7 +85,12 @@ public class LoginScreen extends Screen {
 			});
 			ArkanoidGame.manager().setScreen(loggingIn);
 		});
-		createAccountBtn.setOnAction(e -> {});
+
+		createAccountBtn.setOnAction(e -> {
+			CreateScreen createNewAccount = new CreateScreen();
+			ArkanoidGame.manager().setScreen(createNewAccount);
+		});
+
 		disconnectButton.setOnAction(e -> {
 			core.disconnect();
 			MenuUtils.displayServerSelector();
