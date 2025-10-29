@@ -205,79 +205,39 @@ public class WorldServer implements IWorld {
 	 * @return True if successfully added, false if entity is out of world bounds.
 	 */
 	public boolean addEntity(WorldEntity entity) {
-    EntityType type = null;
-
-    // 1) Nếu có server thật thì dùng registry như cũ
-    try {
-        if (ArkanoidServer.getServer() != null
-                && ArkanoidServer.getServer().getEntityRegistry() != null) {
-            type = ArkanoidServer.getServer().getEntityRegistry()
-                    .getRegisteredType(entity.getClass());
-        }
-    } catch (Exception ignored) {
-        // test mode
-    }
-
-    // 2) Nếu đang test (server null) thì tự map theo instanceof
-    if (type == null) {
-        try {
-            // import 3 class này ở đầu file nếu chưa có:
-            // import btl.ballgame.server.game.entities.breakable.EntityBrick;
-            // import btl.ballgame.server.game.entities.dynamic.EntityWreckingBall;
-            // import btl.ballgame.server.game.entities.dynamic.EntityPaddle;
-            if (entity instanceof btl.ballgame.server.game.entities.breakable.EntityBrick) {
-                type = EntityType.ENTITY_BRICK_NORMAL;           // đổi theo enum thực tế của bạn
-            } else if (entity instanceof btl.ballgame.server.game.entities.dynamic.EntityWreckingBall) {
-                type = EntityType.ENTITY_BALL;   // đổi theo enum thực tế của bạn
-            } else if (entity instanceof btl.ballgame.server.game.entities.dynamic.EntityPaddle) {
-                type = EntityType.ENTITY_PADDLE;          // đổi theo enum thực tế của bạn
-            }
-        } catch (Throwable ignored) {
-            // nếu enum khác tên thì tiếp tục bỏ qua set type ở bước dưới
-        }
-    }
-
-    // Kiểm tra world hợp lệ
-    if (!this.equals(entity.getWorld())) {
-        System.out.println("⚠️ Entity không cùng world — bỏ qua.");
-        return false;
-    }
-    if (this.isEntirelyOutOfWorld(entity.getBoundingBox())) {
-        return false;
-    }
-
-    // Thêm vào world
-    entity.computeOccupiedChunks();
-    entities.put(entity.getId(), entity);
-    entity.active = true;
-
-    // Chỉ set type nếu đã xác định được (tránh cần UNKNOWN)
-    if (type != null) {
-        entity.entityType = type;
-    }
-
-    try {
-        entity.onSpawn();
-    } catch (Exception ignored) { }
-
-    // Khi test offline: KHÔNG broadcast packet (không có client)
-    try {
-        if (ArkanoidServer.getServer() != null) {
-            this.broadcastPackets(new PacketPlayOutEntitySpawn(
-                (byte) (type != null ? type.ordinal() : 0),
-                entity.getId(),
-                entity.getWatcher(),
-                entity.getLocation(),
-                entity.getBoundingBox()
-            ));
-        }
-    } catch (Exception ignored) {
-        // test mode
-    }
-
-    return true;
-}
-
+		EntityType type = ArkanoidServer.getServer().getEntityRegistry().getRegisteredType(entity.getClass());
+		if (type == null) {
+			throw new IllegalArgumentException(entity.getClass() + " is not registered as an entity!");
+		}
+		
+		if (!this.equals(entity.getWorld())) {
+			throw new IllegalArgumentException("Entity must belong to this world instance, the provided entity is linked to a different world or has no world assigned!");
+		}
+		
+		if (this.isEntirelyOutOfWorld(entity.getBoundingBox())) {
+			return false;
+		}
+		
+		entity.computeOccupiedChunks();
+		entities.put(entity.getId(), entity);
+		entity.entityType = type;
+		entity.active = true;
+		
+		// call the event
+		entity.onSpawn();
+		
+		// send the spawn packet to notify clients that
+		// are members of this world
+		this.broadcastPackets(new PacketPlayOutEntitySpawn(
+			(byte) type.ordinal(), 
+			entity.getId(), 
+			entity.getWatcher(), 
+			entity.getLocation(),
+			entity.getBoundingBox()
+		));
+		
+		return true;
+	}
 	
 	/**
 	 * Removes an entity from the server registry.
