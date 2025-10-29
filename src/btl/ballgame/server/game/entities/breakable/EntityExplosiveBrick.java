@@ -1,5 +1,6 @@
 package btl.ballgame.server.game.entities.breakable;
 
+import btl.ballgame.server.game.entities.BreakableEntity;
 import btl.ballgame.shared.libs.Location;
 
 public class EntityExplosiveBrick extends BreakableEntity {
@@ -28,8 +29,8 @@ public class EntityExplosiveBrick extends BreakableEntity {
 	}
 
 	@Override
-	void onObjectBroken() {
-		double radius = 50; // nổ trong bán kính 50 pixel
+	public void onObjectBroken() {
+		double radius = 50;
         Location pos = getLocation();
         for (var e : world.getEntities()) {
             if (e instanceof BreakableEntity && e != this) {

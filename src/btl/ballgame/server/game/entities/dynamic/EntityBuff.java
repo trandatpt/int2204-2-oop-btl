@@ -2,11 +2,12 @@ package btl.ballgame.server.game.entities.dynamic;
 
 import btl.ballgame.shared.libs.Constants.BuffType;
 import btl.ballgame.shared.libs.Constants.TeamColor;
+import btl.ballgame.server.game.WorldEntity;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.Location;
 import btl.ballgame.shared.libs.Vector2f;
 
-public class EntityBuff extends EntityDynamic {
+public class EntityBuff extends WorldEntity {
 	final int velocity = 9;
 	final double width = 18;
 	final double height = 18;

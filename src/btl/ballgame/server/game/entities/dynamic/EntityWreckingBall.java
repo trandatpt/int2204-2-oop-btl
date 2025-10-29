@@ -86,7 +86,7 @@ public class EntityWreckingBall extends WorldEntity {
 	 *
 	 * @param lookVector New normalized direction vector.
 	 */
-	private void setDirection(Vector2f lookVector) {
+	public void setDirection(Vector2f lookVector) {
 		setLocation(getLocation().clone().setDirection(lookVector));
 	}
 	
