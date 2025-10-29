@@ -30,6 +30,8 @@ public class ServerSelector extends Screen {
 
 	@Override
 	public void onInit() {
+		// initialize sound
+		SoundManager.onInit();
 		// background shit
 		setStyle("-fx-background-color: linear-gradient(to bottom, #1e1e1e, #2a2a2a);");
 
@@ -38,8 +40,7 @@ public class ServerSelector extends Screen {
 			ArkanoidGame.LOGO
 		));
 
-		SoundManager.onInit();
-		SoundManager.playloop("MenuSound");
+		SoundManager.playloop("MusicMenu");
 		logo.setPreserveRatio(true);
 		logo.setFitWidth(500);
 		
@@ -77,20 +78,30 @@ public class ServerSelector extends Screen {
 		// SYSTEM BUTTONS
 		Button connectButton = this.createElement("connectButton", new Button("Join Server"));
 		Button offlineButton = this.createElement("offlineButton", new Button("Play Offline"));
+		Button settingButton = this.createElement("settingButton", new Button("Settings"));
 		Button exitButton = this.createElement("exitButton", new Button("Quit Game"));
 
 		connectButton.setPrefWidth(300);
 		offlineButton.setPrefWidth(300);
+		settingButton.setPrefWidth(300);
 		exitButton.setPrefWidth(300);
 
 		MenuUtils.styleButton(connectButton, "#699456", "#4c6940"); // green
 		MenuUtils.styleButton(offlineButton, "#4682b4", "#36648b"); // blue
+		MenuUtils.styleButton(settingButton, "#daa520", "#b8860b"); // yellow
 		MenuUtils.styleButton(exitButton, "#b22222", "#8b1a1a"); // red
 
+		// HOVER THE BUTTONS
+		connectButton.setOnMouseEntered(e -> SoundManager.play("ClickTiny"));
+		offlineButton.setOnMouseEntered(e -> SoundManager.play("ClickTiny"));
+		settingButton.setOnMouseEntered(e -> SoundManager.play("ClickTiny"));
+		exitButton.setOnMouseEntered(e -> SoundManager.play("ClickTiny"));
+		
 		// CLICK THE BUTTONS
 		connectButton.setOnAction(e -> connectOnline());
 		offlineButton.setOnAction(e -> goOffline());
-		exitButton.setOnAction(e -> System.exit(0));
+		settingButton.setOnAction(e -> goSettings());
+		exitButton.setOnAction(e -> exitScreen());
 
 		// DEFINE THE LAYOUT
 		VBox serverBox = new VBox(10, 
@@ -101,6 +112,7 @@ public class ServerSelector extends Screen {
 			new Label(""), // evil layout hack
 			new Label("Not interested in PvP?"),
 			offlineButton,
+			settingButton,
 			exitButton
 		);
 		((Label) serverBox.getChildren().get(0)).setTextFill(Color.WHITE);
@@ -123,6 +135,7 @@ public class ServerSelector extends Screen {
 		Object selected = serverDropdown.getValue();
 		
 		if (selected == null) {
+			SoundManager.ClickFalse();
 			return;
 		}
 
@@ -132,22 +145,36 @@ public class ServerSelector extends Screen {
 		} else {
 			address = customServerBox.getText().trim();
 			if (address.isEmpty()) {
+				SoundManager.ClickFalse();
 				return;
 			}
 		}
-		
+		SoundManager.ClickBottonMenu();
 		ClientNetworkManager.connectToServer(address);
 	}
 
 	private void goOffline() {
+		// SoundManager.ClickFalse();  false
+		// SoundManager.ClickBottonMenu(); click successful
 	}
 
+	private void goSettings() {
+		SoundManager.ClickBottonMenu();
+		SettingScreen settings = new SettingScreen();
+		ArkanoidGame.manager().setScreen(settings);
+	}
+
+	private void exitScreen() {
+		SoundManager.play("Confirm");
+		SoundManager.stopAllSounds();
+		System.exit(0);
+	}
 	@Override
 	public void onRemove() {
 		// Cleanup if needed later (animations, threads, etc.)
 	}
 
-	// === INNER CLASS ===
+	//INNER CLASS
 	public static class PredefinedServer {
 		private final String displayName;
 		private final String domain;

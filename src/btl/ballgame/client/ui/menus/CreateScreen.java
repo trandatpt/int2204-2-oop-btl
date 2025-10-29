@@ -8,6 +8,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import btl.ballgame.client.ArkanoidClientCore;
 import btl.ballgame.client.ArkanoidGame;
+import btl.ballgame.client.ui.audio.SoundManager;
 import btl.ballgame.client.ui.screen.Screen;
 
 public class CreateScreen extends Screen {
@@ -22,6 +23,9 @@ public class CreateScreen extends Screen {
 
     @Override
     public void onInit() {
+
+        SoundManager.playloop("MusicInGame");
+
         setStyle("-fx-background-color: linear-gradient(to bottom, #1e1e1e, #2a2a2a);");
 
         // Logo
@@ -66,18 +70,21 @@ public class CreateScreen extends Screen {
             if (user.isEmpty() || pass.isEmpty() || repPass.isEmpty()) {
                 statusLabel.setText("Please fill in all fields!");
                 statusLabel.setTextFill(Color.ORANGE);
+                SoundManager.ClickFalse();
                 return;
             }
 
             if (!user.matches("^[a-zA-Z0-9_]{3,16}$")) {
                 statusLabel.setText("Username must be 3-16 characters and use only letters, numbers, or underscores!");
                 statusLabel.setTextFill(Color.RED);
+                SoundManager.ClickFalse();
                 return;
             }
 
             if (!pass.equals(repPass)) {
                 statusLabel.setText("Passwords do not match!");
                 statusLabel.setTextFill(Color.RED);
+                SoundManager.ClickFalse();
                 return;
             }
 
@@ -94,7 +101,7 @@ public class CreateScreen extends Screen {
             ArkanoidGame.manager().setScreen(creatingScreen);
         });
 
-        backBtn.setOnAction(e -> MenuUtils.displayLoginScreen());
+        backBtn.setOnAction(e -> back());
 
         // Layout
         VBox formBox = new VBox(10,
@@ -117,6 +124,10 @@ public class CreateScreen extends Screen {
         this.addElement(layout);
     }
 
+    private void back() {
+        SoundManager.ClickBottonLogin();
+        MenuUtils.displayLoginScreen();
+    }
     @Override
     public void onRemove() {}
 }

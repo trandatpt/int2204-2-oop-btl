@@ -82,7 +82,47 @@ public class SoundManager {
         }
     }
 
+    // Sound click botton menu
+    public static void ClickBottonMenu() {
+        play("Confirm");
+		stop("MusicMenu");
+    }
+
+    public static void ClickBottonLogin() {
+        play("Confirm");
+		stop("MusicInGame");
+    }
+
+    // Sound click botton false
+    public static void ClickFalse() {
+        play("Buzz");
+    }
+
     public static void onInit() {
-        loadSound("MenuSound", "assets/menuvoice.mp3");
+        loadSound("Blip", "assets/blip.wav");
+        loadSound("BrickHit1", "assets/brick-hit-1.wav");
+        loadSound("BrickHit2", "assets/brick-hit-2.wav");
+        loadSound("Buzz", "assets/buzz.wav");
+        loadSound("ClickTiny", "assets/click_tiny.wav");
+        loadSound("Confirm", "assets/confirm.wav");
+        loadSound("Electric", "assets/electric.wav");
+        loadSound("HighScore", "assets/high_score.wav");
+        loadSound("Hurt", "assets/hurt.wav");
+        loadSound("KeyOpen", "assets/key_open.wav");
+        loadSound("Lose", "assets/lose.wav");
+        loadSound("MusicMenu", "assets/music.wav");
+        loadSound("MusicInGame", "assets/musicinpick.wav");
+        loadSound("NoSelect", "assets/no-select.wav");
+        loadSound("PaddleHit", "assets/paddle_hit.wav");
+        loadSound("Pause", "assets/pause.wav");
+        loadSound("PowerUp", "assets/powerup.wav");
+        loadSound("Recover", "assets/recover.wav");
+        loadSound("Score", "assets/score.wav");
+        loadSound("Select", "assets/select.wav");
+        loadSound("Shrink", "assets/shrink.wav");
+        loadSound("Switch2", "assets/switch2.wav");
+        loadSound("Victory", "assets/victory.wav");
+        loadSound("WallHit", "assets/wall_hit.wav");
+        loadSound("Win3", "assets/win3.wav");
     }
 }
