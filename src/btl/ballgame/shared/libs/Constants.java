@@ -10,6 +10,7 @@ public class Constants {
 	public static final short PADDLE_OWNER_META = 0xA1;
 	public static final short BUFF_TYPE_META = 0xB0;
 	public static final short BRICK_TINT_META = 0xB1;
+	public static final short BALL_PRIMARY_META = 0xB2;
 	
 	// misc constants
 	public static final int PADDLE_MOVE_UNITS = 15;

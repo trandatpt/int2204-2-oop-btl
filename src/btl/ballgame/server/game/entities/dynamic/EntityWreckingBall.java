@@ -106,7 +106,7 @@ public class EntityWreckingBall extends WorldEntity {
 	
 	@Override
 	public void onSpawn() {
-		this.dataWatcher.watch(Constants.MISC_META_KEY, this.isPrimaryBall());
+		this.dataWatcher.watch(Constants.BALL_PRIMARY_META, this.isPrimaryBall());
 	}
 	
 	@Override
