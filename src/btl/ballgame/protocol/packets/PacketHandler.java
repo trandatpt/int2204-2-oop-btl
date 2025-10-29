@@ -3,7 +3,7 @@ package btl.ballgame.protocol.packets;
 import btl.ballgame.protocol.ConnectionCtx;
 
 /**
- * <h1>PacketHandler — Runtime Dispatcher for PennyWort Protocol Packets</h1>
+ * <h1>PacketHandler - Runtime Dispatcher for PennyWort Protocol Packets</h1>
  *
  * <p>{@code PacketHandler} is the functional interface responsible for handling
  * decoded {@link NetworkPacket} instances after they have been received and
@@ -11,8 +11,8 @@ import btl.ballgame.protocol.ConnectionCtx;
  * 
  * <h2>Generic Type Parameters</h2>
  * <ul>
- *   <li><b>T</b> – The specific {@link NetworkPacket} type this handler processes.</li>
- *   <li><b>U</b> – The type of {@link ConnectionCtx} providing connection-specific context (for the server-side, its {@link CServerConnection}).</li>
+ *   <li><b>T</b> The specific {@link NetworkPacket} type this handler processes.</li>
+ *   <li><b>U</b> The type of {@link ConnectionCtx} providing connection-specific context (for the server-side, its {@link CServerConnection}).</li>
  * </ul>
  */
 public interface PacketHandler<T extends NetworkPacket, U extends ConnectionCtx> {

@@ -2,10 +2,9 @@ package btl.ballgame.server.game.entities.dynamic;
 
 import java.util.List;
 
-import btl.ballgame.server.ArkaPlayer;
 import btl.ballgame.server.ArkanoidServer;
 import btl.ballgame.server.game.WorldEntity;
-import btl.ballgame.server.game.entities.breakable.BreakableEntity;
+import btl.ballgame.server.game.entities.BreakableEntity;
 import btl.ballgame.shared.libs.AABB;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.Constants.*;
@@ -19,12 +18,12 @@ import btl.ballgame.shared.libs.Vector2f;
  * response with paddles and breakable blocks, and out-of-bounds (void)
  * handling.
  */
-public class EntityWreckingBall extends EntityDynamic {
+public class EntityWreckingBall extends WorldEntity {
 	/** Default movement speed (units per sec). */
 	public static final float DEFAULT_SPEED = 320.0f;
 
 	/** Default ball radius (in pixels/units). */
-	public static final int DEFAULT_BALL_RADIUS = 32;
+	public static final int DEFAULT_BALL_RADIUS = 25;
 
 	/** Current movement speed. */
 	private float speed;
@@ -79,7 +78,7 @@ public class EntityWreckingBall extends EntityDynamic {
 	 * @param speed Speed in units per tick.
 	 */
 	public void setSpeed(float speed) {
-		this.speed = speed / ArkanoidServer.TICKS_PER_SECOND;
+		this.speed = speed / Constants.TICKS_PER_SECOND;
 	}
 	
 	/**
@@ -142,19 +141,16 @@ public class EntityWreckingBall extends EntityDynamic {
 		if (getBoundingBox().minY < 0) {
 			// if the world has a ceiling, bounces down
 			if (world.hasCeiling()) {
-				pushWorld.y = -getBoundingBox().minX;
-				worldNormal = Math.abs(pushWorld.x) > Math.abs(pushWorld.y) 
-					? new Vector2f(Math.signum(pushWorld.x), 0)
-					: new Vector2f(0, 1)
-				;
+				pushWorld.y = -getBoundingBox().minY;
+				worldNormal = new Vector2f(0, 1);
 				bouncedFromWorld = true;
-			} else {
+			} else if (getBoundingBox().minY < -30) {
 				// if the world has no ceiling, the user just lost a ball
 				this.world.getHandle().onBallFallIntoVoid(this, VoidSide.CEILING);
 			}
 		} 
 		// floor handle (there's no floor, so the ball is lost)
-		else if (getBoundingBox().maxY > worldHeight) {
+		else if (getBoundingBox().maxY > worldHeight + 30) {
 			this.world.getHandle().onBallFallIntoVoid(this, VoidSide.FLOOR);
 		}
 		
@@ -227,7 +223,5 @@ public class EntityWreckingBall extends EntityDynamic {
 				ib.damage(1);
 			}
 		}
-		
-		//WorldVisualizer.updateVV(getId(), direction.clone().multiply(5));
 	}
 }

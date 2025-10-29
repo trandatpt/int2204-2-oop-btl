@@ -9,9 +9,12 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.Semaphore;
 
-import btl.ballgame.client.ArkanoidClient;
+import btl.ballgame.client.ArkanoidClientCore;
+import btl.ballgame.client.ArkanoidGame;
+import btl.ballgame.client.ui.menus.MenuUtils;
 import btl.ballgame.protocol.ConnectionCtx;
 import btl.ballgame.protocol.packets.NetworkPacket;
 import btl.ballgame.protocol.packets.PacketHandler;
@@ -37,14 +40,16 @@ public class CServerConnection implements ConnectionCtx {
 	private DataInputStream receiveStream;
 	private DataOutputStream sendStream;
 	
-	private LinkedBlockingQueue<NetworkPacket> dispatchQueue = new LinkedBlockingQueue<>();
+	private ConcurrentLinkedDeque<NetworkPacket> dispatchQueue = new ConcurrentLinkedDeque<>();
 	
 	private boolean closed = false;
 	
 	private Thread packetListenerThread;
 	private Thread packetDispatcherThread;
 	
-	public final ArkanoidClient client;
+	private final Semaphore flushSignal = new Semaphore(0); // basically a notifier
+	
+	public final ArkanoidClientCore client;
 	
 	@SuppressWarnings("unchecked")    
 	/**
@@ -52,15 +57,24 @@ public class CServerConnection implements ConnectionCtx {
      * Initializes input/output streams and spawns the packet listener and dispatcher threads.
      *
      * @param socket the socket connected to the server
-     * @param client the {@link ArkanoidClient} instance providing packet handling and codec utilities
+     * @param client the {@link ArkanoidClientCore} instance providing packet handling and codec utilities
      * @throws IOException if an I/O error occurs while creating the input/output streams
      */
-	public CServerConnection(Socket socket, ArkanoidClient client) throws IOException {
+	public CServerConnection(Socket socket, ArkanoidClientCore client) throws IOException {
 		this.socket = socket;
 		this.client = client;
+		socket.setTcpNoDelay(true);
 		
 		this.sendStream = new DataOutputStream(socket.getOutputStream());
 		this.receiveStream = new DataInputStream(socket.getInputStream());
+		
+		// PWP specifications (CLIENT): SEND magic bytes (0x544824) / RECEIVE magic bytes (0x24E12)
+		sendStream.writeInt(0x544824);
+		
+		if (receiveStream.readInt() != 0x24E12) {
+			socket.close();
+			throw new IOException("PWP Protocol: Invalid Handshake!");
+		}
 		
 		// packet listening thread
 		this.packetListenerThread = new Thread(() -> {
@@ -83,12 +97,17 @@ public class CServerConnection implements ConnectionCtx {
 			Thread.currentThread().setName("CServerConnection: Packet Dispatcher Thread");
 			while (true) {
 				try {
-					NetworkPacket first = dispatchQueue.take(); // this blocks until there's something to pick up
-					List<NetworkPacket> batch = new ArrayList<>();
-					batch.add(first);
-					dispatchQueue.drainTo(batch); // grab any other queued packets immediately
+					flushSignal.acquire(); // block until flushSignal release
 					synchronized (sendStream) {
-						for (NetworkPacket p : batch) {
+						// prevent some bullshit race condition
+						// by draining the queue before doing shit
+						List<NetworkPacket> toDispatch = new ArrayList<>();
+						NetworkPacket packet;
+						while ((packet = dispatchQueue.poll()) != null) {
+							toDispatch.add(packet);
+						}
+						// dispatch
+						for (NetworkPacket p : toDispatch) {
 							client.codec().writePacket(sendStream, p);
 						}
 						sendStream.flush();
@@ -104,6 +123,14 @@ public class CServerConnection implements ConnectionCtx {
 		
 		this.packetDispatcherThread.start();
 		this.packetListenerThread.start();
+	}
+	
+    /**
+     * Signals the internal packet dispatcher thread to wake up and flush
+     * all pending packets currently queued for the server.
+     */
+	public void notifyDispatcher() {
+	    flushSignal.release();
 	}
 	
 	/**
@@ -147,7 +174,8 @@ public class CServerConnection implements ConnectionCtx {
 			} catch (IOException e) {}
 		}
 		closeConnection();
-		System.out.println("dc'ed: " + reason);
+		// tell the user that the connection is lost
+		MenuUtils.connectionLostScreen(reason);
 	}
 	
 	/**
@@ -168,6 +196,8 @@ public class CServerConnection implements ConnectionCtx {
 		}
 		// stop the dispatcher thread
 		this.packetDispatcherThread.interrupt();
+		// nullify the reference to the core class
+		ArkanoidGame.destroyCore();
 	}
 	
 	/**
@@ -182,27 +212,23 @@ public class CServerConnection implements ConnectionCtx {
 	 * Handles exceptions occurring in packet listener or dispatcher threads.
 	 * Automatically closes or destroys the connection depending on the exception
 	 * type.
-	 * 
+	 *
 	 * @param e the exception that occurred
 	 */
 	private void handleConnectionException(Throwable e) {
 		if (closed) return;
 		if (e instanceof EOFException) {
-			handleGracefulDisconnect(); // the client probably died, so /shrug
+			closeWithNotify("java.io.EOFException: Server closed connection");
 			return;
 		}
 		if (e instanceof SocketException) {
-			closeWithNotify("Connection reset by peer");
+			closeWithNotify("java.net.SocketException: Connection reset by peer");
 			return;
 		}
 		if (e instanceof SocketTimeoutException) {
 			closeWithNotify("Timed out");
 			return;
 		}
-		if (e instanceof IOException) {
-			closeWithNotify("Network error");
-			return;
-		}
-		closeWithNotify(e.getClass().getName() + ": " + e.getMessage());
+		closeWithNotify(e.toString());
 	}
 }

@@ -16,7 +16,7 @@ public class ClientLoginHandle implements PacketHandler<PacketPlayInClientLogin,
 		}
 		
 		String username = packet.who();
-		String passwordHash = packet.getPasswordHash();
+		String passwordHash = packet.getPassword();
 		
 		// username predicates (enforced on both client + server)
 		if (!username.matches("^[a-zA-Z0-9_]{3,16}$")) {
@@ -27,7 +27,10 @@ public class ClientLoginHandle implements PacketHandler<PacketPlayInClientLogin,
 		// TODO: check for password
 		PacketPlayOutLoginAck aLoginAck;
 		try {
-			ArkaPlayer player = ArkanoidServer.getServer().getPlayerManager().addPlayer(context, username);
+			ArkaPlayer player = ArkanoidServer.getServer()
+				.getPlayerManager()
+				.addPlayer(context, username)
+			;
 			aLoginAck = new PacketPlayOutLoginAck(player.getName(), player.getUniqueId()); // success
 		} catch (Exception e) {
 			aLoginAck = new PacketPlayOutLoginAck(e.getMessage());

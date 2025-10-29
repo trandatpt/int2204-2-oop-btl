@@ -4,7 +4,9 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import btl.ballgame.protocol.packets.out.PacketPlayOutMatchJoin;
 import btl.ballgame.protocol.packets.out.PacketPlayOutMatchMetadata;
+import btl.ballgame.protocol.packets.out.PacketPlayOutWorldInit;
 import btl.ballgame.protocol.packets.out.PacketPlayOutMatchMetadata.PlayerEntry;
 import btl.ballgame.protocol.packets.out.PacketPlayOutMatchMetadata.TeamEntry;
 import btl.ballgame.server.ArkaPlayer;
@@ -13,8 +15,7 @@ import btl.ballgame.server.game.WorldEntity;
 import btl.ballgame.server.game.WorldServer;
 import btl.ballgame.server.game.entities.breakable.EntityBrick;
 import btl.ballgame.server.game.entities.dynamic.*;
-import btl.ballgame.shared.libs.Constants;
-import btl.ballgame.shared.libs.Constants.*;
+import static btl.ballgame.shared.libs.Constants.*;
 import btl.ballgame.shared.libs.Location;
 import btl.ballgame.shared.libs.Vector2f;
 
@@ -23,37 +24,61 @@ import btl.ballgame.shared.libs.Vector2f;
  * PvP arena mode. Tracks rounds, scores, team states, and match phases.
  */
 public class ArkanoidMatch {
-
+	private final MatchSettings settings;
 	private final ArkanoidMode gameMode;
 	private final WorldServer world;
+	private final UUID matchId;
+	
 	private boolean matchStarted = false;
 	private MatchPhase currentPhase = MatchPhase.MATCH_IDLING;
 	private TeamColor winner = null;
+	
 	private int roundIndex = 1;
 
 	private final Map<TeamColor, TeamInfo> teams = new HashMap<>();
 	private final Map<ArkaPlayer, TeamColor> teamMap = new HashMap<>();
 	private final Map<ArkaPlayer, EntityPaddle> paddlesMap = new HashMap<>();
-
-	static final int PADDLE_SPACING = 40;
-	static final int BASE_MARGIN = 60;
-
+	
+	static final int BALL_SPAWN_MARGIN = 80;
+	static final int PADDLE_SPACING = 50;
+	static final int BASE_MARGIN = 50;
+	
 	/**
 	 * Creates a new ArkanoidMatch instance.
 	 * 
-	 * @param mode The game mode (CLASSIC or PVP_ARENA).
+	 * @param mode The game mode
 	 */
-	public ArkanoidMatch(ArkanoidMode mode) {
-		this.gameMode = mode;
+	public ArkanoidMatch(MatchSettings settings) {
+		this.settings = settings;
+		this.gameMode = settings.getGamemode();
 		this.world = new WorldServer(this, 600, 800);
+		this.matchId = UUID.randomUUID();
 		
 		Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
-			if (currentPhase != MatchPhase.MATCH_IDLING && currentPhase != MatchPhase.CONCLUDED) {
+			if (matchStarted && currentPhase != MatchPhase.CONCLUDED) {
 				this.world.tick();
 				this.onMatchTick();
+				System.out.println("ticking");
 			}
-			this.world.notifyPlayerDispatchers();
 		}, 0, ArkanoidServer.MS_PER_TICK, TimeUnit.MILLISECONDS);
+	}
+	
+	public void start() {
+		// a mapping from UUID -> DISPLAY NAME
+		Map<UUID, String> nameMatch = new HashMap<>();
+		getPlayers().forEach(p -> {
+			nameMatch.put(p.getUniqueId(), p.getName());
+		});
+		
+		// signal to the clients that a match is ready to be joined
+		this.world.broadcastPackets(new PacketPlayOutMatchJoin(matchId, gameMode, nameMatch));
+		this.syncMatchStateWithClients();
+		this.world.broadcastPackets(new PacketPlayOutWorldInit(world));
+		
+		
+		this.prepareMatch();
+		this.matchStarted = true;
+		changePhase(MatchPhase.MATCH_ACTIVE);
 	}
 
 	/**
@@ -61,18 +86,7 @@ public class ArkanoidMatch {
 	 * bricks as required.
 	 */
 	public void prepareMatch() {
-		switch (gameMode) {
-		case SOLO_ENDLESS -> prepareClassicRound();
-		default -> preparePvPRound();
-		}
-	}
-
-	/**
-	 * Prepares a new round in Classic single-player mode. Spawns one paddle, one
-	 * neutral ball, and procedural bricks.
-	 */
-	private void prepareClassicRound() {
-		spawnPaddles();
+		spawnPaddlesAndBalls();
 		testPerlinBricks();
 	}
 
@@ -97,47 +111,72 @@ public class ArkanoidMatch {
             }
         }
     }
-
-
-	/**
-	 * Prepares a new round in PvP arena mode. Spawns team paddles, balls, and
-	 * static bricks.
-	 */
-	private void preparePvPRound() {
-		spawnPaddles();
-	}
 	
 	// this function works regardless of mode due to the way it was implemented
-	private void spawnPaddles() {
+	private void spawnPaddlesAndBalls() {
 		// spawn paddles based on team
 		for (TeamColor team : teams.keySet()) {
 			List<ArkaPlayer> teamPlayers = teams.get(team).getPlayers();
 			
 			boolean isBottomTeam = (team == TeamColor.RED);
 			int baseY = isBottomTeam ? world.getHeight() - BASE_MARGIN : BASE_MARGIN;
+			int lastY = 0;
 			
 			for (int i = 0; i < teamPlayers.size(); i++) {
 				// calculate the Y-position offset for this paddle
 				// RED team paddles are stacked upward (-1),
 				// BLUE team paddles are stacked downward (+1)
 				this.spawnPaddleFor(team, teamPlayers.get(i),
-					baseY + (isBottomTeam ? -1 : 1) * (i * PADDLE_SPACING)
+					lastY = (baseY + (isBottomTeam ? -1 : 1) * (i * PADDLE_SPACING))
 				);
 			}
 			
 			// the ball falls into the respective paddle
 			// the ball will fall down (+1) if the team is the upper one
 			// and fly up (-1) if lower
-			Vector2f initial = isBottomTeam ? new Vector2f(0, -1) : new Vector2f(0, 1);
+			Vector2f initial = isBottomTeam ? new Vector2f(0, 1) : new Vector2f(0, -1);
 			EntityWreckingBall ball = new EntityWreckingBall(world.nextEntityId(),
-				new Location(world, world.getWidth() / 2, // middle the screen
-					(isBottomTeam ? -1 : 1) * 120, // a little higher than the base
+				new Location(world, 
+					world.getWidth() / 2, // middle the screen
+					lastY + (isBottomTeam ? -1 : 1) * BALL_SPAWN_MARGIN, // a little higher than the base
 					initial // initial flying vector
 				)
 			);
 			ball.setPrimaryBall(true);
 			world.addEntity(ball);
 		}
+	}
+	
+	// this function also work regardless of the modes
+	private void spawnBricksAndBrushes() {
+		int brickRows = 15;
+		int yOffset = getGameMode().isSinglePlayer() 
+			? BASE_MARGIN 
+			: (world.getHeight() / 2) - (BRICK_HEIGHT * (brickRows / 2))
+		;
+		
+		for (int dx = BRICK_WIDTH / 2; dx < world.getWidth(); dx += BRICK_WIDTH) {
+			for (int y = 0; y < brickRows; y++) {
+				Location brickLocation = new Location(world, 
+					dx, yOffset + y * BRICK_HEIGHT, 0
+				);
+				EntityBrick brick = new EntityBrick(world.nextEntityId(), brickLocation);
+				world.addEntity(brick);
+			}
+		}
+	}
+
+	/**
+	 * Resets the world and teams for a new round.
+	 */
+	private void resetForNextRound() {
+		for (TeamInfo team : teams.values()) {
+			team.resetForNextRound();
+		}
+		
+		world.getEntities().forEach(WorldEntity::remove);
+		paddlesMap.clear();
+		world.squashIdCounter(); // reset the counter to 0 so we dont overshoot
 	}
 	
 	/**
@@ -155,17 +194,6 @@ public class ArkanoidMatch {
 		changePhase(MatchPhase.MATCH_IDLING);
 		prepareMatch();
 		syncMatchStateWithClients();
-	}
-
-	/**
-	 * Resets the world and teams for a new round.
-	 */
-	private void resetForNextRound() {
-		for (TeamInfo team : teams.values()) {
-			team.resetForNextRound();
-		}
-		world.getEntities().forEach(WorldEntity::remove);
-		paddlesMap.clear();
 	}
 
 	/**
@@ -257,58 +285,62 @@ public class ArkanoidMatch {
 		if (currentPhase == MatchPhase.MATCH_IDLING && currentPhase != phase) {
 			matchStartTime = System.currentTimeMillis();
 		}
-		
-		this.currentPhase = phase;
-		switch (phase) {
-			case MATCH_IDLING: {
-				
-			}
-			
-			case CONCLUDED: {
-				// display some text
-			}
-			
-			default: {}
-		}
-		
+		this.currentPhase = phase;		
 		syncMatchStateWithClients();
 	}
 	
 	private void concludeMatch() {
+		System.out.println("match concluded!");
 		this.changePhase(MatchPhase.CONCLUDED);
 	}
 	
 	public void onMatchTick() {
+		// check win (OVERALL) condition by FT score
 		for (TeamInfo team : teams.values()) {
-			if (team.getFTScore() >= 3) { // TODO, FT3 hardcoded for now
-				winner = team.getTeamColor();
+			if (team.getFTScore() >= settings.getFirstToScore()) {
+				this.winner = team.getTeamColor();
 				this.concludeMatch();
 				return;
 			}
 		}
 		
+		// automatically conclude match if ONLY ONE team is ONLINE
+		TeamInfo remainingTeam = null;
+		int onlineTeams = 0;
 		for (TeamInfo team : teams.values()) {
-			boolean allDead =
-				team.getPlayers().stream()
-				.allMatch(player -> team.getHealth(player) <= 0)
+			if (!team.getPlayers().isEmpty()) {
+				onlineTeams++;
+				remainingTeam = team; // keep track of the last online team
+			}
+		}
+		if (onlineTeams <= 1) {
+			if (remainingTeam != null) {
+				this.winner = remainingTeam.getTeamColor();
+			}
+			this.concludeMatch();
+			return;
+		}
+
+		// if a team has lost all players (all of them died), they lose a life 
+		for (TeamInfo team : teams.values()) {
+			boolean allDead = team.getPlayerInfos().stream()
+				.allMatch(player -> player.getHealth() <= 0)
 			;
-			
 			if (allDead) {
 				team.loseLife();
-				
+				// if that team has no lives left, they lost this round
 				if (team.getLivesRemaining() <= 0) {
-					// end this round, award FT point to the other team
-					TeamColor winner = teams.keySet().stream()
+					TeamColor winnerColor = teams.keySet().stream()
 						.filter(c -> c != team.getTeamColor()).findFirst()
 					.orElse(null);
-					onRoundEnd(winner);
+					this.onRoundEnd(winnerColor);
 					return;
 				}
 			}
 		}
-		
-		// Check timeout
-		if (System.currentTimeMillis() - matchStartTime >= 180_000) { // TODO PLACEHOLDER
+
+		// check for round timeout
+		if (System.currentTimeMillis() - matchStartTime >= settings.getTimePerRound() * 1000L) {
 			onTimeout();
 		}
 	}
@@ -320,7 +352,6 @@ public class ArkanoidMatch {
 	 * @param side The side where it fell.
 	 */
 	public void onBallFallIntoVoid(EntityWreckingBall ball, VoidSide side) {
-		syncMatchStateWithClients();
 	}
 
 	/**
@@ -359,9 +390,12 @@ public class ArkanoidMatch {
 	 * @param player The player who left.
 	 */
 	public void onPlayerLeft(ArkaPlayer player) {
+		this.paddleOf(player).remove();
+		this.getTeamOf(player).removePlayer(player);
+		
 		syncMatchStateWithClients();
 	}
-
+	
 	/**
 	 * Returns all players currently in the match.
 	 * 
@@ -403,8 +437,12 @@ public class ArkanoidMatch {
 	 * 
 	 * @return The round number.
 	 */
-	public int getRoundIndex() {
+	public int getCurrentRound() {
 		return roundIndex;
+	}
+	
+	public UUID getMatchId() {
+		return matchId;
 	}
 
 	/**
@@ -422,9 +460,13 @@ public class ArkanoidMatch {
 			
 			List<PlayerEntry> players = new ArrayList<>();
 			for (ArkaPlayer p : team.getPlayers()) {
+				PlayerInfo pi = team.getPlayerInfo(p);
 				PlayerEntry pe = new PlayerEntry();
+				
 				pe.uuid = p.getUniqueId(); // UUID
-				pe.health = (short) team.getHealth(p); // paddle HP
+				pe.health = (byte) pi.getHealth(); // paddle HP
+				pe.rifleState = (byte) pi.getFiringMode().ordinal(); // rifle mode
+				pe.bulletsLeft = (byte) pi.getAKRounds();
 				players.add(pe);
 			}
 
@@ -433,9 +475,8 @@ public class ArkanoidMatch {
 		}
 
 		this.world.broadcastPackets(new PacketPlayOutMatchMetadata(
-			(byte) getGameMode().ordinal(),
-			(byte) getCurrentPhase().ordinal(),
-			getRoundIndex(),
+			(byte) getCurrentPhase().ordinal(), 
+			(short) getCurrentRound(),
 			teamEntries.toArray(TeamEntry[]::new)
 		));
 	}
@@ -447,9 +488,9 @@ public class ArkanoidMatch {
 	public class TeamInfo {
 
 		private final TeamColor teamColor;
-		private final LinkedHashMap<ArkaPlayer, Integer> playerHealth = new LinkedHashMap<>();
+		private final LinkedHashMap<ArkaPlayer, PlayerInfo> playerInfoMap = new LinkedHashMap<>();
 		private final List<ArkaPlayer> players;
-		
+
 		private int arkanoidScore;
 		private int livesRemaining;
 		private int ftScore;
@@ -457,14 +498,14 @@ public class ArkanoidMatch {
 
 		/**
 		 * Creates a new team instance.
-		 * 
+		 *
 		 * @param color   The team color.
 		 * @param members The players in the team.
 		 */
 		public TeamInfo(TeamColor color, List<ArkaPlayer> members) {
 			this.teamColor = color;
 			this.ftScore = 0;
-			this.players = members;
+			this.players = new ArrayList<>(members);
 			initializeForNewRound(members);
 		}
 
@@ -472,30 +513,18 @@ public class ArkanoidMatch {
 		 * Resets the team state for a new round.
 		 */
 		public void resetForNextRound() {
-			playerHealth.replaceAll((p, hp) -> Constants.PADDLE_MAX_HEALTH);
+			playerInfoMap.values().forEach(PlayerInfo::resetHealth);
 			this.arkanoidScore = 0;
-			this.livesRemaining = Constants.TEAM_STARTING_LIVES;
+			this.livesRemaining = settings.getTeamLives();
 			this.eliminated = false;
 		}
 
 		private void initializeForNewRound(List<ArkaPlayer> members) {
 			for (ArkaPlayer p : members) {
-				playerHealth.put(p, Constants.PADDLE_MAX_HEALTH);
+				playerInfoMap.put(p, new PlayerInfo(p));
 			}
 			this.arkanoidScore = 0;
-			this.livesRemaining = Constants.TEAM_STARTING_LIVES;
-		}
-
-		public int getHealth(ArkaPlayer player) {
-			return playerHealth.get(player);
-		}
-
-		public void setHealth(ArkaPlayer player, int health) {
-			playerHealth.put(player, health);
-		}
-
-		public void damage(ArkaPlayer player, int amount) {
-			setHealth(player, getHealth(player) - amount);
+			this.livesRemaining = settings.getTeamLives();
 		}
 
 		public int getArkanoidScore() {
@@ -517,8 +546,9 @@ public class ArkanoidMatch {
 		}
 
 		public void loseLife() {
-			if (livesRemaining > 0)
+			if (livesRemaining > 0) {
 				livesRemaining--;
+			}
 			syncMatchStateWithClients();
 		}
 
@@ -530,8 +560,21 @@ public class ArkanoidMatch {
 			return eliminated;
 		}
 
+		public PlayerInfo getPlayerInfo(ArkaPlayer player) {
+			return playerInfoMap.get(player);
+		}
+		
+		public void removePlayer(ArkaPlayer player) {
+			this.players.remove(player);
+			this.playerInfoMap.remove(player);
+		}
+		
 		public List<ArkaPlayer> getPlayers() {
 			return Collections.unmodifiableList(this.players);
+		}
+
+		public List<PlayerInfo> getPlayerInfos() {
+			return Collections.unmodifiableList(new ArrayList<>(playerInfoMap.values()));
 		}
 
 		public TeamColor getTeamColor() {
@@ -623,4 +666,67 @@ public class ArkanoidMatch {
             );
         }
     }
+	
+	public class PlayerInfo {
+
+	    private final ArkaPlayer player;
+	    private int health;
+	    private RifleMode firingMode;
+	    private int akRounds;
+
+	    public PlayerInfo(ArkaPlayer player) {
+	        this.player = player;
+	        this.health = PADDLE_MAX_HEALTH;
+	        this.firingMode = RifleMode.SAFE;
+	        this.akRounds = 0;
+	    }
+
+	    public ArkaPlayer getPlayer() {
+	        return player;
+	    }
+	    
+	    public int getAKRounds() {
+			return akRounds;
+		}
+	    
+	    public void setAKRounds(int akRounds) {
+			this.akRounds = Math.max(0, Math.min(AK_47_MAG_SIZE, akRounds));
+		}
+	    
+	    public boolean pickupAKRounds(int amount) {
+	    	if (this.akRounds >= AK_47_MAG_SIZE) return false;
+	    	setAKRounds(getAKRounds() + amount);
+	    	return true;
+	    }
+	    
+	    public boolean fireRounds(int amount) {
+	    	if (this.akRounds <= 0 || getAKRounds() - amount < 0) return false;
+	    	setAKRounds(getAKRounds() - amount);
+	    	return true;
+	    }
+	    
+	    public RifleMode getFiringMode() {
+			return firingMode;
+		}
+
+	    public int getHealth() {
+	        return health;
+	    }
+
+	    public void setHealth(int health) {
+	        this.health = Math.max(0, Math.min(PADDLE_MAX_HEALTH, health));
+	    }
+
+	    public void damage(int amount) {
+	        setHealth(health - amount);
+	    }
+
+	    public void resetHealth() {
+	        this.health = PADDLE_MAX_HEALTH;
+	    }
+	    
+	    public String getName() {
+	    	return this.player.getName();
+	    }
+	}
 }

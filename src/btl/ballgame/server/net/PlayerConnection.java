@@ -10,18 +10,17 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import btl.ballgame.protocol.ConnectionCtx;
 import btl.ballgame.protocol.packets.NetworkPacket;
 import btl.ballgame.protocol.packets.PacketHandler;
 import btl.ballgame.protocol.packets.out.IPacketPlayOut;
 import btl.ballgame.protocol.packets.out.PacketPlayOutCloseSocket;
-import btl.ballgame.protocol.packets.out.PacketPlayOutEntityMetadata;
-import btl.ballgame.protocol.packets.out.PacketPlayOutEntityPosition;
 import btl.ballgame.server.ArkanoidServer;
-import btl.ballgame.shared.libs.DataWatcher;
-import btl.ballgame.shared.libs.Location;
 import btl.ballgame.server.ArkaPlayer;
 
 /**
@@ -35,6 +34,8 @@ import btl.ballgame.server.ArkaPlayer;
  * </ul>
  */
 public class PlayerConnection implements ConnectionCtx {
+	private static final ScheduledExecutorService GLOBAL_SCHEDULER = Executors.newSingleThreadScheduledExecutor();
+	
 	private Socket clientSocket;
 	private DataInputStream receiveStream;
 	private DataOutputStream sendStream;
@@ -49,7 +50,10 @@ public class PlayerConnection implements ConnectionCtx {
 	private Thread packetListenerThread;
 	private Thread packetDispatcherThread;
 	
-	private final Semaphore flushSignal = new Semaphore(0);
+	private final Semaphore flushSignal = new Semaphore(0); // basically a notifier
+	
+	// special flag
+	private boolean validClient = false; // every connection is garbage until proven otherwise
 	
 	/**
 	 * Creates a new {@link PlayerConnection} for the given client socket and
@@ -70,8 +74,18 @@ public class PlayerConnection implements ConnectionCtx {
 	public PlayerConnection(ArkanoidServer server, Socket socket) throws IOException {
 		this.server = server;
 		this.clientSocket = socket;
+		socket.setTcpNoDelay(true);
+		
 		this.sendStream = new DataOutputStream(socket.getOutputStream());
 		this.receiveStream = new DataInputStream(socket.getInputStream());
+				
+		// PWP specifications (SERVER): RECEIVE magic bytes (0x544824) / SEND magic bytes (0x24E12)
+		if (receiveStream.readInt() == 0x544824) {
+			sendStream.writeInt(0x24E12);
+		} else {
+			socket.close();
+			throw new IOException("PWP Protocol: Invalid Handshake!");
+		}
 		
 		// packet listening thread
 		this.packetListenerThread = new Thread(() -> {
@@ -97,11 +111,18 @@ public class PlayerConnection implements ConnectionCtx {
 					flushSignal.acquire(); // block until flushSignal release
 					synchronized (sendStream) {
 						if (this.dispatchQueue.isEmpty()) continue;
-						for (NetworkPacket p : dispatchQueue) {
+						// prevent some bullshit race condition
+						// by draining the queue before doing shit
+						List<NetworkPacket> toDispatch = new ArrayList<>();
+						NetworkPacket packet;
+						while ((packet = dispatchQueue.poll()) != null) {
+							toDispatch.add(packet);
+						}
+						// dispatch
+						for (NetworkPacket p : toDispatch) {
 							server.codec().writePacket(sendStream, p);
 						}
 						sendStream.flush();
-						dispatchQueue.clear();
 					}
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
@@ -114,6 +135,30 @@ public class PlayerConnection implements ConnectionCtx {
 		
 		this.packetDispatcherThread.start();
 		this.packetListenerThread.start();
+		
+		// allow this connection 1 second to prove that it is not garbage
+		GLOBAL_SCHEDULER.schedule(() -> {
+			if (!this.isValidClient()) {
+				this.closeConnection();
+			}
+		}, 1, TimeUnit.SECONDS);
+	}
+	
+	/**
+	 * @return true if this connection has successfully completed 
+	 *  the client-hello handshake.
+	 */
+	public boolean isValidClient() {
+		return this.validClient;
+	}
+	
+	/**
+	 * Mark this connection as a "valid" client.
+	 * 
+	 * Basically this connection has completed a client-hello handshake.
+	 */
+	public void completeHandshake() {
+		this.validClient = true; // set this to true so it wont be killed
 	}
 	
     /**
@@ -189,11 +234,20 @@ public class PlayerConnection implements ConnectionCtx {
 	 * @param reason the reason for closing the connection
 	 */
 	public void closeWithNotify(String reason) {
+		this.dispatchLastPacketAndClose(new PacketPlayOutCloseSocket(reason));
+	}
+	
+	/**
+	 * Closes the connection gracefully with an last packet.
+	 * 
+	 * @param lastPacket the last packet to send before closing
+	 */
+	public void dispatchLastPacketAndClose(IPacketPlayOut lastPacket) {
 		if (closed) return;
-		// dispatch a disconnect reason immediately, this bypasses the queue
+		// dispatch the last packet immediately, this bypasses the queue
 		synchronized (sendStream) {
 			try {
-				server.codec().writePacket(sendStream, new PacketPlayOutCloseSocket(reason));
+				server.codec().writePacket(sendStream, (NetworkPacket) lastPacket);
 				sendStream.flush();
 			} catch (IOException e) {}
 		}
@@ -220,6 +274,8 @@ public class PlayerConnection implements ConnectionCtx {
 		this.packetDispatcherThread.interrupt();
 		// untrack this instance
 		server.getNetworkManager().untrack(this);
+		// debug info
+		System.out.println("[Network] User with IP: " + clientSocket.getInetAddress().toString() + " disconnected!");
 		// notify the internal server impl to handle quit event
 		if (owner == null) return;
 		owner.onPlayerConnectionClose();
@@ -252,9 +308,9 @@ public class PlayerConnection implements ConnectionCtx {
 			return;
 		}
 		if (e instanceof IOException) {
-			closeWithNotify("Network error");
+			closeWithNotify("Network error: " + e.toString());
 			return;
 		}
-		closeWithNotify(e.getClass().getName() + ": " + e.getMessage());
+		closeWithNotify(e.toString());
 	}
 }

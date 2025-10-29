@@ -8,7 +8,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
 /**
- * <h1>PacketByteBuf — Core ByteBuffer for PennyWort Protocol (PWP)</h1>
+ * <h1>PacketByteBuf - Core ByteBuffer for PennyWort Protocol (PWP)</h1>
  *
  * <p>
  * {@code PacketByteBuf} is the fundamental data serialization and

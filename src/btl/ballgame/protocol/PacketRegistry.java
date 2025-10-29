@@ -19,6 +19,11 @@ import btl.ballgame.shared.UnknownPacketException;
  *     <li>Packet class -> Packet ID</li>
  * </ul>
  * <p>
+ * The standard registry supports addressing up to 2^32 (int) 
+ * unique packets.
+ * 
+ * @apiNote Arkanoid:GO squashed the addressing space to 
+ * 2^16 (short) to save some network bandwidth
  */
 public class PacketRegistry {
     /** Packet ID -> Factory to create packet instances */

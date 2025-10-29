@@ -7,6 +7,18 @@ import java.security.NoSuchAlgorithmException;
 public class Utils {
 	private static final int BUFFER_SIZE = 128;
 	
+	public static float lerp(float v0, float v1, float t) {
+		return v0 + t * (v1 - v0);
+	}
+	
+	public static int intLerp(float v0, float v1, float t) {
+		return (int) lerp(v0, v1, t);
+	}
+	
+	public static int clamp(int value, int min, int max) {
+		return Math.max(min, Math.min(max, value));
+	}
+	
 	private static String bytesToHex(byte[] hash) {
 		StringBuilder hexString = new StringBuilder(2 * hash.length);
 		for (int i = 0; i < hash.length; i++) {

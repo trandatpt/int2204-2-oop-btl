@@ -25,13 +25,13 @@ public class PacketPlayOutEntityMetadata extends NetworkPacket implements IPacke
 	
 	@Override
 	public void write(PacketByteBuf buffer) {
-		buffer.writeInt32(this.entityId);
+		buffer.writeInt16((short) this.entityId);
 		this.metadata.write(buffer);
 	}
 
 	@Override
 	public void read(PacketByteBuf buffer) {
-		this.entityId = buffer.readInt32();
+		this.entityId = buffer.readInt16();
 		this.metadata = new DataWatcher();
 		this.metadata.read(buffer);
 	}

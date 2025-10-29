@@ -32,12 +32,6 @@ public class WorldServer implements IWorld {
 	/** chunk registry, mapped by the coordinate hash as the key */
 	private Map<Long, LevelChunk> chunks = new HashMap<>();
 	
-	private int idRegistry = 0;
-	
-	public int nextEntityId() {
-		return idRegistry++;
-	}
-	
 	/** entity registry, mapped by the entity ID */
 	private LinkedHashMap<Integer, WorldEntity> entities = new LinkedHashMap<>();
 	private List<WorldEntity> entitiesToBeRemoved = new ArrayList<>();
@@ -112,8 +106,6 @@ public class WorldServer implements IWorld {
 	
 	/**
 	 * Performs a single server tick, updating all entities in the world.
-	 * You should perform a {@link WorldServer#notifyPlayerDispatchers()} after 
-	 * this method!
 	 * <p>
 	 * This should be called at a {@link ArkanoidServer#TICKS_PER_SECOND} rate 
 	 * by the Arkanoid Match executor.
@@ -125,15 +117,6 @@ public class WorldServer implements IWorld {
 		});
 		entitiesToBeRemoved.forEach(entity -> entities.remove(entity.getId()));
 		entitiesToBeRemoved.clear();
-	}
-	
-	/**
-	 * <b>RECOMMENDED</b>: At the end of the tick, flushes outbound 
-	 * packets queue for all players in the match.
-	 */
-	public void notifyPlayerDispatchers() {
-		// flushes outbound packets (save network bandwidth)
-		match.getPlayers().forEach(p -> p.playerConnection.notifyDispatcher());
 	}
 	
 	/**
@@ -336,5 +319,27 @@ public class WorldServer implements IWorld {
 			}
 		}
 		return nearby;
+	}
+	
+	// this is for quickies only
+	private int currentId = 0;
+	
+    /**
+     * Returns the next available entity ID.
+     *
+     * @return the next integer ID
+     */
+	public int nextEntityId() {
+		return currentId++;
+	}
+	
+    /**
+     * Squashes the entity ID counter to zero.
+     *
+     * @apiNote Use this method with caution, as it may result 
+     * in previously assigned IDs being reused!!!
+     */
+	public void squashIdCounter() {
+		currentId = 0;
 	}
 }

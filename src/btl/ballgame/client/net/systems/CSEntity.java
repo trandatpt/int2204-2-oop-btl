@@ -8,6 +8,8 @@ import btl.ballgame.shared.libs.AABB;
 import btl.ballgame.shared.libs.DataWatcher;
 import btl.ballgame.shared.libs.Location;
 
+import javafx.scene.canvas.GraphicsContext;
+
 /**
  * Represents a client-side entity synchronized from the server.
  * 
@@ -15,7 +17,7 @@ import btl.ballgame.shared.libs.Location;
  * interactive object in the client world that is managed by the networking
  * layer
  */
-public abstract class CSEntity {
+public abstract class CSEntity implements IRenderInfo {
 	/** The unique server-assigned entity ID. */
 	private int id;
 	/** Contains metadata values for this entity (e.g., health, status, etc). */
@@ -114,10 +116,54 @@ public abstract class CSEntity {
 		return serverLocation.clone();
 	}
 	
+	public Location getMutableServerLocation() {
+		return serverLocation;
+	}
+	
 	public AABB getBoundingBox() {
 		return boundingBox;
 	}
 	
+	public CSWorld getWorld() {
+		return (CSWorld) serverLocation.getWorld();
+	}
+	
+	public int getWidth() {
+		return width;
+	}
+	
+	public int getHeight() {
+		return height;
+	}
+	
+	// --- IRENDER: supply the renderer with easy-to-access essential data
+	// for rendering ----
+	@Override
+	public int getRenderX() {
+		return this.serverLocation.getX() - (this.getWidth() >> 1);
+	}
+	
+	@Override
+	public int getRenderY() {
+		return this.serverLocation.getY() - (this.getHeight() >> 1);
+	}
+	
+	@Override
+	public int getRenderRotation() {
+		return this.serverLocation.getRotation();
+	}
+	
+	@Override
+	public int getRenderWidth() {
+		return this.getWidth();
+	}
+	
+	@Override
+	public int getRenderHeight() {
+		return this.getHeight();
+	}
+	
+	// --- EVENTS CALL ---
 	/** Called before the entity's DataWatcher is updated. */
 	public void onBeforeWatcherUpdate() {};
 	/** Called after the entity's DataWatcher has been updated. */
@@ -138,8 +184,13 @@ public abstract class CSEntity {
 	
 	/** Called when the entity is removed or despawned from the world. */
 	public void onEntityDespawn() {};
-
-	// CẢNH BÁO! METHOD NÀY PHẢI ĐƯỢC IMPLEMENT BẰNG JAVAFX BỞI ĐỘI LÀM CLIENT
-	// ĐÂY CHỈ LÀ METHOD VÍ DỤ, KHI LÀM THẬT PHẢI BIẾN THÀNH ABSTRACT!!!!!
-	public abstract void render();
+	
+	// --- HIER ---
+	/**
+	 * Renders this entity onto the given {@link GraphicsContext}, runs
+	 * as fast as the hardware allows, do not rely on this for timing
+	 *
+	 * @param gc the {@link GraphicsContext} to draw on; never NULL
+	 */
+	public abstract void render(GraphicsContext cv);
 }

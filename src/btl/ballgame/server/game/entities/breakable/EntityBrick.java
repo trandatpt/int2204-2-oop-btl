@@ -1,5 +1,7 @@
 package btl.ballgame.server.game.entities.breakable;
 
+import btl.ballgame.server.game.entities.BreakableEntity;
+import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.Location;
 
 public class EntityBrick extends BreakableEntity {
@@ -9,17 +11,16 @@ public class EntityBrick extends BreakableEntity {
 	}
 
 	@Override
-	protected void tick() {
-	}
+	protected void tick() {}
 
 	@Override
 	public int getWidth() {
-		return 48;
+		return Constants.BRICK_WIDTH;
 	}
 
 	@Override
 	public int getHeight() {
-		return 18;
+		return Constants.BRICK_HEIGHT;
 	}
 	
 	@Override
@@ -28,8 +29,7 @@ public class EntityBrick extends BreakableEntity {
 	}
 
 	@Override
-	void onObjectBroken() {
-		this.remove();
+	public void onObjectBroken() {
+		this.remove();		
 	}
-
 }

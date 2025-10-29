@@ -3,12 +3,13 @@ package btl.ballgame.client.net.systems;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import btl.ballgame.shared.libs.IWorld;
 
 public class CSWorld implements IWorld {
 	private int width, height;
-	private Map<Integer, CSEntity> allEntities = new HashMap<>();
+	private ConcurrentHashMap<Integer, CSEntity> allEntities = new ConcurrentHashMap<>();
 	
 	public CSWorld(int width, int height) {
 		this.height = height;
