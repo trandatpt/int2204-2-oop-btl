@@ -8,6 +8,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import btl.ballgame.client.ArkanoidClientCore;
 import btl.ballgame.client.ArkanoidGame;
+import btl.ballgame.client.CSAssets;
 import btl.ballgame.client.ui.audio.SoundManager;
 import btl.ballgame.client.ui.screen.Screen;
 
@@ -69,18 +70,18 @@ public class LoginScreen extends Screen {
 			if (user.isEmpty() || pass.isEmpty()) {
 				statusLabel.setText("Please enter both username and password!");
 				statusLabel.setTextFill(Color.ORANGE);
-				SoundManager.ClickFalse();
+				SoundManager.clickFalse();
 				return;
 			}
 			
 			if (!user.matches("^[a-zA-Z0-9_]{3,16}$")) {
 				statusLabel.setText("Username must be 3-16 characters and use only letters, numbers, or underscores!");
 				statusLabel.setTextFill(Color.RED);
-				SoundManager.ClickFalse();
+				SoundManager.clickFalse();
 				return;
 			}
 			
-			SoundManager.ClickBottonLogin();
+			SoundManager.clickBottonLogin();
 			core.login(user, pass);
 			InformationalScreen loggingIn = new InformationalScreen(
 				"Logging in...",
@@ -96,7 +97,7 @@ public class LoginScreen extends Screen {
 		createAccountBtn.setOnAction(e -> createScreen());
 
 		disconnectButton.setOnAction(e -> {
-			SoundManager.ClickBottonLogin();
+			SoundManager.clickBottonLogin();
 			core.disconnect();
 			MenuUtils.displayServerSelector();
 		});
@@ -132,8 +133,8 @@ public class LoginScreen extends Screen {
 	}
 
 	private void createScreen() {
-		SoundManager.ClickBottonLogin();
-		CreateScreen createNewAccount = new CreateScreen();
+		SoundManager.clickBottonLogin();
+		CreateAccountScreen createNewAccount = new CreateAccountScreen();
 		ArkanoidGame.manager().setScreen(createNewAccount);
 	}
 

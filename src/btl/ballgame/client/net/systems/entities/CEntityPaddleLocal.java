@@ -7,8 +7,6 @@ import btl.ballgame.protocol.packets.in.PacketPlayInPaddleControl;
 import btl.ballgame.shared.libs.AABB;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.DataWatcher;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 
 import static btl.ballgame.shared.libs.Utils.*;
 
@@ -17,14 +15,6 @@ public class CEntityPaddleLocal extends CEntityPaddle implements ITickableCEntit
 	// this is the speculative position of the client
 	private int clientX;
 	private boolean canMove = true; // this is set by the server
-	
-	@Override
-	public void render(GraphicsContext cv) {
-		super.render(cv);
-		cv.setFill(Color.YELLOW);
-		cv.fillRect(getRenderX(), getRenderY(), getWidth(), getHeight());
-		cv.setFill(Color.BLACK);
-	}
 	
 	@Override
 	public int getRenderX() {
@@ -72,9 +62,9 @@ public class CEntityPaddleLocal extends CEntityPaddle implements ITickableCEntit
 	@Override
 	public void onAfterLocationUpdate() {
 		// correct the client's speculative position if it
-		// drifted too far (> 20 units)
+		// drifted too far (> 30 units)
 		int serverX = getMutableServerLocation().getX();
-		if (Math.abs(serverX - clientX) > Constants.PADDLE_MOVE_UNITS * 2) {
+		if (Math.abs(serverX - clientX) > (Constants.PADDLE_MOVE_UNITS << 1)) {
 			// setting up lerp
 			this.oldX = this.clientX;
 			this.lastTickNano = System.nanoTime();

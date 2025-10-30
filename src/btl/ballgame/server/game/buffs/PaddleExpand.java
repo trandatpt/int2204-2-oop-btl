@@ -1,26 +1,40 @@
 package btl.ballgame.server.game.buffs;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
+import btl.ballgame.server.ArkaPlayer;
 import btl.ballgame.server.game.entities.dynamic.EntityPaddle;
+import static btl.ballgame.shared.libs.Constants.*;
 
-public class PaddleExpand {
-    private static int EXPANDED_WIDTH = 160;
-    private static int EXPANDED_HEIGHT = 18;
-    private static int EXPANDED_TIME = 7000;
+public class PaddleExpand extends BaseEffect {
+	private static final int EXPANDED_TIME = 7000;
+	private static final int EXPANDED_WIDTH = 15;
+	
+	private EntityPaddle paddle;
+	public PaddleExpand(ArkaPlayer target) {
+		super(target);
+		this.paddle = target.getCurrentGame().paddleOf(target);
+	}
+	
+	@Override
+	public void onEffectActivate() {
+		if (paddle == null || paddle.isDead()) return;
+		paddle.setBoundingBox(PADDLE_WIDTH + EXPANDED_WIDTH, PADDLE_HEIGHT);
+		paddle.getWatcher().watch(PADDLE_EXPANDED_META, true);
+	}
+	
+	@Override
+	public void onEffectDeactivate() {
+		if (paddle == null || paddle.isDead()) return;
+		paddle.setBoundingBox(PADDLE_WIDTH, PADDLE_HEIGHT);
+		paddle.getWatcher().unwatch(PADDLE_EXPANDED_META);
+	}
+	
+	@Override
+	public int getDuration() {
+		return EXPANDED_TIME;
+	}
 
-    public static void active(EntityPaddle paddle) {
-        paddle.setBoundingBox(EXPANDED_WIDTH, EXPANDED_HEIGHT);
-        System.out.println("[Buff] Paddle Expand Team " + paddle.getTeam());
-        
-        new Timer().schedule(
-            new TimerTask() {
-                @Override
-                public void run() {
-                    paddle.setBoundingBox(72, 18);
-                    System.out.println("[Buff] Paddle restored to normal size.");
-                }
-        }, EXPANDED_TIME);
-    }
+	@Override
+	public EffectType getType() {
+		return EffectType.PADDLE_EXPAND;
+	}
 }

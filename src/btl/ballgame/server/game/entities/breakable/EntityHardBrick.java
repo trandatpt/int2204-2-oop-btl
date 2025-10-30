@@ -1,4 +1,5 @@
 package btl.ballgame.server.game.entities.breakable;
+import btl.ballgame.server.game.WorldEntity;
 import btl.ballgame.shared.libs.Location;
 
 public class EntityHardBrick extends EntityBrick {
@@ -8,12 +9,11 @@ public class EntityHardBrick extends EntityBrick {
 	
 	@Override
 	public int getMaxHealth() {
-        // từ 2 đến 4 máu, cần 2-4 lần va chạm 
-		return 2 + (int) (Math.random() * 2); 
+		return 2 + (int) (Math.random() * 2); // 2-4 HP
 	}
 
 	@Override
-	public void onObjectBroken() {
+	public void onObjectBroken(WorldEntity damager) {
 		this.remove();
 	}
 }

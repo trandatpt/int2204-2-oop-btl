@@ -1,6 +1,7 @@
 package btl.ballgame.server.game.match;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -13,6 +14,7 @@ import btl.ballgame.server.ArkaPlayer;
 import btl.ballgame.server.ArkanoidServer;
 import btl.ballgame.server.game.WorldEntity;
 import btl.ballgame.server.game.WorldServer;
+import btl.ballgame.server.game.buffs.BaseEffect;
 import btl.ballgame.server.game.entities.breakable.EntityBrick;
 import btl.ballgame.server.game.entities.dynamic.*;
 import static btl.ballgame.shared.libs.Constants.*;
@@ -37,7 +39,9 @@ public class ArkanoidMatch {
 
 	private final Map<TeamColor, TeamInfo> teams = new HashMap<>();
 	private final Map<ArkaPlayer, TeamColor> teamMap = new HashMap<>();
+	
 	private final Map<ArkaPlayer, EntityPaddle> paddlesMap = new HashMap<>();
+	private final Map<ArkaPlayer, Map<EffectType, BaseEffect>> effectsMap = new ConcurrentHashMap<>();
 	
 	static final int BALL_SPAWN_MARGIN = 80;
 	static final int PADDLE_SPACING = 50;
@@ -55,10 +59,16 @@ public class ArkanoidMatch {
 		this.matchId = UUID.randomUUID();
 		
 		Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
-			if (matchStarted && currentPhase != MatchPhase.CONCLUDED) {
-				this.world.tick();
-				this.onMatchTick();
-				System.out.println("ticking");
+			try {
+				if (matchStarted && currentPhase != MatchPhase.CONCLUDED) {
+					this.world.tick();
+					this.onMatchTick();
+					this.effectsMap.forEach((p, e) -> {
+						e.values().forEach(BaseEffect::tick);
+					});
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}, 0, ArkanoidServer.MS_PER_TICK, TimeUnit.MILLISECONDS);
 	}
@@ -127,7 +137,7 @@ public class ArkanoidMatch {
 	
 	// this function also work regardless of the modes
 	private void spawnBricksAndBrushes() {
-		int brickRows = 15;
+		int brickRows = 1;
 		int yOffset = getGameMode().isSinglePlayer() 
 			? BASE_MARGIN 
 			: (world.getHeight() / 2) - (BRICK_HEIGHT * (brickRows / 2))
@@ -154,7 +164,6 @@ public class ArkanoidMatch {
 		
 		world.getEntities().forEach(WorldEntity::remove);
 		paddlesMap.clear();
-		world.squashIdCounter(); // reset the counter to 0 so we dont overshoot
 	}
 	
 	/**
@@ -233,7 +242,65 @@ public class ArkanoidMatch {
 	public EntityPaddle paddleOf(ArkaPlayer player) {
 		return paddlesMap.get(player);
 	}
-
+	
+	// internal impl
+	private Map<EffectType, BaseEffect> effectsMapOf(ArkaPlayer player) {
+		return effectsMap.computeIfAbsent(player, k -> new ConcurrentHashMap<>());
+	}
+	
+	/**
+	 * Gets all active effects for a given player.
+	 *
+	 * @param player the player whose active effects are requested
+	 * @return a collection of the player's active BaseEffect instances
+	 */
+	public Collection<BaseEffect> getActiveEffects(ArkaPlayer player) {
+		return effectsMapOf(player).values();
+	}
+	
+	/**
+	 * Checks whether a player currently has an effect of a specific type.
+	 *
+	 * @param player the player to check
+	 * @param type   the type to check
+	 * @return true if the player has the effect
+	 */
+	public boolean hasEffect(ArkaPlayer player, EffectType type) {
+		return effectsMapOf(player).containsKey(type);
+	}
+	
+	/**
+	 * Removes an active effect of a specific type from a player, if present.
+	 *
+	 * @param player the player to remove the effect
+	 * @param type   the effect to remove
+	 */
+	public void removeEffect(ArkaPlayer player, EffectType type) {
+		var map = effectsMapOf(player);
+		BaseEffect oldEffect;
+		if ((oldEffect = map.get(type)) == null) {
+			return;
+		}
+		map.remove(type);
+		oldEffect.remove();
+	}
+	
+	/**
+	 * Adds a new effect to a player.
+	 * If the player already has an effect of the same type, the old 
+	 * effect is removed first.
+	 *
+	 * @param the player to add the effect
+	 * @param effect the effect to add
+	 */
+	public void addEffect(ArkaPlayer player, BaseEffect effect) {
+		var map = effectsMapOf(player);
+		this.removeEffect(player, effect.getType()); // remove duplicate effects
+		map.put(effect.getType(), effect);
+		effect.activate();
+	}
+	
+	
 	/**
 	 * Spawns a paddle for a specific player.
 	 * 
@@ -348,7 +415,7 @@ public class ArkanoidMatch {
 	 * @param buff      The buff entity.
 	 * @param collector The player who collected it.
 	 */
-	public void onBuffCollected(EntityBuff buff, ArkaPlayer collector) {
+	public void onBuffCollected(EntityFallingItem buff, ArkaPlayer collector) {
 		syncMatchStateWithClients();
 	}
 
@@ -421,6 +488,10 @@ public class ArkanoidMatch {
 	
 	public UUID getMatchId() {
 		return matchId;
+	}
+	
+	public WorldServer getWorld() {
+		return world;
 	}
 
 	/**

@@ -20,6 +20,8 @@ public class ArkanoidGame extends Application {
 
 	@Override
 	public void start(Stage root) throws Exception {
+		// initialize sound
+		SoundManager.onInit();
 		manager = new ScreenManager(root);
 
 		MenuUtils.displayServerSelector();

@@ -9,7 +9,7 @@ public class CEntityPaddle extends CSInterpolatedEntity {
 	public void render(GraphicsContext cv) {
 		super.render(cv);
 		cv.setFill(Color.AQUA);
-		cv.fillRect(getRenderX(), getRenderY(), getWidth(), getHeight());
+		cv.fillRect(getRenderX(), getRenderY(), getRenderWidth(), getRenderHeight());
 		cv.setFill(Color.BLACK);
 	}
 }

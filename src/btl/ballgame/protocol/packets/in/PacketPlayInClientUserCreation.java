@@ -5,13 +5,13 @@ import btl.ballgame.protocol.packets.NetworkPacket;
 
 public class PacketPlayInClientUserCreation extends NetworkPacket implements IPacketPlayIn {
 	private String userName;
-	private String passwordHash;
+	private String password;
 	
 	public PacketPlayInClientUserCreation() {}; /* for packet decoding */
 	
-	public PacketPlayInClientUserCreation(String username, String passwordHash) {
+	public PacketPlayInClientUserCreation(String username, String password) {
 		this.userName = username;
-		this.passwordHash = passwordHash;
+		this.password = password;
 	}
 	
 	public String who() {
@@ -19,18 +19,18 @@ public class PacketPlayInClientUserCreation extends NetworkPacket implements IPa
 	}
 	
 	public String getPasswordHash() {
-		return passwordHash;
+		return password;
 	}
 
 	@Override
 	public void write(PacketByteBuf buffer) {
 		buffer.writeU8String(this.userName);
-		buffer.writeU8String(this.passwordHash);
+		buffer.writeU8String(this.password);
 	}
 
 	@Override
 	public void read(PacketByteBuf buffer) {
 		this.userName = buffer.readU8String();
-		this.passwordHash = buffer.readU8String();
+		this.password = buffer.readU8String();
 	}
 }

@@ -31,8 +31,6 @@ public class ServerSelector extends Screen {
 
 	@Override
 	public void onInit() {
-		// initialize sound
-		SoundManager.onInit();
 		// background shit
 		setStyle("-fx-background-color: linear-gradient(to bottom, #1e1e1e, #2a2a2a);");
 
@@ -79,31 +77,29 @@ public class ServerSelector extends Screen {
 		// SYSTEM BUTTONS
 		Button connectButton = this.createElement("connectButton", new Button("Join Server"));
 		Button offlineButton = this.createElement("offlineButton", new Button("Play Offline"));
-		Button settingButton = this.createElement("settingButton", new Button("Settings"));
+		Button settingsButton = this.createElement("settingsButton", new Button("Settings"));
 		Button exitButton = this.createElement("exitButton", new Button("Quit Game"));
 
 		connectButton.setPrefWidth(300);
 		offlineButton.setPrefWidth(300);
-		settingButton.setPrefWidth(300);
-		exitButton.setPrefWidth(300);
+		settingsButton.setPrefWidth(145);
+		exitButton.setPrefWidth(145);
 
 		MenuUtils.styleButton(connectButton, "#699456", "#4c6940"); // green
 		MenuUtils.styleButton(offlineButton, "#4682b4", "#36648b"); // blue
-		MenuUtils.styleButton(settingButton, "#daa520", "#b8860b"); // yellow
+		MenuUtils.styleButton(settingsButton, "#636363", "#454545"); // gray
 		MenuUtils.styleButton(exitButton, "#b22222", "#8b1a1a"); // red
-
-		// HOVER THE BUTTONS
-		connectButton.setOnMouseEntered(e -> SoundManager.play("ClickTiny"));
-		offlineButton.setOnMouseEntered(e -> SoundManager.play("ClickTiny"));
-		settingButton.setOnMouseEntered(e -> SoundManager.play("ClickTiny"));
-		exitButton.setOnMouseEntered(e -> SoundManager.play("ClickTiny"));
 		
 		// CLICK THE BUTTONS
 		connectButton.setOnAction(e -> connectOnline());
 		offlineButton.setOnAction(e -> goOffline());
-		settingButton.setOnAction(e -> goSettings());
+		settingsButton.setOnAction(e -> goSettings());
 		exitButton.setOnAction(e -> exitScreen());
-
+		
+		// horizontal box
+		HBox bottomButtons = new HBox(10, settingsButton, exitButton);
+		bottomButtons.setAlignment(Pos.CENTER);
+		
 		// DEFINE THE LAYOUT
 		VBox serverBox = new VBox(10, 
 			new Label("Play with Friends and Foes"),
@@ -113,8 +109,7 @@ public class ServerSelector extends Screen {
 			new Label(""), // evil layout hack
 			new Label("Not interested in PvP?"),
 			offlineButton,
-			settingButton,
-			exitButton
+			bottomButtons
 		);
 		((Label) serverBox.getChildren().get(0)).setTextFill(Color.WHITE);
 		((Label) serverBox.getChildren().get(5)).setTextFill(Color.WHITE); // hacky lil shit
@@ -136,7 +131,7 @@ public class ServerSelector extends Screen {
 		Object selected = serverDropdown.getValue();
 		
 		if (selected == null) {
-			SoundManager.ClickFalse();
+			SoundManager.clickFalse();
 			return;
 		}
 
@@ -146,11 +141,11 @@ public class ServerSelector extends Screen {
 		} else {
 			address = customServerBox.getText().trim();
 			if (address.isEmpty()) {
-				SoundManager.ClickFalse();
+				SoundManager.clickFalse();
 				return;
 			}
 		}
-		SoundManager.ClickBottonMenu();
+		SoundManager.clickBottonMenu();
 		ClientNetworkManager.connectToServer(address);
 	}
 
@@ -160,8 +155,8 @@ public class ServerSelector extends Screen {
 	}
 
 	private void goSettings() {
-		SoundManager.ClickBottonMenu();
-		SettingScreen settings = new SettingScreen();
+		SoundManager.clickBottonMenu();
+		SettingsScreen settings = new SettingsScreen();
 		ArkanoidGame.manager().setScreen(settings);
 	}
 
@@ -170,10 +165,9 @@ public class ServerSelector extends Screen {
 		SoundManager.stopAllSounds();
 		System.exit(0);
 	}
+	
 	@Override
-	public void onRemove() {
-		// Cleanup if needed later (animations, threads, etc.)
-	}
+	public void onRemove() {}
 
 	//INNER CLASS
 	public static class PredefinedServer {

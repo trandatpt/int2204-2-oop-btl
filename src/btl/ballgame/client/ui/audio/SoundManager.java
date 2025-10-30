@@ -83,18 +83,18 @@ public class SoundManager {
     }
 
     // Sound click botton menu
-    public static void ClickBottonMenu() {
+    public static void clickBottonMenu() {
         play("Confirm");
 		stop("MusicMenu");
     }
 
-    public static void ClickBottonLogin() {
+    public static void clickBottonLogin() {
         play("Confirm");
 		stop("MusicInGame");
     }
 
     // Sound click botton false
-    public static void ClickFalse() {
+    public static void clickFalse() {
         play("Buzz");
     }
 

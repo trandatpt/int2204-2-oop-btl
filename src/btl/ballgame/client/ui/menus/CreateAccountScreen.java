@@ -8,13 +8,14 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import btl.ballgame.client.ArkanoidClientCore;
 import btl.ballgame.client.ArkanoidGame;
+import btl.ballgame.client.CSAssets;
 import btl.ballgame.client.ui.audio.SoundManager;
 import btl.ballgame.client.ui.screen.Screen;
 
-public class CreateScreen extends Screen {
+public class CreateAccountScreen extends Screen {
     private ArkanoidClientCore core;
 
-    public CreateScreen() {
+    public CreateAccountScreen() {
         super("Create a New Account");
         if ((this.core = ArkanoidGame.core()) == null) {
             throw new IllegalStateException("Client core is null!");
@@ -23,13 +24,12 @@ public class CreateScreen extends Screen {
 
     @Override
     public void onInit() {
-
         SoundManager.playloop("MusicInGame");
 
         setStyle("-fx-background-color: linear-gradient(to bottom, #1e1e1e, #2a2a2a);");
 
         // Logo
-        ImageView logo = this.createElement("logo", new ImageView(ArkanoidGame.LOGO));
+        ImageView logo = this.createElement("logo", new ImageView(CSAssets.LOGO));
         logo.setPreserveRatio(true);
         logo.setFitWidth(500);
 
@@ -70,21 +70,21 @@ public class CreateScreen extends Screen {
             if (user.isEmpty() || pass.isEmpty() || repPass.isEmpty()) {
                 statusLabel.setText("Please fill in all fields!");
                 statusLabel.setTextFill(Color.ORANGE);
-                SoundManager.ClickFalse();
+                SoundManager.clickFalse();
                 return;
             }
 
             if (!user.matches("^[a-zA-Z0-9_]{3,16}$")) {
                 statusLabel.setText("Username must be 3-16 characters and use only letters, numbers, or underscores!");
                 statusLabel.setTextFill(Color.RED);
-                SoundManager.ClickFalse();
+                SoundManager.clickFalse();
                 return;
             }
 
             if (!pass.equals(repPass)) {
                 statusLabel.setText("Passwords do not match!");
                 statusLabel.setTextFill(Color.RED);
-                SoundManager.ClickFalse();
+                SoundManager.clickFalse();
                 return;
             }
 
@@ -93,11 +93,12 @@ public class CreateScreen extends Screen {
 
             InformationalScreen creatingScreen = new InformationalScreen(
                 "Creating Account...",
-                "Please wait while your account is being created..."
+                "Signing up and logging in..."
             );
-            creatingScreen.addButton("Cancel", () -> {
-                MenuUtils.displayLoginScreen();
-            });
+            creatingScreen.addButton("Disconnect", () -> {
+				core.disconnect();
+				MenuUtils.displayServerSelector();
+			});
             ArkanoidGame.manager().setScreen(creatingScreen);
         });
 
@@ -125,7 +126,7 @@ public class CreateScreen extends Screen {
     }
 
     private void back() {
-        SoundManager.ClickBottonLogin();
+        SoundManager.clickBottonLogin();
         MenuUtils.displayLoginScreen();
     }
     @Override

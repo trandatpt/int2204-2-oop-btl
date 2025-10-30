@@ -1,19 +1,19 @@
 package btl.ballgame.server.game.entities.dynamic;
 
-import btl.ballgame.shared.libs.Constants.BuffType;
+import btl.ballgame.shared.libs.Constants.EffectType;
 import btl.ballgame.shared.libs.Constants.TeamColor;
 import btl.ballgame.server.game.WorldEntity;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.Location;
 import btl.ballgame.shared.libs.Vector2f;
 
-public class EntityBuff extends WorldEntity {
+public class EntityFallingItem extends WorldEntity {
 	final int velocity = 9;
 	final double width = 18;
 	final double height = 18;
-	private final BuffType buffType;
+	private final EffectType buffType;
 
-	public EntityBuff(int id, Location location, BuffType type, TeamColor teamColor) {
+	public EntityFallingItem(int id, Location location, EffectType type, TeamColor teamColor) {
 		super(id, location);
 		this.buffType = type;
 		this.setDirection(teamColor.equals(TeamColor.RED)
@@ -23,7 +23,7 @@ public class EntityBuff extends WorldEntity {
 	}
 
 	/**
-	 * Updates the facing direction of the ball.
+	 * Updates the facing direction of the falling item.
 	 *
 	 * @param lookVector New normalized direction vector.
 	 */

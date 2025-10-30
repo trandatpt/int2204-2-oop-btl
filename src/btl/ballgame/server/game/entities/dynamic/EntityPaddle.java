@@ -7,13 +7,13 @@ import btl.ballgame.protocol.packets.in.PacketPlayInPaddleControl;
 import btl.ballgame.server.ArkaPlayer;
 import btl.ballgame.server.game.entities.ControllableEntity;
 import btl.ballgame.shared.libs.AABB;
-import btl.ballgame.shared.libs.Constants;
+import static btl.ballgame.shared.libs.Constants.*;
 import btl.ballgame.shared.libs.Location;
 import btl.ballgame.shared.libs.Utils;
 import btl.ballgame.shared.libs.Constants.TeamColor;
 
 public class EntityPaddle extends ControllableEntity {
-	static final int MAX_INPUTS_PER_TICK = 15;
+	static final int MAX_INPUTS_PER_TICK = 10;
 	
 	// attrib
 	private boolean lowerPaddle;
@@ -38,11 +38,15 @@ public class EntityPaddle extends ControllableEntity {
 		super(id, location);
 		this.player = p;
 		this.team = team;
-		setBoundingBox(88, 16);
+		setBoundingBox(PADDLE_WIDTH, PADDLE_HEIGHT);
 	}
 	
 	public TeamColor getTeam() {
 		return team;
+	}
+	
+	public ArkaPlayer getPlayer() {
+		return player;
 	}
 	
 	/**
@@ -84,22 +88,20 @@ public class EntityPaddle extends ControllableEntity {
 	        teleport(getLocation().setX(newX));
 	    }
 	}
-
-
+	
 	public void moveRight() {
-		this.move(Constants.PADDLE_MOVE_UNITS);
+		this.move(PADDLE_MOVE_UNITS);
 	}
 	
 	public void moveLeft() {
-		this.move(-Constants.PADDLE_MOVE_UNITS);
+		this.move(-PADDLE_MOVE_UNITS);
 	}
 	
 	@Override
 	public void onSpawn() {
 		if (player == null) return;
 		// assign the player UUID LSB to this entity (to save some BITS!)
-		this.dataWatcher.watch(
-			Constants.PADDLE_OWNER_META,
+		this.dataWatcher.watch(PADDLE_OWNER_META,
 			player.getUniqueId().getLeastSignificantBits()
 		);
 	}
