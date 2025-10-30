@@ -8,6 +8,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import btl.ballgame.client.ArkanoidClientCore;
 import btl.ballgame.client.ArkanoidGame;
+import btl.ballgame.client.CSAssets;
 import btl.ballgame.client.ui.audio.SoundManager;
 import btl.ballgame.client.ui.screen.Screen;
 
@@ -23,13 +24,13 @@ public class CreateScreen extends Screen {
 
     @Override
     public void onInit() {
-
+        // music login && create && match
         SoundManager.playloop("MusicInGame");
 
         setStyle("-fx-background-color: linear-gradient(to bottom, #1e1e1e, #2a2a2a);");
 
         // Logo
-        ImageView logo = this.createElement("logo", new ImageView(ArkanoidGame.LOGO));
+        ImageView logo = this.createElement("logo", new ImageView(CSAssets.LOGO));
         logo.setPreserveRatio(true);
         logo.setFitWidth(500);
 

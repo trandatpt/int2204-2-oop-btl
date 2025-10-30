@@ -1,6 +1,5 @@
 package btl.ballgame.client;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -10,8 +9,6 @@ import btl.ballgame.client.ui.screen.ScreenManager;
 import btl.ballgame.protocol.ProtoUtils;
 import btl.ballgame.protocol.packets.in.PacketPlayInClientHello;
 import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 public class ArkanoidGame extends Application {
