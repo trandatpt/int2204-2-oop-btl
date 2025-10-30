@@ -18,7 +18,7 @@ public class PacketPlayInClientUserCreation extends NetworkPacket implements IPa
 		return this.userName;
 	}
 	
-	public String getPasswordHash() {
+	public String getPassword() {
 		return password;
 	}
 

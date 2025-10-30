@@ -8,6 +8,7 @@ import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import btl.ballgame.server.data.DataManager;
 import btl.ballgame.server.game.EntityRegistry;
 import btl.ballgame.server.game.entities.breakable.EntityBrick;
 import btl.ballgame.server.game.entities.dynamic.EntityPaddle;
@@ -21,6 +22,7 @@ import btl.ballgame.server.net.handle.ClientHelloHandle;
 import btl.ballgame.server.net.handle.ClientLoginHandle;
 import btl.ballgame.server.net.handle.ClientPaddleInputHandle;
 import btl.ballgame.server.net.handle.ClientPongHandle;
+import btl.ballgame.server.net.handle.ClientUserCreationHandle;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.EntityType;
 import btl.ballgame.shared.libs.external.Json;
@@ -31,6 +33,7 @@ import btl.ballgame.protocol.PacketRegistry;
 import btl.ballgame.protocol.ProtoUtils;
 import btl.ballgame.protocol.packets.in.PacketPlayInClientHello;
 import btl.ballgame.protocol.packets.in.PacketPlayInClientLogin;
+import btl.ballgame.protocol.packets.in.PacketPlayInClientUserCreation;
 import btl.ballgame.protocol.packets.in.PacketPlayInDisconnect;
 import btl.ballgame.protocol.packets.in.PacketPlayInPaddleControl;
 import btl.ballgame.protocol.packets.in.PacketPlayInPong;
@@ -173,6 +176,7 @@ public class ArkanoidServer {
 
 	private void registerPacketHandlers() {
 		this.registry.registerHandler(PacketPlayInClientHello.class, new ClientHelloHandle());
+		this.registry.registerHandler(PacketPlayInClientUserCreation.class, new ClientUserCreationHandle());
 		this.registry.registerHandler(PacketPlayInClientLogin.class, new ClientLoginHandle());
 		this.registry.registerHandler(PacketPlayInDisconnect.class, new ClientDisconnectHandle());
 		this.registry.registerHandler(PacketPlayInPong.class, new ClientPongHandle());

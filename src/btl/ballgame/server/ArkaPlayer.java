@@ -2,6 +2,7 @@ package btl.ballgame.server;
 
 import java.util.UUID;
 
+import btl.ballgame.server.data.PlayerData;
 import btl.ballgame.server.game.match.ArkanoidMatch;
 import btl.ballgame.server.net.PlayerConnection;
 
@@ -9,13 +10,15 @@ public class ArkaPlayer {
 	public final PlayerConnection playerConnection;
 	private final UUID uuid;
 	private final String userName;
+	private final PlayerData data;
 	
 	private ArkanoidMatch currentGame = null;
 	
-	protected ArkaPlayer(String userName, PlayerConnection conn) {
+	protected ArkaPlayer(PlayerData data, PlayerConnection conn) {
 		this.playerConnection = conn;
-		this.userName = userName;
-		this.uuid = UUID.nameUUIDFromBytes(("ArkaPlayer:" + this.userName.toLowerCase()).getBytes());
+		this.data = data;
+		this.userName = this.data.getName();
+		this.uuid = getUUIDFromName(userName);
 	}
 	
 	public void onPlayerConnectionClose() {
@@ -47,7 +50,11 @@ public class ArkaPlayer {
 		this.playerConnection.closeWithNotify(reason);
 	}
 	
-	public static UUID fromName(String userName) {
+	public PlayerData getData() {
+		return data;
+	}
+	
+	public static UUID getUUIDFromName(String userName) {
 		return UUID.nameUUIDFromBytes(("ArkaPlayer:" + userName.toLowerCase()).getBytes());
 	}
 }

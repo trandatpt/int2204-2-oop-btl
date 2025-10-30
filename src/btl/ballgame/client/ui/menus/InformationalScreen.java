@@ -18,6 +18,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.TextAlignment;
 
 public class InformationalScreen extends Screen {
 	
@@ -68,6 +69,7 @@ public class InformationalScreen extends Screen {
 		// "INFORMATIONAL" CONTENT
 		Label informational = this.createElement("informationalText", new Label(this.content));
 		informational.setTextFill(Color.WHITE);
+		informational.setTextAlignment(TextAlignment.CENTER);
 		informational.setFont(Font.font(null, FontWeight.BOLD, 18));
 		
 		// DEFINE THE LAYOUT

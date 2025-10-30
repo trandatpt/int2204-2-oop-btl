@@ -48,10 +48,18 @@ public class CreateAccountScreen extends Screen {
         repeatPassword.setPromptText("Repeat Password");
         repeatPassword.setMaxWidth(400);
         repeatPassword.setMinHeight(30);
+        
+        // The stupid button
+		CheckBox eulaCheckBox = this.createElement("eulaCheckBox", new CheckBox("I have read and agree to the End User License Agreement (EULA)"));
+		eulaCheckBox.setTextFill(Color.WHITE);
+		eulaCheckBox.setAlignment(Pos.CENTER);
+		eulaCheckBox.setWrapText(true);
+		eulaCheckBox.setMaxWidth(600);
+		eulaCheckBox.setStyle("-fx-font-size: 14px;");
 
         // Buttons
         Button createBtn = this.createElement("createButton", new Button("Create Account"));
-        Button backBtn = this.createElement("backButton", new Button("Back to Login"));
+        Button backBtn = this.createElement("backButton", new Button("Return to Login Menu"));
 
         createBtn.setPrefWidth(300);
         backBtn.setPrefWidth(300);
@@ -87,6 +95,13 @@ public class CreateAccountScreen extends Screen {
                 SoundManager.clickFalse();
                 return;
             }
+            
+			if (!eulaCheckBox.isSelected()) {
+				statusLabel.setText("You must agree to the End User License Agreement before proceeding.");
+				statusLabel.setTextFill(Color.RED);
+				SoundManager.clickFalse();
+				return;
+			}
 
             // send registration packet
             core.registerUser(user, pass, repPass);
@@ -103,14 +118,18 @@ public class CreateAccountScreen extends Screen {
         });
 
         backBtn.setOnAction(e -> back());
-
+        
+        VBox small = new VBox(10, eulaCheckBox, statusLabel);
+        small.setAlignment(Pos.CENTER);
+        small.setPadding(new Insets(20));
+        
         // Layout
         VBox formBox = new VBox(10,
                 new Label("Create your account!"),
                 username,
                 password,
                 repeatPassword,
-                statusLabel,
+                small,
                 createBtn,
                 backBtn
         );
