@@ -49,6 +49,7 @@ public class ClientUserCreationHandle implements PacketHandler<PacketPlayInClien
 			ArkaPlayer player = ArkanoidServer.getServer()
 				.getPlayerManager()
 				.addPlayer(context, newUser);
+			System.out.println("[ACCOUNT] Created new user: " + player.getName() + " (" + player.getUniqueId() + ")");
 			// logs the user in as they registered
 			loginAck = new PacketPlayOutLoginAck(player.getName(), player.getUniqueId()); // success
 		} catch (Exception e) {

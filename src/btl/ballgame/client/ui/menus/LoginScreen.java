@@ -58,7 +58,7 @@ public class LoginScreen extends Screen {
 		disconnectButton.setPrefWidth(400);
 		
 		Label statusLabel = new Label("");
-		MenuUtils.styleButton(logInButton, "#538e91", "#3a6466"); // aqua
+		MenuUtils.styleButton(logInButton, "#3b8a7c", "#2d695e"); // aqua
 		MenuUtils.styleButton(createAccountBtn, "#4d476e", "#353147"); // purple
 		MenuUtils.styleButton(disconnectButton, "#b22222", "#8b1a1a"); // red
 		
@@ -94,7 +94,7 @@ public class LoginScreen extends Screen {
 			ArkanoidGame.manager().setScreen(loggingIn);
 		});
 
-		createAccountBtn.setOnAction(e -> createScreen());
+		createAccountBtn.setOnAction(e -> createAccountScreen());
 
 		disconnectButton.setOnAction(e -> {
 			SoundManager.clickBottonLogin();
@@ -132,7 +132,7 @@ public class LoginScreen extends Screen {
 		
 	}
 
-	private void createScreen() {
+	private void createAccountScreen() {
 		SoundManager.clickBottonLogin();
 		CreateAccountScreen createNewAccount = new CreateAccountScreen();
 		ArkanoidGame.manager().setScreen(createNewAccount);

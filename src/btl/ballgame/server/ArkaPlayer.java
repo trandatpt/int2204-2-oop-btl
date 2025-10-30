@@ -21,11 +21,6 @@ public class ArkaPlayer {
 		this.uuid = getUUIDFromName(userName);
 	}
 	
-	public void onPlayerConnectionClose() {
-		ArkanoidServer.getServer().getPlayerManager().removePlayer(this.getUniqueId());
-		System.out.println(userName + " left");
-	}
-	
 	public ArkanoidMatch getCurrentGame() {
 		return currentGame;
 	}

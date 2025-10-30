@@ -36,7 +36,7 @@ import btl.ballgame.server.ArkaPlayer;
 public class PlayerConnection implements ConnectionCtx {
 	private static final ScheduledExecutorService GLOBAL_SCHEDULER = Executors.newSingleThreadScheduledExecutor();
 	
-	private Socket clientSocket;
+	public final Socket clientSocket;
 	private DataInputStream receiveStream;
 	private DataOutputStream sendStream;
 	
@@ -274,11 +274,9 @@ public class PlayerConnection implements ConnectionCtx {
 		this.packetDispatcherThread.interrupt();
 		// untrack this instance
 		server.getNetworkManager().untrack(this);
-		// debug info
-		System.out.println("[Network] User with IP: " + clientSocket.getInetAddress().toString() + " disconnected!");
 		// notify the internal server impl to handle quit event
 		if (owner == null) return;
-		owner.onPlayerConnectionClose();
+		server.getPlayerManager().removePlayer(owner.getUniqueId());
 		attachTo(null);
 	}
 	

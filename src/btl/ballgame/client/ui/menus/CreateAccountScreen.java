@@ -66,8 +66,8 @@ public class CreateAccountScreen extends Screen {
 
         Label statusLabel = new Label("");
 
-        MenuUtils.styleButton(createBtn, "#4d476e", "#353147"); // purple
-        MenuUtils.styleButton(backBtn, "#538e91", "#3a6466"); // aqua
+		MenuUtils.styleButton(createBtn, "#3b8a7c", "#2d695e"); // aqua
+        MenuUtils.styleButton(backBtn, "#b22222", "#8b1a1a"); // red
 
         // Button actions
         createBtn.setOnAction(e -> {

@@ -21,6 +21,7 @@ public class PlayerManager {
 		// register the player and attach connection
 		trackingPlayers.put(player.getUniqueId(), player);
 		connection.attachTo(player);
+		System.out.println("[PLAYERMAN] Player " + player.getName() + " (" + player.getUniqueId() + ") joined the server.");
 		return player;
 	}
 	
@@ -31,6 +32,7 @@ public class PlayerManager {
 		if (player.getCurrentGame() != null) {
 			player.getCurrentGame().onPlayerLeft(player);
 		}
+		System.out.println("[PLAYERMAN] Player " + player.getName() + " (" + player.getUniqueId() + ") left the server.");
 	}
 	
 	public Collection<ArkaPlayer> getOnlinePlayers() {

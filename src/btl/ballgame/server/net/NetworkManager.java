@@ -33,10 +33,12 @@ public class NetworkManager {
 	}
 	
 	public void track(PlayerConnection conn) {
+		System.out.println("[NETMAN] Tracking TCP/IP socket opened by: " + conn.clientSocket.getInetAddress());
 		connections.add(conn);
 	}
 	
 	public void untrack(PlayerConnection conn) {
+		System.out.println("[NETMAN] Socket by IP: " + conn.clientSocket.getInetAddress() + " disconnected");
 		connections.remove(conn);
 	}
 	
