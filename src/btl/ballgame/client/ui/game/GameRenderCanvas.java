@@ -7,8 +7,10 @@ import btl.ballgame.client.ClientArkanoidMatch;
 import btl.ballgame.client.net.systems.CSWorld;
 import btl.ballgame.client.ui.screen.Screen;
 import javafx.animation.AnimationTimer;
+import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 
 public class GameRenderCanvas extends Screen {
@@ -29,10 +31,14 @@ public class GameRenderCanvas extends Screen {
 			"-fx-background-position: center center;" + 
 			"-fx-background-repeat: no-repeat;"
 		);
-		
-		Canvas canvas = addElement("gameCanvas", new Canvas(
-			world.getWidth(), world.getHeight()
-		));
+
+        StackPane centerPane = new StackPane();
+        centerPane.setAlignment(Pos.CENTER);
+
+        Canvas canvas = new Canvas(world.getWidth(), world.getHeight());
+        centerPane.getChildren().add(canvas);
+
+        this.addElement("centerPane", centerPane);
 
 		GraphicsContext ctx = canvas.getGraphicsContext2D();
 		ctx.setFill(Color.BLACK);
