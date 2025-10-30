@@ -1,9 +1,5 @@
 package btl.ballgame.client;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 import btl.ballgame.client.net.systems.CSWorld;
 import btl.ballgame.protocol.packets.out.PacketPlayOutMatchMetadata;
 import btl.ballgame.protocol.packets.out.PacketPlayOutMatchMetadata.PlayerEntry;
@@ -12,6 +8,10 @@ import btl.ballgame.shared.libs.Constants.ArkanoidMode;
 import btl.ballgame.shared.libs.Constants.MatchPhase;
 import btl.ballgame.shared.libs.Constants.RifleMode;
 import btl.ballgame.shared.libs.Constants.TeamColor;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class ClientArkanoidMatch {
 	private final ArkanoidMode mode;
@@ -49,8 +49,12 @@ public class ClientArkanoidMatch {
 	public int getRoundIndex() {
 		return roundIndex;
 	}
-	
-	/**
+
+    public Map<TeamColor, CTeamInfo> getTeams() {
+        return teams;
+    }
+
+    /**
 	 * Creates a simple client side representation of a WorldServer.
 	 * 
 	 * @param width of the world
