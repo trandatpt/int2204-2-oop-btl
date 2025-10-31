@@ -155,7 +155,7 @@ public class ServerSelector extends Screen {
 	}
 
 	private void goSettings() {
-		SoundManager.clickBottonMenu();
+		SoundManager.play("Confirm");
 		SettingsScreen settings = new SettingsScreen();
 		ArkanoidGame.manager().setScreen(settings);
 	}
