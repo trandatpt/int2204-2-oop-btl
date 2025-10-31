@@ -2,6 +2,7 @@ package btl.ballgame.server.game.entities.dynamic;
 
 import java.util.List;
 
+import btl.ballgame.server.ArkaPlayer;
 import btl.ballgame.server.ArkanoidServer;
 import btl.ballgame.server.game.WorldEntity;
 import btl.ballgame.server.game.entities.BreakableEntity;
@@ -29,7 +30,7 @@ public class EntityWreckingBall extends WorldEntity {
 	private float speed;
 	
 	/** Game-dependent flags. */
-	private TeamColor temporaryOwner = null;
+	private ArkaPlayer temporaryOwner = null;
 	private boolean secondaryBall = true;
 	
 	/**
@@ -52,14 +53,14 @@ public class EntityWreckingBall extends WorldEntity {
 		return !secondaryBall;
 	}
 	
-	public void setTempOwner(TeamColor temporaryOwner) {
+	public void setTempOwner(ArkaPlayer temporaryOwner) {
 		this.temporaryOwner = temporaryOwner;
 	}
 	
-	public TeamColor getTempOwner() {
+	public ArkaPlayer getTempOwner() {
 		return temporaryOwner;
 	}
-	
+	 
 	/**
 	 * Sets the ball’s size scale.
 	 *
@@ -188,7 +189,7 @@ public class EntityWreckingBall extends WorldEntity {
 			// just another physics prop, it will softlock the game gradually 
 			// if the ball points straight up
 			if (collider instanceof EntityPaddle paddle) {
-				this.setTempOwner(paddle.getTeam());
+				this.setTempOwner(paddle.getPlayer());
 				if (normal.x != 0) { // SPECIAL CASE: ball bounces on the edge
 					setLocation(currentLoc.add(push));
 					setDirection(paddle.isLowerPaddle() ? new Vector2f(0, -1) : new Vector2f(0, 1));
@@ -207,6 +208,7 @@ public class EntityWreckingBall extends WorldEntity {
 				if (direction.y > 0) {
 					newDir.y *= -1; // if the ball is coming down, force it to fly up
 				}
+				setLocation(currentLoc.add(push));
 				setDirection(newDir.normalize());
 				break;
 			}
@@ -220,7 +222,7 @@ public class EntityWreckingBall extends WorldEntity {
 		// apply damage to breakable entities
 		for (WorldEntity collider : collided) {
 			if (collider instanceof BreakableEntity ib) {
-				ib.damage(1);
+				ib.damage(this, 1);
 			}
 		}
 	}

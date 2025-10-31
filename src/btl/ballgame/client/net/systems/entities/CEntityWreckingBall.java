@@ -10,7 +10,7 @@ public class CEntityWreckingBall extends CSInterpolatedEntity {
 		super.render(cv);
 		
 		cv.setFill(Color.RED);
-		cv.fillRect(getRenderX(), getRenderY(), getWidth(), getHeight());
+		cv.fillRect(getRenderX(), getRenderY(), getRenderWidth(), getRenderHeight());
 		cv.setFill(Color.BLACK);
 	}
 }

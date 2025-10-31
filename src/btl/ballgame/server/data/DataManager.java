@@ -1,8 +1,9 @@
-package btl.ballgame.server;
+package btl.ballgame.server.data;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.UUID;
 
 import btl.ballgame.shared.libs.external.Json;
 
@@ -20,9 +21,12 @@ public class DataManager {
 		this.spFile = new File(this.fileRoot, "server.json");
 	}
 	
+	public File getUserDataFile(UUID uuid) {
+		return new File(this.userDataRoot, uuid.toString() + ".json");
+	}
+	
 	public Json getServerProperties() throws IOException {
 		Json data;
-		System.out.println(spFile.toPath());
 		if (!spFile.exists()) {
 			// default config values
 			data = Json.object()
@@ -36,4 +40,5 @@ public class DataManager {
 		// read the properties
 		return Json.read(Files.readString(spFile.toPath()));
  	}
+	
 }

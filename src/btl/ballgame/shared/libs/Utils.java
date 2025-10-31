@@ -3,6 +3,10 @@ package btl.ballgame.shared.libs;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Utils {
 	private static final int BUFFER_SIZE = 128;
@@ -17,6 +21,14 @@ public class Utils {
 	
 	public static int clamp(int value, int min, int max) {
 		return Math.max(min, Math.min(max, value));
+	}
+	
+	public static String time() {
+		long millisecondsSinceEpoch = System.currentTimeMillis();
+		Instant instant = Instant.ofEpochMilli(millisecondsSinceEpoch);
+		ZonedDateTime zdt = ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
+		String output = DateTimeFormatter.ofPattern("dd/MM/YY HH:mm:ss").format(zdt);
+		return "[" + output + "]: ";
 	}
 	
 	private static String bytesToHex(byte[] hash) {

@@ -44,6 +44,9 @@ public class WorldServer implements IWorld {
 	
 	private ArkanoidMatch match;
 	
+	/** tick utilities **/
+	private List<Runnable> toRunNextTick = new ArrayList<>();
+	
 	/**
 	 * Constructs a new WorldServer (default random seed) with the specified dimensions. 
 	 * Automatically populates the default chunk grid.
@@ -105,16 +108,22 @@ public class WorldServer implements IWorld {
 	}
 	
 	/**
-	 * Performs a single server tick, updating all entities in the world.
+	 * Performs a single world tick, updating all entities in the world.
 	 * <p>
 	 * This should be called at a {@link ArkanoidServer#TICKS_PER_SECOND} rate 
 	 * by the Arkanoid Match executor.
 	 * </p>
 	 */
 	public void tick() {
+		// run queued actions
+		toRunNextTick.forEach(Runnable::run);
+		toRunNextTick.clear();
+		// tick entities
 		entities.forEach((id, entity) -> {
-			entity.entityTick();
+			try { entity.entityTick(); } 
+			catch (Exception e) { e.printStackTrace(); } // prevent this from blowing up
 		});
+		// clear entities that were removed during the tick
 		entitiesToBeRemoved.forEach(entity -> entities.remove(entity.getId()));
 		entitiesToBeRemoved.clear();
 	}
@@ -279,6 +288,13 @@ public class WorldServer implements IWorld {
 			}
 		}
 		return nearby;
+	}
+	
+	/** Adds a Runnable to be executed at the start of the next tick */
+	public void runNextTick(Runnable action) {
+		if (action != null) {
+			toRunNextTick.add(action);
+		}
 	}
 	
 	// this is for quickies only

@@ -58,7 +58,7 @@ public class LoginScreen extends Screen {
 		disconnectButton.setPrefWidth(400);
 		
 		Label statusLabel = new Label("");
-		MenuUtils.styleButton(logInButton, "#538e91", "#3a6466"); // aqua
+		MenuUtils.styleButton(logInButton, "#3b8a7c", "#2d695e"); // aqua
 		MenuUtils.styleButton(createAccountBtn, "#4d476e", "#353147"); // purple
 		MenuUtils.styleButton(disconnectButton, "#b22222", "#8b1a1a"); // red
 		
@@ -70,18 +70,18 @@ public class LoginScreen extends Screen {
 			if (user.isEmpty() || pass.isEmpty()) {
 				statusLabel.setText("Please enter both username and password!");
 				statusLabel.setTextFill(Color.ORANGE);
-				SoundManager.ClickFalse();
+				SoundManager.clickFalse();
 				return;
 			}
 			
 			if (!user.matches("^[a-zA-Z0-9_]{3,16}$")) {
 				statusLabel.setText("Username must be 3-16 characters and use only letters, numbers, or underscores!");
 				statusLabel.setTextFill(Color.RED);
-				SoundManager.ClickFalse();
+				SoundManager.clickFalse();
 				return;
 			}
 			
-			SoundManager.ClickBottonLogin();
+			SoundManager.clickBottonLogin();
 			core.login(user, pass);
 			InformationalScreen loggingIn = new InformationalScreen(
 				"Logging in...",
@@ -94,10 +94,10 @@ public class LoginScreen extends Screen {
 			ArkanoidGame.manager().setScreen(loggingIn);
 		});
 
-		createAccountBtn.setOnAction(e -> createScreen());
+		createAccountBtn.setOnAction(e -> createAccountScreen());
 
 		disconnectButton.setOnAction(e -> {
-			SoundManager.ClickBottonLogin();
+			SoundManager.clickBottonLogin();
 			core.disconnect();
 			MenuUtils.displayServerSelector();
 		});
@@ -132,9 +132,9 @@ public class LoginScreen extends Screen {
 		
 	}
 
-	private void createScreen() {
-		SoundManager.ClickBottonLogin();
-		CreateScreen createNewAccount = new CreateScreen();
+	private void createAccountScreen() {
+		SoundManager.clickBottonLogin();
+		CreateAccountScreen createNewAccount = new CreateAccountScreen();
 		ArkanoidGame.manager().setScreen(createNewAccount);
 	}
 

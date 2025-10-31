@@ -82,7 +82,9 @@ public class ArkanoidClientCore {
 			if (world != null) {
 				for (CSEntity entity : world.getAllEntities()) {
 					if (entity instanceof ITickableCEntity tickable) {
-						tickable.onTick();
+						try { tickable.onTick(); } catch (Exception e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			}
@@ -131,8 +133,7 @@ public class ArkanoidClientCore {
 		}
 		
 		connection.sendPacket(new PacketPlayInClientUserCreation(
-			username, // Login credentials
-			Utils.SHA256(password) //
+			username, password
 		));
 	}
 	

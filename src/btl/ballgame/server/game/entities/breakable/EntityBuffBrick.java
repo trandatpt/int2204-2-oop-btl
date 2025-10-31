@@ -1,7 +1,8 @@
 package btl.ballgame.server.game.entities.breakable;
 
 import btl.ballgame.shared.libs.Location;
-import btl.ballgame.server.game.entities.dynamic.EntityBuff;
+import btl.ballgame.server.game.WorldEntity;
+import btl.ballgame.server.game.entities.dynamic.EntityFallingItem;
 
 public class EntityBuffBrick extends EntityBrick {
 	public EntityBuffBrick(int id, Location location) {
@@ -15,9 +16,9 @@ public class EntityBuffBrick extends EntityBrick {
 
 	// TODO: giup dat xu ly cai nay!
 	@Override
-	public void onObjectBroken() {
+	public void onObjectBroken(WorldEntity damager) {
 		Location loc = getLocation();
-		EntityBuff buff = new EntityBuff(
+		EntityFallingItem buff = new EntityFallingItem(
 			world.nextEntityId(),
 			new Location(world, loc.getX(), loc.getY(), 0),
 			null,

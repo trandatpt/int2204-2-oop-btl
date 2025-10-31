@@ -1,6 +1,7 @@
 package btl.ballgame.server;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
@@ -8,6 +9,7 @@ import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import btl.ballgame.server.data.DataManager;
 import btl.ballgame.server.game.EntityRegistry;
 import btl.ballgame.server.game.entities.breakable.EntityBrick;
 import btl.ballgame.server.game.entities.dynamic.EntityPaddle;
@@ -21,8 +23,10 @@ import btl.ballgame.server.net.handle.ClientHelloHandle;
 import btl.ballgame.server.net.handle.ClientLoginHandle;
 import btl.ballgame.server.net.handle.ClientPaddleInputHandle;
 import btl.ballgame.server.net.handle.ClientPongHandle;
+import btl.ballgame.server.net.handle.ClientUserCreationHandle;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.EntityType;
+import btl.ballgame.shared.libs.Utils;
 import btl.ballgame.shared.libs.external.Json;
 import btl.ballgame.shared.libs.Constants.ArkanoidMode;
 import btl.ballgame.shared.libs.Constants.TeamColor;
@@ -31,6 +35,7 @@ import btl.ballgame.protocol.PacketRegistry;
 import btl.ballgame.protocol.ProtoUtils;
 import btl.ballgame.protocol.packets.in.PacketPlayInClientHello;
 import btl.ballgame.protocol.packets.in.PacketPlayInClientLogin;
+import btl.ballgame.protocol.packets.in.PacketPlayInClientUserCreation;
 import btl.ballgame.protocol.packets.in.PacketPlayInDisconnect;
 import btl.ballgame.protocol.packets.in.PacketPlayInPaddleControl;
 import btl.ballgame.protocol.packets.in.PacketPlayInPong;
@@ -44,7 +49,7 @@ public class ArkanoidServer {
 	
 	private static ArkanoidServer server = null;
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		server = new ArkanoidServer();
 		server.startDedicatedServer();
 	}
@@ -68,33 +73,49 @@ public class ArkanoidServer {
 	private int serverPort;
 	private int maxPlayers;
 	
-	public ArkanoidServer() {
-		try {
-			this.dataManager = new DataManager();
+	public ArkanoidServer() throws Exception {
+		System.out.println("[ArkanoidServer] Loading server properties, please wait...");
+		// override sys out, err
+		PrintStream out = new PrintStream(System.out) {
+			@Override
+			public void println(String x) {
+				super.println(Utils.time() + x);
+			}
+		};
+		System.setOut(out);
+		PrintStream err = new PrintStream(System.err) {
+			@Override
+			public void println(String x) {
+				super.println(Utils.time() + x);
+			}
+		};
+		System.setErr(err);
+		this.dataManager = new DataManager();
+		
+		Json serverProperties = dataManager.getServerProperties();
+		this.serverPort = serverProperties.at("tcp-port").asInteger();
+		this.maxPlayers = serverProperties.at("max-players").asInteger();
+		
+		System.out.println("[ArkanoidServer] Loading managers and registries...");
+		this.registry = new PacketRegistry();
+		this.codec = new PacketCodec(this.registry);
 			
-			Json serverProperties = dataManager.getServerProperties();
-			this.serverPort = serverProperties.at("tcp-port").asInteger();
-			this.maxPlayers = serverProperties.at("max-players").asInteger();
-			
-			this.serverSocket = new ServerSocket(this.serverPort);
-			this.registry = new PacketRegistry();
-			this.codec = new PacketCodec(registry);
-			ProtoUtils.registerMutualPackets(this.registry);
-			
-			this.netMan = new NetworkManager();
-			this.playerManager = new PlayerManager();
-			this.entityRegistry = new EntityRegistry();
-			
-			this.registerServerEntities();
-			this.registerPacketHandlers();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		this.netMan = new NetworkManager();
+		this.playerManager = new PlayerManager();
+		this.entityRegistry = new EntityRegistry();
+		
+		System.out.println("[ArkanoidServer] Registering necessary components...");
+		ProtoUtils.registerMutualPackets(this.registry);
+		this.registerServerEntities();
+		this.registerPacketHandlers();
+		
+		System.out.println("[ArkanoidServer] Attempting to start dedicated server... (port: " + serverPort + ")");
+		this.serverSocket = new ServerSocket(this.serverPort);
 	}
 	
 	private long globalTicksPassed = 0;
 	public void startDedicatedServer() {
-		System.out.println("[TEST] Started dedi server");
+		System.out.println("[ArkanoidServer] Started dedicated server on port: " + serverPort);
 
 		var executor = Executors.newScheduledThreadPool(1);
 		// ping every clients every 5s
@@ -126,7 +147,6 @@ public class ArkanoidServer {
 			try {
 				Socket client = serverSocket.accept();
 				client.setSoTimeout(15_000);
-				System.out.println("[TEST] connected: " + client.getInetAddress());
 				netMan.track(new PlayerConnection(this, client));
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -146,7 +166,7 @@ public class ArkanoidServer {
 			System.exit(0);
 			break;
 		case "kick":
-			playerManager.getPlayer(parts[1]).kick("bruh");
+			playerManager.getPlayer(parts[1]).kick("Kicked");
 			break;
 		case "test": {
 			ArkanoidMatch match = new ArkanoidMatch(new MatchSettings(ArkanoidMode.TWO_VERSUS_TWO, 3, 180, 1));
@@ -173,6 +193,7 @@ public class ArkanoidServer {
 
 	private void registerPacketHandlers() {
 		this.registry.registerHandler(PacketPlayInClientHello.class, new ClientHelloHandle());
+		this.registry.registerHandler(PacketPlayInClientUserCreation.class, new ClientUserCreationHandle());
 		this.registry.registerHandler(PacketPlayInClientLogin.class, new ClientLoginHandle());
 		this.registry.registerHandler(PacketPlayInDisconnect.class, new ClientDisconnectHandle());
 		this.registry.registerHandler(PacketPlayInPong.class, new ClientPongHandle());

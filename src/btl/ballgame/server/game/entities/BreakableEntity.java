@@ -34,10 +34,11 @@ public abstract class BreakableEntity extends WorldEntity {
 	 *
 	 * @param damage the amount of damage to apply
 	 */
-	public void damage(int damage) {
+	public void damage(WorldEntity damager, int damage) {
 		this.setHealth(this.getHealth() - damage);
+		onObjectDamaged(damager, damage);
 		if (this.getHealth() <= 0) {
-			onObjectBroken();
+			onObjectBroken(damager);
 		}
 	}
 	
@@ -57,11 +58,19 @@ public abstract class BreakableEntity extends WorldEntity {
 	}
 	
 	/**
+	 * Called when the entity is damaged by something
+	 * 
+	 * @param damager the entity that dealt the damage
+	 * @param damage the damage amount
+	 */
+	public void onObjectDamaged(WorldEntity damager, int damage) {};
+	
+	/**
 	 * Called when the entity's health reaches zero. 
 	 * Subclasses must define what happens when the object breaks.
 	 */
-	public abstract void onObjectBroken();
-
+	public abstract void onObjectBroken(WorldEntity killer);
+	
 	/**
 	 * Returns the maximum health for this entity type. 
 	 * Subclasses must define this value.

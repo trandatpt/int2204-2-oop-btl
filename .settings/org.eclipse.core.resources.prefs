@@ -4,6 +4,7 @@ encoding//src/btl/ballgame/client/net/systems/entities/CEntityWreckingBall.java=
 encoding//src/btl/ballgame/client/ui/menus/InformationalScreen.java=UTF-8
 encoding//src/btl/ballgame/client/ui/menus/LoginScreen.java=UTF-8
 encoding//src/btl/ballgame/client/ui/menus/ServerSelector.java=UTF-8
+encoding//src/btl/ballgame/server/game/entities/breakable/EntityExplosiveBrick.java=UTF-8
 encoding//src/btl/ballgame/server/game/entities/dynamic/EntityWreckingBall.java=UTF-8
 encoding//src/btl/ballgame/server/game/match/ArkanoidMatch.java=UTF-8
 encoding//src/btl/ballgame/shared/libs/Constants.java=UTF-8

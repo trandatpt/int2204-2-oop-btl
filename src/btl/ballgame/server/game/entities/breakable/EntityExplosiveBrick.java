@@ -8,15 +8,15 @@ public class EntityExplosiveBrick extends EntityBrick {
 	public EntityExplosiveBrick(int id, Location location) {
 		super(id, location);
 	}
-
+	
 	@Override
-	public void onObjectBroken() {
-		// các thực thể trong khoảng 50 unit
+	public void onObjectBroken(WorldEntity damager) {
+		// entities within 50 units
 		var nearby = world.getNearbyEntities(getBoundingBox().expand(50));
-		nearby.remove(this); // hàm trên trả về cả bản thân nên bỏ đi
+		nearby.remove(this); // exclude itself
 		for (WorldEntity entity : nearby) {
 			if (entity instanceof BreakableEntity be) {
-				be.damage(1_000); // deals 1000 damage
+				be.damage(this, 1_000); // deals 1000 damage
 			}
 		}
 		this.remove();
