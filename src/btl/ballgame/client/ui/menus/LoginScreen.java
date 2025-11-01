@@ -133,7 +133,7 @@ public class LoginScreen extends Screen {
 	}
 
 	private void createAccountScreen() {
-		SoundManager.clickBottonLogin();
+		SoundManager.clickSoundConfirm();;
 		CreateAccountScreen createNewAccount = new CreateAccountScreen();
 		ArkanoidGame.manager().setScreen(createNewAccount);
 	}

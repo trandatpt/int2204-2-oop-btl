@@ -66,6 +66,7 @@ public class SettingsScreen extends Screen {
 
     // Setting volume
     private void showVolumeSettings() {
+        SoundManager.clickSoundConfirm();
         contentBox.getChildren().clear();
 
         Label volumeLabel = new Label("Master Volume");
@@ -95,6 +96,7 @@ public class SettingsScreen extends Screen {
 
     // Graphics Setting
     private void showGraphicsSettings() {
+        SoundManager.clickSoundConfirm();
         contentBox.getChildren().clear();
 
         Label graphicsLabel = new Label("Graphics Settings");
@@ -135,6 +137,7 @@ public class SettingsScreen extends Screen {
     }
 
     private void back() {
+        SoundManager.clickSoundConfirm();
         MenuUtils.displayServerSelector();
     }
 

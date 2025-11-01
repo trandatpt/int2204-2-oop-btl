@@ -98,6 +98,10 @@ public class SoundManager {
         play("Buzz");
     }
 
+    public static void clickSoundConfirm() {
+        play("Confirm");
+    }
+    
     public static double getVolume() {
         return volume;
     }

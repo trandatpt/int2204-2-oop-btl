@@ -146,7 +146,7 @@ public class CreateAccountScreen extends Screen {
     }
 
     private void back() {
-        SoundManager.clickBottonLogin();
+        SoundManager.clickSoundConfirm();;
         MenuUtils.displayLoginScreen();
     }
     @Override

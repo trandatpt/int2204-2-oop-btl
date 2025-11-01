@@ -155,13 +155,13 @@ public class ServerSelector extends Screen {
 	}
 
 	private void goSettings() {
-		SoundManager.play("Confirm");
+		SoundManager.clickSoundConfirm();
 		SettingsScreen settings = new SettingsScreen();
 		ArkanoidGame.manager().setScreen(settings);
 	}
 
 	private void exitScreen() {
-		SoundManager.play("Confirm");
+		SoundManager.clickSoundConfirm();
 		SoundManager.stopAllSounds();
 		System.exit(0);
 	}
