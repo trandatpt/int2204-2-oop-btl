@@ -25,8 +25,6 @@ public class CreateAccountScreen extends Screen {
     @Override
     public void onInit() {
         // music login && create && match
-        SoundManager.playloop("MusicInGame");
-
         setStyle("-fx-background-color: linear-gradient(to bottom, #1e1e1e, #2a2a2a);");
 
         // Logo
@@ -149,6 +147,7 @@ public class CreateAccountScreen extends Screen {
         SoundManager.clickSoundConfirm();;
         MenuUtils.displayLoginScreen();
     }
+    
     @Override
     public void onRemove() {}
 }

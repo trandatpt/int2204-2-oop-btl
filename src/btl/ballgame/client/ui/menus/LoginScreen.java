@@ -51,16 +51,19 @@ public class LoginScreen extends Screen {
 		// SYSTEM BUTTONS
 		Button logInButton = this.createElement("connectButton", new Button("Log In"));
 		Button createAccountBtn = this.createElement("offlineButton", new Button("Create an Account"));
+		Button forgotPasswordBtn = this.createElement("forgotPasswordButton", new Button("Forgot Password"));
 		Button disconnectButton = this.createElement("offlineButton", new Button("Disconnect from this server"));
 
 		logInButton.setPrefWidth(300);
 		createAccountBtn.setPrefWidth(400);
+		forgotPasswordBtn.setPrefWidth(400);
 		disconnectButton.setPrefWidth(400);
 		
 		Label statusLabel = new Label("");
 		MenuUtils.styleButton(logInButton, "#3b8a7c", "#2d695e"); // aqua
 		MenuUtils.styleButton(createAccountBtn, "#4d476e", "#353147"); // purple
 		MenuUtils.styleButton(disconnectButton, "#b22222", "#8b1a1a"); // red
+		MenuUtils.styleButton(forgotPasswordBtn, "#4a708b", "#2f4f4f"); // blue-gray
 		
 		// CLICK THE BUTTONS
 		logInButton.setOnAction(e -> {
@@ -95,7 +98,7 @@ public class LoginScreen extends Screen {
 		});
 
 		createAccountBtn.setOnAction(e -> createAccountScreen());
-
+		forgotPasswordBtn.setOnAction(e -> forgotPassword());
 		disconnectButton.setOnAction(e -> {
 			SoundManager.clickBottonLogin();
 			core.disconnect();
@@ -106,12 +109,13 @@ public class LoginScreen extends Screen {
 		VBox loginBox = new VBox(10,
 			new Label("Please log in or create an account to continue!"),
 			username,
-			password, 
+			password,
 			statusLabel,
 			logInButton,
 			new Label(""), // evil layout hack
 			new Label("Don't have an account?"),
 			createAccountBtn,
+			forgotPasswordBtn,
 			disconnectButton
 		);
 		((Label) loginBox.getChildren().get(0)).setTextFill(Color.WHITE);
@@ -136,6 +140,12 @@ public class LoginScreen extends Screen {
 		SoundManager.clickSoundConfirm();;
 		CreateAccountScreen createNewAccount = new CreateAccountScreen();
 		ArkanoidGame.manager().setScreen(createNewAccount);
+	}
+
+	private void forgotPassword() {
+		SoundManager.clickSoundConfirm();
+		ForgotPasswordScreen forgotPassWord = new ForgotPasswordScreen();
+		ArkanoidGame.manager().setScreen(forgotPassWord);
 	}
 
 	@Override
