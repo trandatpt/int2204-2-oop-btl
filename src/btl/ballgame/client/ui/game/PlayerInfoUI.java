@@ -1,6 +1,7 @@
 package btl.ballgame.client.ui.game;
 
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -15,19 +16,19 @@ public class PlayerInfoUI {
     private final VBox rootNode;
     private final Label playerName;
     private final Label playerTag;
-    private final Label gunLabel; // Added this
+    private final ImageView gunImageView;
     private final Label ammoCount;
     private final Label firingMode;
     private final Region healthBar;
     private final Region shieldBar;
     private final HBox buffBox;
 
-    public PlayerInfoUI(VBox rootNode, Label playerName, Label playerTag, Label gunLabel, Label ammoCount,
-                        Label firingMode, Region healthBar, Region shieldBar, HBox buffBox) {
+    public PlayerInfoUI(VBox rootNode, Label playerName, Label playerTag, ImageView gunImageView,
+                        Label ammoCount, Label firingMode, Region healthBar, Region shieldBar, HBox buffBox) {
         this.rootNode = rootNode;
         this.playerName = playerName;
         this.playerTag = playerTag;
-        this.gunLabel = gunLabel; // Added this
+        this.gunImageView = gunImageView; // Added this
         this.ammoCount = ammoCount;
         this.firingMode = firingMode;
         this.healthBar = healthBar;
@@ -53,8 +54,8 @@ public class PlayerInfoUI {
     /**
      * @return The Label displaying the gun's name (e.g., "AK-47").
      */
-    public Label getGunLabel() {
-        return gunLabel; // Added this
+    public ImageView getGunImageView() { // (MODIFIED)
+        return gunImageView;
     }
 
     public Label getAmmoCount() {
