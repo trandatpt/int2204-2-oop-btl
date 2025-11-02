@@ -12,6 +12,8 @@ import java.util.concurrent.TimeUnit;
 import btl.ballgame.server.data.DataManager;
 import btl.ballgame.server.game.EntityRegistry;
 import btl.ballgame.server.game.entities.breakable.EntityBrick;
+import btl.ballgame.server.game.entities.breakable.EntityItemBrick;
+import btl.ballgame.server.game.entities.dynamic.EntityFallingItem;
 import btl.ballgame.server.game.entities.dynamic.EntityPaddle;
 import btl.ballgame.server.game.entities.dynamic.EntityWreckingBall;
 import btl.ballgame.server.game.match.ArkanoidMatch;
@@ -184,9 +186,11 @@ public class ArkanoidServer {
 		// active participants
 		this.entityRegistry.registerEntity(EntityType.ENTITY_PADDLE, EntityPaddle.class);
 		this.entityRegistry.registerEntity(EntityType.ENTITY_BALL, EntityWreckingBall.class);
+		this.entityRegistry.registerEntity(EntityType.ENTITY_FALLING_ITEM, EntityFallingItem.class);
 		
 		// static world entities (bricks)
 		this.entityRegistry.registerEntity(EntityType.ENTITY_BRICK_NORMAL, EntityBrick.class);
+		this.entityRegistry.registerEntity(EntityType.ENTITY_BRICK_ITEM, EntityItemBrick.class);
 	}
 
 	private void registerPacketHandlers() {

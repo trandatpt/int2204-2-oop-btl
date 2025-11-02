@@ -17,6 +17,7 @@ import btl.ballgame.server.game.WorldEntity;
 import btl.ballgame.server.game.WorldServer;
 import btl.ballgame.server.game.buffs.BaseEffect;
 import btl.ballgame.server.game.entities.breakable.EntityBrick;
+import btl.ballgame.server.game.entities.breakable.EntityItemBrick;
 import btl.ballgame.server.game.entities.dynamic.*;
 import static btl.ballgame.shared.libs.Constants.*;
 import btl.ballgame.shared.libs.Location;
@@ -145,7 +146,7 @@ public class ArkanoidMatch {
 	
 	// this function also work regardless of the gamemode
 	private void spawnBricksAndBrushes() {
-		int brickRows = 15;
+		int brickRows = 5;
 		int yOffset = getGameMode().isSinglePlayer() 
 			? BASE_MARGIN 
 			: (world.getHeight() / 2) - (BRICK_HEIGHT * (brickRows / 2))
@@ -156,7 +157,12 @@ public class ArkanoidMatch {
 				Location brickLocation = new Location(world, 
 					dx, yOffset + y * BRICK_HEIGHT, 0
 				);
-				EntityBrick brick = new EntityBrick(world.nextEntityId(), brickLocation);
+				EntityBrick brick = null;
+				if (world.random.nextInt(100) > 50) {
+					brick = new EntityBrick(world.nextEntityId(), brickLocation);
+				} else {
+					brick = new EntityItemBrick(world.nextEntityId(), brickLocation);
+				}
 				world.addEntity(brick);
 			}
 		}

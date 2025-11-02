@@ -53,6 +53,6 @@ public class CEntityPaddle extends CSInterpolatedEntity {
 	}
 	
 	public boolean isUpsideDown() {
-		return (boolean) getWatcher().get(Constants.PADDLE_UPSIDEDOWN_META);
+		return (boolean) getWatcher().get(Constants.RENDER_UPSIDEDOWN_META);
 	}
 }

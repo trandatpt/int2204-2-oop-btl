@@ -25,6 +25,7 @@ import btl.ballgame.client.net.systems.CSEntity;
 import btl.ballgame.client.net.systems.CSEntityRegistry;
 import btl.ballgame.client.net.systems.CSWorld;
 import btl.ballgame.client.net.systems.entities.CEntityBrickNormal;
+import btl.ballgame.client.net.systems.entities.CEntityFallingItem;
 import btl.ballgame.client.net.systems.entities.CEntityPaddle;
 import btl.ballgame.client.net.systems.entities.CEntityPaddleLocal;
 import btl.ballgame.client.net.systems.entities.CEntityWreckingBall;
@@ -162,6 +163,8 @@ public class ArkanoidClientCore {
 		this.entityRegistry.registerEntity(EntityType.ENTITY_PADDLE, CEntityPaddle::new);
 		this.entityRegistry.registerEntity(EntityType.ENTITY_BALL, CEntityWreckingBall::new);
 		this.entityRegistry.registerEntity(EntityType.ENTITY_BRICK_NORMAL, CEntityBrickNormal::new);
+		this.entityRegistry.registerEntity(EntityType.ENTITY_BRICK_ITEM, CEntityBrickNormal::new);
+		this.entityRegistry.registerEntity(EntityType.ENTITY_FALLING_ITEM, CEntityFallingItem::new);
 	}
 	
 	public CSEntityRegistry getEntityRegistry() {

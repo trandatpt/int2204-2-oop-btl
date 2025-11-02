@@ -49,12 +49,16 @@ public class GameRenderCanvas extends Screen {
 		new AnimationTimer() {
 			@Override
 			public void handle(long now) {
+				try {
 				ctx.setFill(Color.BLACK);
 				ctx.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 				world.particles().flushQueue();
 				world.particles().render(ParticlePriority.BEFORE_ENTITIES, ctx);
 				world.getAllEntities().forEach(e -> e.render(ctx));
 				world.particles().render(ParticlePriority.AFTER_ENTITIES, ctx);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}.start();
 		

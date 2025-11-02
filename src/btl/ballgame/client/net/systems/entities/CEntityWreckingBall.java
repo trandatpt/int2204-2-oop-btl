@@ -41,3 +41,4 @@ public class CEntityWreckingBall extends CSInterpolatedEntity {
 		getWorld().particles().spawn(ParticlePriority.BEFORE_ENTITIES, trail);
 	}
 }
+

@@ -10,8 +10,8 @@ public class Constants {
 	public static final short HP_META_KEY = 0xA1;
 	public static final short PADDLE_OWNER_META = 0xA2;
 	public static final short PADDLE_EXPANDED_META = 0xA3;
-	public static final short PADDLE_UPSIDEDOWN_META = 0xA4;
-	public static final short BUFF_TYPE_META = 0xB0;
+	public static final short RENDER_UPSIDEDOWN_META = 0xF4;
+	public static final short ITEM_TYPE_META = 0xB0;
 	public static final short BRICK_TINT_META = 0xB1;
 	public static final short BALL_PRIMARY_META = 0xB2;
 	public static final short BALL_ENLARGED_META = 0xB3;
@@ -95,6 +95,16 @@ public class Constants {
         PADDLE_EXPAND,
         ENLARGED_BALL,
         MULTI_BALL
+	}
+	
+	public static enum ItemType {
+		AK47_AMMO,
+		RANDOM_EFFECT;
+		
+	    private static final ItemType[] values = values();
+	    public static ItemType of(int ordinal) {
+	        return values[ordinal];
+	    }
 	}
 	
 	public static enum ArkanoidMode {
