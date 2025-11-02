@@ -3,7 +3,6 @@ package btl.ballgame.client.net.handle;
 import btl.ballgame.client.ArkanoidClientCore;
 import btl.ballgame.client.ArkanoidGame;
 import btl.ballgame.client.net.CServerConnection;
-import btl.ballgame.client.ui.game.GameCompositeScreen;
 import btl.ballgame.client.ui.game.GameRenderCanvas;
 import btl.ballgame.client.ui.game.GameScreen;
 import btl.ballgame.protocol.packets.PacketHandler;
@@ -26,10 +25,17 @@ public class ServerWorldInitHandle implements PacketHandler<PacketPlayOutWorldIn
 		);
 		
 		Platform.runLater(() -> {
-			GameRenderCanvas grc = new GameRenderCanvas();
-            GameScreen ui = new GameScreen();
-            ArkanoidGame.manager().setScreen(new GameCompositeScreen(grc, ui));
-            grc.requestFocus();
+            // 1. Create the game renderer FIRST
+            GameRenderCanvas grc = new GameRenderCanvas();
+
+            // 2. Create the UI screen and PASS the renderer TO it
+            GameScreen ui = new GameScreen(grc);
+
+            // 3. Set the 'ui' (GameScreen) as the only screen
+            ArkanoidGame.manager().setScreen(ui);
+
+            // 4. Tell the 'ui' to give focus to the game
+            ui.requestGameFocus();
 		});
 	}
 }

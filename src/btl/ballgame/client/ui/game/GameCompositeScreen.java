@@ -3,6 +3,10 @@ package btl.ballgame.client.ui.game;
 import btl.ballgame.client.ui.screen.Screen;
 import javafx.scene.layout.StackPane;
 
+/**
+ * (NOTE) This file is no longer used in the new structure.
+ * GameScreen is now the main screen.
+ */
 public class GameCompositeScreen extends Screen {
     private Screen ui = null;
     private Screen grc = null;
@@ -13,7 +17,7 @@ public class GameCompositeScreen extends Screen {
 
         gameScreen.setMouseTransparent(true);
         gameScreen.setStyle("-fx-background-color: transparent;");
-        
+
         StackPane root = new StackPane(grc, ui);
         this.getChildren().add(root);
     }
@@ -21,7 +25,7 @@ public class GameCompositeScreen extends Screen {
     @Override
     public void onInit() {
         if (grc != null) {
-           grc.onInit();
+            grc.onInit();
         }
         if (ui != null) {
             ui.onInit();
@@ -33,3 +37,4 @@ public class GameCompositeScreen extends Screen {
 
     }
 }
+

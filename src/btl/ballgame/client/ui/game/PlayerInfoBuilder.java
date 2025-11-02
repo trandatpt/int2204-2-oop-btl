@@ -19,7 +19,8 @@ public class PlayerInfoBuilder {
     static Image bulletImage = CSAssets.sprites.get("item/Bullet-Tiles-01.png");
     static Image ak47Image = CSAssets.sprites.get("item/AK47-Tiles-01.png");
 
-    private static final double PLAYER_INFO_WIDTH = 400.0;
+    // (FIX) Must be public static so GameScreen can read it for health bar math
+    public static final double PLAYER_INFO_WIDTH = 400.0;
 
     /**
      * Creates a player information box (VBox) containing name, health, buffs, and ammo.
