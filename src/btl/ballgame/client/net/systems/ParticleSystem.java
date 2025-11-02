@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
+import btl.ballgame.client.CSAssets;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.Constants.DriftBehavior;
 import btl.ballgame.shared.libs.Constants.ParticlePriority;
@@ -178,7 +179,9 @@ public class ParticleSystem {
 			this.alpha = 1.0;
 			this.color = color; this.type = type;
 			this.driftBehavior = driftBehavior;
-			this.sprite = null; // TODO DABSHDGASUIDHUYIASHUIDSAH
+			if (sprite != null) {
+				this.sprite = CSAssets.sprites.getAsImage("particle", sprite);
+			}
 			this.rotation = 0;
 			this.rotationSpeed = (Math.random() - 0.5) * 5; // random rotation speed
 		}
@@ -191,19 +194,10 @@ public class ParticleSystem {
 				
 				// velocity and allat
 				this.x += dx; this.y += dy;
-				this.alpha = Math.max(life / initialLife, 0);
-				// apply driftint behavior
-				switch (driftBehavior) {
-				case ROTATING_WHILE_DRIFTING:
-					rotation += rotationSpeed;
-					break;
-				case SHRINK_WHILE_DRIFTING:
-					size *= 0.95; // shrink slowly
-					break;
-				case NONE:
-				default:
-					break;
-				}
+				this.alpha = Math.max((float) life / initialLife, 0);
+				// apply "while drifting" behavior
+				if (driftBehavior.rotates) this.rotation += rotationSpeed;
+				if (driftBehavior.shrinks) this.size *= 0.9;
 			}
 		}
 		

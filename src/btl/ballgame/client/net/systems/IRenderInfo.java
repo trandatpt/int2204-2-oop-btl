@@ -37,11 +37,7 @@ public interface IRenderInfo {
 		// set the mode to multiply so that we can tint it by
 		// drawing a rectangle over it z(pixC) = pixC * tint
 		gc.setGlobalBlendMode(BlendMode.MULTIPLY);
-		gc.setFill(Color.rgb( // rgb to jfx color
-			(tint >> 16) & 0xFF, 
-			(tint >> 8) & 0xFF, 
-			tint & 0xFF)
-		);
+		gc.setFill(TextureAtlas.fromRgbInt(tint));
 		gc.fillRect(x, y, w, h);
 		// restore the previous state of the GC
 		gc.restore();

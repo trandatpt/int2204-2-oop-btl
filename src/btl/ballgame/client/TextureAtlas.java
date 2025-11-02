@@ -2,6 +2,7 @@ package btl.ballgame.client;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
+import javafx.scene.paint.Color;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -57,7 +58,7 @@ public class TextureAtlas {
 	}
 	
 	@Deprecated
-	public Image get(String fullPath) {
+	public Image __get(String fullPath) {
 		var split = fullPath.replace(".png", "").split("/");
 		return get(split[0], split[1]).getImage();
 	}
@@ -85,7 +86,25 @@ public class TextureAtlas {
 		}
 		return sprite;
 	}
-
+	
+	// my magic functions
+	public static Color fromRgbInt(int rgb) {
+		return Color.rgb(
+			(rgb >> 16) & 0xFF, 
+			(rgb >> 8) & 0xFF, 
+			rgb & 0xFF
+		);
+	}
+	
+	public static Color fromArgbInt(int argb) {
+		return Color.rgb(
+			(argb >> 16) & 0xFF, 
+			(argb >> 8) & 0xFF, 
+			argb & 0xFF,
+			((argb >> 24) & 0xFF) / 255.0 // the first byte
+		);
+	}
+	
 	public class Sprite {
 		private final WritableImage image;
 

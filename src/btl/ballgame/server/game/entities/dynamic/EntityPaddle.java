@@ -104,6 +104,7 @@ public class EntityPaddle extends ControllableEntity {
 		this.dataWatcher.watch(PADDLE_OWNER_META,
 			player.getUniqueId().getLeastSignificantBits()
 		);
+		this.dataWatcher.watch(PADDLE_UPSIDEDOWN_META, !lowerPaddle); // upper paddle = render upside down
 	}
 	
 	@Override
