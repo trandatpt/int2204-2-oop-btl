@@ -18,7 +18,7 @@ public interface IRenderInfo {
 	int getRenderHeight();
 	
 	default TextureAtlas atlas() {
-		return CSAssets.ATLAS;
+		return CSAssets.sprites;
 	}
 	
 	/**

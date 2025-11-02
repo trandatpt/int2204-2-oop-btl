@@ -296,7 +296,7 @@ public class GameScreen extends Screen {
         if (heartsBox.getChildren().size() != teamData.livesRemaining) {
             heartsBox.getChildren().clear();
             for (int i = 0; i < teamData.livesRemaining; i++) {
-                Label heart = new Label("❤");
+                Label heart = new Label("â�¤");
                 heart.setStyle("-fx-font-size: 24px;");
                 heart.setTextFill(teamColor);
                 heartsBox.getChildren().add(heart);

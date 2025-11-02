@@ -21,7 +21,7 @@ public class ArkanoidGame extends Application {
 	@Override
 	public void start(Stage root) throws Exception {
 		// initialize sound
-		SoundManager.onInit();
+		CSAssets.init();
 		manager = new ScreenManager(root);
 
 		MenuUtils.displayServerSelector();
@@ -29,11 +29,6 @@ public class ArkanoidGame extends Application {
 //		manager.setScreen(login);
 
 		root.show();
-		try {
-			CSAssets.ATLAS = new TextureAtlas(new File("assets/spritesheet.png").toURI().toString());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 	
 	@Override

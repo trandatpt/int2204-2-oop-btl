@@ -49,7 +49,7 @@ public class EntityAKBullet extends WorldEntity {
         List<WorldEntity> collisions = this.queryCollisions();
         for (WorldEntity entity : collisions) {
             if (entity instanceof BreakableEntity brick) {
-                brick.damage(DAMAGE);
+                brick.damage(this, DAMAGE);
                 pierceBrickCount++;
 
                 velocity.multiply((float)Math.sqrt(ENERGY_LOSS)); // E = 1/2 mv^2 => v ~ sqrt(E)

@@ -6,10 +6,16 @@ import btl.ballgame.shared.libs.Constants.ParticlePriority;
 import btl.ballgame.shared.libs.Constants.ParticleType;
 import btl.ballgame.shared.libs.Constants.DriftBehavior;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 public class CEntityWreckingBall extends CSInterpolatedEntity {
-
+	private Image ballImage;
+	
+	public CEntityWreckingBall() {
+		this.ballImage = atlas().getAsImage("ball", "ball_normal");
+	}
+	
     @Override
     public void render(GraphicsContext cv) {
         super.render(cv);
@@ -36,6 +42,6 @@ public class CEntityWreckingBall extends CSInterpolatedEntity {
         );
         
         getWorld().particles().spawn(ParticlePriority.AFTER_ENTITIES, trail);
-        cv.drawImage(atlas().ball.getImage(), renderX, renderY, renderWidth, renderHeight);
+        cv.drawImage(ballImage, renderX, renderY, renderWidth, renderHeight);
     }
 }

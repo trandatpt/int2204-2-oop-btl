@@ -1,47 +1,106 @@
 package btl.ballgame.client;
+
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 
-public class TextureAtlas {
-    private final Image sheet;
-    
-    public final Sprite bullet;
-    public final Sprite heart;
-    public final Sprite ball;
-    public final Sprite brickStages[];
-    
-    public TextureAtlas(String path) {
-        sheet = new Image(path);
-        if (sheet.isError()) {
-        	System.out.println("errored! " + path);
-            throw new RuntimeException("Failed to load spritesheet: " + path);
-        }
-        
-        this.bullet = new Sprite(0, 0, 17, 100);
-        this.heart = new Sprite(17, 0, 128, 116);
-        this.ball = new Sprite(145, 0, 128, 128);
-        this.brickStages = new Sprite[] {
-        	new Sprite(1426, 0, 384, 128), // most cracked
-        	new Sprite(1041, 0, 384, 128), // cracked
-        	new Sprite(657, 0, 384, 128), // least cracked
-        	new Sprite(273, 0, 384, 128), // not cracked
-        };
-    }
+import java.io.File;
+import java.nio.file.Files;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-    public class Sprite {
-        private final WritableImage image;
-        public Sprite(int x, int y, int width, int height) {
-            if (x < 0 || y < 0 || width <= 0 || height <= 0) {
-                throw new IllegalArgumentException("Invalid sprite bounds: " + x + "," + y + "," + width + "," + height);
-            }
-            if (x + width > sheet.getWidth() || y + height > sheet.getHeight()) {
-                throw new IllegalArgumentException("Sprite bounds exceed sheet dimensions!");
-            }
-            image = new WritableImage(sheet.getPixelReader(), x, y, width, height);
-        }
-        
-        public WritableImage getImage() {
-            return image;
-        }
-    }
+import btl.ballgame.shared.libs.external.Json;
+
+public class TextureAtlas {
+	private final Image sheet;
+	private final Map<String, LinkedHashMap<String, Sprite>> sprites = new HashMap<>();
+
+	public TextureAtlas(String jsonPath) {
+		Json root;
+		try {
+			root = Json.read(Files.readString(new File(jsonPath).toPath()));
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to read JSON! " + jsonPath, e);
+		}
+
+		// get metadata
+		Json atlas = root.at("TextureAtlas");
+		String imagePath = atlas.at("spritePath").asString();
+		sheet = new Image(new File(imagePath).toURI().toString());
+		
+		if (sheet.isError()) {
+			throw new RuntimeException("Failed to load! " + imagePath);
+		}
+
+		// build the spritesheet
+		Json namespaces = atlas.at("sprites");
+		for (String namespace : namespaces.asJsonMap().keySet()) {
+			Json membersJson = namespaces.at(namespace);
+			LinkedHashMap<String, Sprite> members = new LinkedHashMap<>();
+			
+			for (String spriteName : membersJson.asJsonMap().keySet()) {
+				// copy the necessary stuff from the json and create a struct
+				Json s = membersJson.at(spriteName);
+				int x = s.at("x").asInteger();
+				int y = s.at("y").asInteger();
+				int w = s.at("w").asInteger();
+				int h = s.at("h").asInteger();
+				members.put(spriteName, new Sprite(x, y, w, h));
+			}
+			
+			// insert the namespace into the global lookup table
+			sprites.put(namespace, members);
+		}
+
+		System.out.println("[ATLAS] Loaded Texture Atlas: " + imagePath + " with " + sprites.size() + " namespaces!");
+	}
+	
+	@Deprecated
+	public Image get(String fullPath) {
+		var split = fullPath.replace(".png", "").split("/");
+		return get(split[0], split[1]).getImage();
+	}
+	
+	public Collection<Sprite> getAllFrom(String namespace) {
+		Map<String, Sprite> ns = sprites.get(namespace);
+		if (ns == null) {
+			throw new IllegalArgumentException("Unknown namespace: " + namespace);
+		}
+		return ns.values();
+	}
+	
+	public Image getAsImage(String namespace, String name) {
+		return get(namespace, name).image;
+	}
+	
+	public Sprite get(String namespace, String name) {
+		Map<String, Sprite> ns = sprites.get(namespace);
+		if (ns == null) {
+			throw new IllegalArgumentException("Unknown namespace: " + namespace);
+		}
+		Sprite sprite = ns.get(name);
+		if (sprite == null) {
+			throw new IllegalArgumentException("Unknown sprite: " + name + " in namespace " + namespace);
+		}
+		return sprite;
+	}
+
+	public class Sprite {
+		private final WritableImage image;
+
+		private Sprite(int x, int y, int width, int height) {
+			if (x < 0 || y < 0 || width <= 0 || height <= 0) {
+				throw new IllegalArgumentException("Invalid sprite bounds: " + x + "," + y + "," + width + "," + height);
+			}
+			if (x + width > sheet.getWidth() || y + height > sheet.getHeight()) {
+				throw new IllegalArgumentException("Sprite bounds exceed sheet dimensions!");
+			}
+			image = new WritableImage(sheet.getPixelReader(), x, y, width, height);
+		}
+		
+		public WritableImage getImage() {
+			return image;
+		}
+	}
 }

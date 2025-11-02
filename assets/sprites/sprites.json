@@ -1,0 +1,39 @@
+{
+  "TextureAtlas": {
+    "spritePath": "assets/sprites/spritesheet.png",
+    "sprites": {
+      "ball": {
+        "ball_normal": { "x": 367, "y": 0, "w": 128, "h": 128 }
+      },
+      "normal_brick": {
+        "intact": { "x": 1053, "y": 0, "w": 384, "h": 128 },
+        "lightly_cracked": { "x": 0, "y": 128, "w": 384, "h": 128 },
+        "damaged": { "x": 384, "y": 128, "w": 384, "h": 128 },
+        "very_damaged": { "x": 768, "y": 128, "w": 384, "h": 128 }
+      },
+      "buff": {
+        "enlarge_ball": { "x": 17, "y": 0, "w": 50, "h": 50 },
+        "multi_ball": { "x": 67, "y": 0, "w": 50, "h": 50 },
+        "paddle_expand": { "x": 117, "y": 0, "w": 50, "h": 50 }
+      },
+      "item": {
+        "AK47-Tiles-01": { "x": 623, "y": 0, "w": 200, "h": 108 },
+        "Bullet-Tiles-01": { "x": 0, "y": 0, "w": 17, "h": 100 },
+        "Heart-Tiles-01": { "x": 495, "y": 0, "w": 128, "h": 116 }
+      },
+      "logo": {
+        "logoTeam_1": { "x": 167, "y": 0, "w": 100, "h": 100 },
+        "logoTeam_2": { "x": 267, "y": 0, "w": 100, "h": 100 }
+      },
+      "paddle": {
+        "LongPaddle-Tiles-01": { "x": 970, "y": 256, "w": 693, "h": 128 },
+        "LongPaddle-Tiles-02": { "x": 0, "y": 384, "w": 693, "h": 128 },
+        "LongPaddle-Tiles-03": { "x": 693, "y": 384, "w": 693, "h": 128 },
+        "Paddle-Tiles-01": { "x": 1152, "y": 128, "w": 485, "h": 128 },
+        "Paddle-Tiles-02": { "x": 0, "y": 256, "w": 485, "h": 128 },
+        "Paddle-Tiles-03": { "x": 485, "y": 256, "w": 485, "h": 128 },
+        "ShortPaddle-Tiles-01": { "x": 823, "y": 0, "w": 230, "h": 128 }
+      }
+    }
+  }
+}
