@@ -113,15 +113,11 @@ public class PlayerConnection implements ConnectionCtx {
 						if (this.dispatchQueue.isEmpty()) continue;
 						// prevent some bullshit race condition
 						// by draining the queue before doing shit
-						List<NetworkPacket> toDispatch = new ArrayList<>();
 						NetworkPacket packet;
 						while ((packet = dispatchQueue.poll()) != null) {
-							toDispatch.add(packet);
+							server.codec().writePacket(sendStream, packet);
 						}
-						// dispatch
-						for (NetworkPacket p : toDispatch) {
-							server.codec().writePacket(sendStream, p);
-						}
+						// dispatch the packets
 						sendStream.flush();
 					}
 				} catch (InterruptedException e) {

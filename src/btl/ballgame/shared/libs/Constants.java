@@ -6,9 +6,10 @@ public class Constants {
 	public static final int NS_PER_TICK = (int) 1_000_000_000f / TICKS_PER_SECOND;
 	
 	// meta keys (datawatcher)
-	public static final short HP_META_KEY = 0xA0;
-	public static final short PADDLE_OWNER_META = 0xA1;
-	public static final short PADDLE_EXPANDED_META = 0xA2;
+	public static final short MAX_HP_META_KEY = 0xA0;
+	public static final short HP_META_KEY = 0xA1;
+	public static final short PADDLE_OWNER_META = 0xA2;
+	public static final short PADDLE_EXPANDED_META = 0xA3;
 	public static final short BUFF_TYPE_META = 0xB0;
 	public static final short BRICK_TINT_META = 0xB1;
 	public static final short BALL_PRIMARY_META = 0xB2;
@@ -21,7 +22,7 @@ public class Constants {
 	public static final int AK_47_MAG_SIZE = 30;
 	
 	// size consts
-	public static final int BRICK_WIDTH = 40, BRICK_HEIGHT = 15;
+	public static final int BRICK_WIDTH = 70, BRICK_HEIGHT = 23;
 	public static final int PADDLE_WIDTH = 88, PADDLE_HEIGHT = 16;
 	
 	// enumerates
@@ -35,6 +36,23 @@ public class Constants {
 	    public static RifleMode of(int ordinal) {
 	        return values[ordinal];
 	    }
+	}
+	
+	public enum ParticleType {
+		SPRITE, 
+		OVAL, 
+		RECTANGLE
+	}
+
+	public enum DriftBehavior {
+		NONE, 
+		ROTATING_WHILE_DRIFTING, 
+		SHRINK_WHILE_DRIFTING
+	}
+	
+	public enum ParticlePriority {
+		BEFORE_ENTITIES,
+		AFTER_ENTITIES,
 	}
 	
 	/**

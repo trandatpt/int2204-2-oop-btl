@@ -24,7 +24,6 @@ import btl.ballgame.client.net.handle.ServerSocketCloseHandle;
 import btl.ballgame.client.net.systems.CSEntity;
 import btl.ballgame.client.net.systems.CSEntityRegistry;
 import btl.ballgame.client.net.systems.CSWorld;
-import btl.ballgame.client.net.systems.ITickableCEntity;
 import btl.ballgame.client.net.systems.entities.CEntityBrickNormal;
 import btl.ballgame.client.net.systems.entities.CEntityPaddle;
 import btl.ballgame.client.net.systems.entities.CEntityPaddleLocal;
@@ -48,7 +47,6 @@ import btl.ballgame.protocol.packets.out.PacketPlayOutMatchMetadata;
 import btl.ballgame.protocol.packets.out.PacketPlayOutPing;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.EntityType;
-import btl.ballgame.shared.libs.Utils;
 
 public class ArkanoidClientCore {
 	private CServerConnection connection;
@@ -80,13 +78,7 @@ public class ArkanoidClientCore {
 		clientExecutor.scheduleAtFixedRate(() -> {
 			CSWorld world = getActiveWorld();
 			if (world != null) {
-				for (CSEntity entity : world.getAllEntities()) {
-					if (entity instanceof ITickableCEntity tickable) {
-						try { tickable.onTick(); } catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-				}
+				world.tick();
 			}
 			++currentTick;
 		}, 0, Constants.MS_PER_TICK, TimeUnit.MILLISECONDS);

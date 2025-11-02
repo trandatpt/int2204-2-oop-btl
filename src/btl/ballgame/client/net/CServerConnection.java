@@ -101,15 +101,11 @@ public class CServerConnection implements ConnectionCtx {
 					synchronized (sendStream) {
 						// prevent some bullshit race condition
 						// by draining the queue before doing shit
-						List<NetworkPacket> toDispatch = new ArrayList<>();
 						NetworkPacket packet;
 						while ((packet = dispatchQueue.poll()) != null) {
-							toDispatch.add(packet);
+							client.codec().writePacket(sendStream, packet);
 						}
 						// dispatch
-						for (NetworkPacket p : toDispatch) {
-							client.codec().writePacket(sendStream, p);
-						}
 						sendStream.flush();
 					}
 				} catch (InterruptedException e) {

@@ -1,11 +1,7 @@
 package btl.ballgame.server.game.entities.breakable;
 
-import btl.ballgame.server.ArkaPlayer;
 import btl.ballgame.server.game.WorldEntity;
-import btl.ballgame.server.game.buffs.MultiBall;
-import btl.ballgame.server.game.buffs.PaddleExpand;
 import btl.ballgame.server.game.entities.BreakableEntity;
-import btl.ballgame.server.game.entities.dynamic.EntityWreckingBall;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.Location;
 
@@ -47,15 +43,11 @@ public class EntityBrick extends BreakableEntity {
 	
 	@Override
 	public int getMaxHealth() {
-		return 1; // one hit and it breaks
+		return 5; // one hit and it breaks
 	}
 	
 	@Override
 	public void onObjectBroken(WorldEntity damager) {
 		this.remove();
-		if (damager instanceof EntityWreckingBall eb && eb.isPrimaryBall()) {
-			ArkaPlayer p = eb.getTempOwner();
-			p.getCurrentGame().addEffect(p, new MultiBall(p, eb));
-		}
 	}
 }

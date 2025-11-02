@@ -29,6 +29,11 @@ public class ArkanoidGame extends Application {
 //		manager.setScreen(login);
 
 		root.show();
+		try {
+			CSAssets.ATLAS = new TextureAtlas(new File("assets/spritesheet.png").toURI().toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Override

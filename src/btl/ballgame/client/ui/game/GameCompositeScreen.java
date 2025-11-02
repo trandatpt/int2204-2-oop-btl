@@ -13,7 +13,7 @@ public class GameCompositeScreen extends Screen {
 
         gameScreen.setMouseTransparent(true);
         gameScreen.setStyle("-fx-background-color: transparent;");
-
+        
         StackPane root = new StackPane(grc, ui);
         this.getChildren().add(root);
     }

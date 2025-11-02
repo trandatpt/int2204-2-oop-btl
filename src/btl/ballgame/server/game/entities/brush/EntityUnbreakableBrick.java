@@ -1,6 +1,7 @@
 package btl.ballgame.server.game.entities.brush;
 
 import btl.ballgame.server.game.WorldEntity;
+import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.Location;
 
 public class EntityUnbreakableBrick extends WorldEntity {
@@ -14,11 +15,11 @@ public class EntityUnbreakableBrick extends WorldEntity {
 
 	@Override
 	public int getWidth() {
-		return 48;
+		return Constants.BRICK_WIDTH;
 	}
 
 	@Override
 	public int getHeight() {
-		return 18;
+		return Constants.BRICK_HEIGHT;
 	}
 }

@@ -49,6 +49,7 @@ public abstract class BreakableEntity extends WorldEntity {
      */
 	public void setHealth(int health) {
 		this.remainingHealth = Utils.clamp(health, 0, getMaxHealth());
+		this.dataWatcher.watch(Constants.MAX_HP_META_KEY, getMaxHealth());
 		this.dataWatcher.watch(Constants.HP_META_KEY, this.remainingHealth);
 		this.updateMetadata();
 	}

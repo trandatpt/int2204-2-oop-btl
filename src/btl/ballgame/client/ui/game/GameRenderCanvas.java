@@ -6,6 +6,7 @@ import btl.ballgame.client.CSAssets;
 import btl.ballgame.client.ClientArkanoidMatch;
 import btl.ballgame.client.net.systems.CSWorld;
 import btl.ballgame.client.ui.screen.Screen;
+import btl.ballgame.shared.libs.Constants.ParticlePriority;
 import javafx.animation.AnimationTimer;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
@@ -41,6 +42,7 @@ public class GameRenderCanvas extends Screen {
         this.addElement("centerPane", centerPane);
 
 		GraphicsContext ctx = canvas.getGraphicsContext2D();
+		ctx.setImageSmoothing(true);
 		ctx.setFill(Color.BLACK);
 		ctx.fillRect(0,0,world.getWidth(), world.getHeight());
 		
@@ -49,7 +51,10 @@ public class GameRenderCanvas extends Screen {
 			public void handle(long now) {
 				ctx.setFill(Color.BLACK);
 				ctx.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+				world.particles().flushQueue();
+				world.particles().render(ParticlePriority.BEFORE_ENTITIES, ctx);
 				world.getAllEntities().forEach(e -> e.render(ctx));
+				world.particles().render(ParticlePriority.AFTER_ENTITIES, ctx);
 			}
 		}.start();
 		

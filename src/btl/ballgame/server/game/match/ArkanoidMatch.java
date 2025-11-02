@@ -2,6 +2,7 @@ package btl.ballgame.server.game.match;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -60,6 +61,7 @@ public class ArkanoidMatch {
 		
 		Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
 			try {
+				this.daemonTick();
 				if (matchStarted && currentPhase != MatchPhase.CONCLUDED) {
 					this.world.tick();
 					this.onMatchTick();
@@ -85,10 +87,16 @@ public class ArkanoidMatch {
 		this.syncMatchStateWithClients();
 		this.world.broadcastPackets(new PacketPlayOutWorldInit(world));
 		
-		
+		// prepare a match
 		this.prepareMatch();
-		this.matchStarted = true;
-		changePhase(MatchPhase.MATCH_ACTIVE);
+		this.beginCountdownAndStartMatch();
+	}
+	
+	public void beginCountdownAndStartMatch() {
+		runLater(30 * 5, () -> {
+			this.matchStarted = true;
+			changePhase(MatchPhase.MATCH_ACTIVE);
+		});
 	}
 
 	/**
@@ -135,9 +143,9 @@ public class ArkanoidMatch {
 		}
 	}
 	
-	// this function also work regardless of the modes
+	// this function also work regardless of the gamemode
 	private void spawnBricksAndBrushes() {
-		int brickRows = 1;
+		int brickRows = 15;
 		int yOffset = getGameMode().isSinglePlayer() 
 			? BASE_MARGIN 
 			: (world.getHeight() / 2) - (BRICK_HEIGHT * (brickRows / 2))
@@ -339,7 +347,35 @@ public class ArkanoidMatch {
 		this.changePhase(MatchPhase.CONCLUDED);
 	}
 	
+	// queued tasks
+	Map<Integer, Queue<Runnable>> queuedTasks = new ConcurrentHashMap<>();
+	// current tick counter
+	private int ticks = 0;
+	
+	// this ticks regardless of the match state
+	public void daemonTick() {
+		// execute tasks queued for this tick
+		var tasks = queuedTasks.remove(ticks);
+		if (tasks != null) {
+			// prevent race condition
+			Runnable task;
+			while ((task = tasks.poll()) != null) {
+				try {
+					task.run();
+				} catch (Exception e) {
+					System.err.println("[DAEMON] Error in tick " + ticks);
+					e.printStackTrace();
+				}
+			}
+		}
+		++ticks; // this is the backbone of scheduling mechanism
+	}
+	
 	public void onMatchTick() {
+		if (gameMode.isSinglePlayer()) {
+			return;
+		}
+		
 		// check win (OVERALL) condition by FT score
 		for (TeamInfo team : teams.values()) {
 			if (team.getFTScore() >= settings.getFirstToScore()) {
@@ -437,7 +473,6 @@ public class ArkanoidMatch {
 	public void onPlayerLeft(ArkaPlayer player) {
 		this.paddleOf(player).remove();
 		this.getTeamOf(player).removePlayer(player);
-		
 		syncMatchStateWithClients();
 	}
 	
@@ -492,6 +527,22 @@ public class ArkanoidMatch {
 	
 	public WorldServer getWorld() {
 		return world;
+	}
+	
+	/**
+	 * Schedule a task to run after a delay in ticks.
+	 *
+	 * @param delayTicks number of ticks to wait before executing
+	 * @param task the task to run
+	 */
+	public void runLater(int delayTicks, Runnable task) {
+		if (delayTicks < 0) {
+			throw new IllegalArgumentException("Delay must be >= 0");
+		}
+		
+		queuedTasks.computeIfAbsent(ticks + delayTicks, 
+			k -> new ConcurrentLinkedQueue<>()
+		).add(task);
 	}
 
 	/**
