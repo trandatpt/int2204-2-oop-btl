@@ -10,6 +10,7 @@ public class Constants {
 	public static final short HP_META_KEY = 0xA1;
 	public static final short PADDLE_OWNER_META = 0xA2;
 	public static final short PADDLE_EXPANDED_META = 0xA3;
+	public static final short PADDLE_UPSIDEDOWN_META = 0xA4;
 	public static final short BUFF_TYPE_META = 0xB0;
 	public static final short BRICK_TINT_META = 0xB1;
 	public static final short BALL_PRIMARY_META = 0xB2;
@@ -45,9 +46,18 @@ public class Constants {
 	}
 
 	public enum DriftBehavior {
-		NONE, 
-		ROTATING_WHILE_DRIFTING, 
-		SHRINK_WHILE_DRIFTING
+		NONE(false, false), 
+		ROTATING_WHILE_DRIFTING(true, false), 
+		SHRINK_WHILE_DRIFTING(false, true),
+		BOTH_WHILE_DRIFTING(true, true);
+		
+	    public final boolean rotates;
+	    public final boolean shrinks;
+
+	    DriftBehavior(boolean rotates, boolean shrinks) {
+	        this.rotates = rotates;
+	        this.shrinks = shrinks;
+	    }
 	}
 	
 	public enum ParticlePriority {

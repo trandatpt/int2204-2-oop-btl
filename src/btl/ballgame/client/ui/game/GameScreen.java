@@ -51,9 +51,9 @@ public class GameScreen extends Screen {
     // private CTeamInfo redTeam;
     // private CTeamInfo blueTeam;
 
-    static Image logoTeam_1 = CSAssets.sprites.get("logo/logoTeam_1.png");
-    static Image logoTeam_2 = CSAssets.sprites.get("logo/logoTeam_2.png");
-    private static final Image RIFLE_IMAGE = CSAssets.sprites.get("item/AK47-Tiles-01.png");
+    static Image logoTeam_1 = CSAssets.sprites.__get("logo/logoTeam_1.png");
+    static Image logoTeam_2 = CSAssets.sprites.__get("logo/logoTeam_2.png");
+    private static final Image RIFLE_IMAGE = CSAssets.sprites.__get("item/AK47-Tiles-01.png");
 
     /**
      * (NEW) Constructor now accepts the GameRenderCanvas
