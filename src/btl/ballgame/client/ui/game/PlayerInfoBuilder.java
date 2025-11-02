@@ -1,17 +1,25 @@
 package btl.ballgame.client.ui.game;
 
+import btl.ballgame.client.CSAssets;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 
 /**
  * A utility class to build the player information UI box.
- * Updated to reflect the new ammo box layout (gun left, details right).
+ * (MODIFIED) Gun is now an ImageView with a background.
  */
 public class PlayerInfoBuilder {
+    // (MODIFIED) Load both images
+    static Image bulletImage = CSAssets.sprites.get("item/Bullet-Tiles-01.png");
+    static Image ak47Image = CSAssets.sprites.get("item/AK47-Tiles-01.png");
+
+    private static final double PLAYER_INFO_WIDTH = 400.0;
 
     /**
      * Creates a player information box (VBox) containing name, health, buffs, and ammo.
@@ -22,12 +30,16 @@ public class PlayerInfoBuilder {
      */
     public static PlayerInfoUI createPlayerInfoBox(String playerTag, Pos alignment) {
         VBox playerBox = new VBox(5);
-        playerBox.setAlignment(alignment);
+        playerBox.setAlignment(Pos.CENTER); // (MODIFIED) Align all children center
 
         // --- Player Name and Tag ---
         boolean isLeft = alignment == Pos.CENTER_LEFT;
         HBox nameBox = new HBox(8);
         nameBox.setAlignment(alignment);
+        // (MODIFIED) Set fixed width for balance
+        nameBox.setPrefWidth(PLAYER_INFO_WIDTH);
+        nameBox.setMaxWidth(PLAYER_INFO_WIDTH);
+
 
         Label tagLabel = createPlayerLabel(playerTag, isLeft ? Color.RED : Color.BLUE);
         Label nameLabel = new Label("Player Name"); // Placeholder
@@ -43,6 +55,9 @@ public class PlayerInfoBuilder {
         StackPane healthStack = new StackPane();
         healthStack.setPrefHeight(20);
         healthStack.setMaxHeight(20);
+        // (MODIFIED) Set fixed width for balance
+        healthStack.setPrefWidth(PLAYER_INFO_WIDTH);
+        healthStack.setMaxWidth(PLAYER_INFO_WIDTH);
 
         Region healthBg = new Region();
         healthBg.setStyle("-fx-background-color: #555; -fx-background-radius: 5;");
@@ -59,45 +74,32 @@ public class PlayerInfoBuilder {
 
         // --- Buffs ---
         HBox buffBox = createBuffBox();
-        buffBox.setAlignment(alignment);
+        buffBox.setMaxWidth(Region.USE_PREF_SIZE);
+        buffBox.setMaxHeight(Region.USE_PREF_SIZE); // (FIX) Tell buffBox not to stretch
 
-        // --- Gun Name (Moved up, as it's on the buff row) ---
-        Label gunLabel = new Label("AK-47"); // Placeholder
-        gunLabel.setTextFill(Color.WHITE);
-        gunLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+        // --- (MODIFIED) Gun is now an ImageView ---
+        ImageView gunImageView = new ImageView(ak47Image);
+        gunImageView.setFitHeight(32); // Set height to match buff slots
+        gunImageView.setPreserveRatio(true);
 
-        // --- NEW: Buff and Gun Row ---
-        HBox buffAndGunRow = new HBox(10); // 10px spacing
-        buffAndGunRow.setAlignment(Pos.CENTER_LEFT); // Vertically center children (FIXED from CENTER_VERTICAL)
-        Region buffSpacer = new Region();
-        HBox.setHgrow(buffSpacer, Priority.ALWAYS);
+        // --- (NEW) Create a container for the gun image to give it a background ---
+        StackPane gunImageContainer = new StackPane(gunImageView);
+        gunImageContainer.setPadding(new Insets(2)); // Add some padding around the gun
+        gunImageContainer.setStyle(
+                "-fx-background-color: rgba(255, 255, 255, 0.3);" +
+                        "-fx-background-radius: 3;"
+        );
+        gunImageContainer.setMaxWidth(Region.USE_PREF_SIZE);
+        gunImageContainer.setMaxHeight(Region.USE_PREF_SIZE); // (FIX) Tell gun container not to stretch
 
-        // Add children based on alignment for symmetry
-        if (isLeft) {
-            // Red Team (Left Side): Gun | Spacer | Buffs
-            buffAndGunRow.getChildren().addAll(gunLabel, buffSpacer, buffBox);
-        } else {
-            // Blue Team (Right Side): Buffs | Spacer | Gun
-            buffAndGunRow.getChildren().addAll(buffBox, buffSpacer, gunLabel);
-        }
-
-
-        // --- NEW Ammo Box Layout (HBox) ---
-        // This box now *only* contains the ammo details
+        // --- (MODIFIED) Build Ammo Box ---
         HBox ammoBox = new HBox();
-        // ammoBox.setAlignment(Pos.CENTER_LEFT); // Alignment is set by container
         ammoBox.setPadding(new Insets(5));
         ammoBox.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5); " +
                 "-fx-border-color: white; -fx-border-width: 2; " +
                 "-fx-background-radius: 5; -fx-border-radius: 5;");
-        // Remove fixed width to allow shrink-to-fit
-        // ammoBox.setPrefWidth(200);
-        // ammoBox.setMaxWidth(200);
-
-
-        // Spacer (REMOVED from ammoBox)
-        // Region spacer = new Region();
-        // HBox.setHgrow(spacer, Priority.ALWAYS);
+        ammoBox.setMaxWidth(Region.USE_PREF_SIZE);
+        ammoBox.setMaxHeight(Region.USE_PREF_SIZE); // (FIX) Tell ammoBox not to stretch
 
         // Details (Right) - VBox
         VBox ammoDetailsVBox = new VBox(2);
@@ -106,7 +108,7 @@ public class PlayerInfoBuilder {
 
         // Bullet Count + Icon
         HBox bulletBox = new HBox(4);
-        // Added style from your snippet
+        bulletBox.setPadding(new Insets(2, 5, 2, 5));
         bulletBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.4); " +
                 "-fx-border-color: white;"
         );
@@ -116,9 +118,9 @@ public class PlayerInfoBuilder {
         ammoLabel.setTextFill(Color.WHITE);
         ammoLabel.setStyle("-fx-font-size: 14px;");
 
-        Label bulletIcon = new Label("▮"); // Bullet icon
-        bulletIcon.setTextFill(Color.YELLOW);
-        bulletIcon.setStyle("-fx-font-size: 14px;");
+        ImageView bulletIcon = new ImageView(bulletImage);
+        bulletIcon.setFitHeight(20);
+        bulletIcon.setPreserveRatio(true);
 
         if (isLeft) {
             bulletBox.getChildren().addAll(bulletIcon, ammoLabel);
@@ -132,22 +134,45 @@ public class PlayerInfoBuilder {
         fireModeLabel.setStyle("-fx-font-size: 12px;");
 
         ammoDetailsVBox.getChildren().addAll(bulletBox, fireModeLabel);
-
-        // Add all to the new HBox
-        // The ammoBox *only* contains the details now
         ammoBox.getChildren().add(ammoDetailsVBox);
 
-        // We need a container to align the ammoBox
-        HBox ammoStatsContainer = new HBox(ammoBox);
-        ammoStatsContainer.setAlignment(alignment);
+
+        // --- (FIX) New 3-Item Row (Gun, Ammo, Buffs) ---
+        HBox bottomRow = new HBox(10); // 10px spacing between items
+        // (FIX) Set fixed width for balance
+        bottomRow.setPrefWidth(PLAYER_INFO_WIDTH);
+        bottomRow.setMaxWidth(PLAYER_INFO_WIDTH);
+        // (FIX) Set alignment to center children vertically
+        bottomRow.setAlignment(Pos.CENTER_LEFT);
+
+        // --- (FIX) Create Spacer to push items apart ---
+        Region buffSpacer = new Region();
+        HBox.setHgrow(buffSpacer, Priority.ALWAYS);
+
+        // --- (FIX) Create a new HBox for [Gun] + [Ammo] ---
+        HBox gunAndAmmoBox = new HBox(5); // 5px spacing between gun and ammo
+        gunAndAmmoBox.setAlignment(Pos.CENTER_LEFT);
+        gunAndAmmoBox.setMaxHeight(Region.USE_PREF_SIZE); // Don't stretch this new box
+
+        // Add children based on alignment (layout from image_436ae3.png)
+        if (isLeft) {
+            // Red Team (Left Side): [Gun] [Ammo] ... [Buffs]
+            gunAndAmmoBox.getChildren().addAll(gunImageContainer, ammoBox);
+            bottomRow.getChildren().addAll(gunAndAmmoBox, buffSpacer, buffBox);
+        } else {
+            // Blue Team (Right Side): [Buffs] ... [Ammo] [Gun]
+            // (Note: Order is reversed for symmetry)
+            gunAndAmmoBox.getChildren().addAll(ammoBox, gunImageContainer);
+            bottomRow.getChildren().addAll(buffBox, buffSpacer, gunAndAmmoBox);
+        }
 
 
-        // --- Add all to main VBox ---
+        // --- (FIXED) Add all to main VBox (3 rows) ---
         playerBox.getChildren().clear(); // Clear previous items
-        playerBox.getChildren().addAll(nameBox, healthStack, buffAndGunRow, ammoStatsContainer);
+        playerBox.getChildren().addAll(nameBox, healthStack, bottomRow);
 
         // --- Create and return the wrapper ---
-        return new PlayerInfoUI(playerBox, nameLabel, tagLabel, gunLabel, ammoLabel,
+        return new PlayerInfoUI(playerBox, nameLabel, tagLabel, gunImageView, ammoLabel,
                 fireModeLabel, healthBar, shieldBar, buffBox);
     }
 

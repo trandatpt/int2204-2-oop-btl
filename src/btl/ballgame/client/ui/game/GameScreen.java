@@ -12,6 +12,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
@@ -38,6 +40,10 @@ public class GameScreen extends Screen {
     // --- Team Data Cache (to avoid re-creating nodes) ---
     private CTeamInfo redTeam;
     private CTeamInfo blueTeam;
+
+    static Image logoTeam_1 = CSAssets.sprites.get("logo/logoTeam_1.png");
+    static Image logoTeam_2 = CSAssets.sprites.get("logo/logoTeam_2.png");
+    private static final Image RIFLE_IMAGE = CSAssets.sprites.get("item/AK47-Tiles-01.png");
 
     public GameScreen() {
         super("game");
@@ -68,6 +74,7 @@ public class GameScreen extends Screen {
 
         // --- (NEW) TOP-CENTER SCOREBOARD ---
         VBox topCenterBox = new VBox(-5); // Negative spacing to pull them closer
+        topCenterBox.setPrefWidth(600);
         topCenterBox.setAlignment(Pos.CENTER);
         topCenterBox.setPadding(new Insets(10, 0, 0, 0)); // Padding from the top edge
 
@@ -92,7 +99,6 @@ public class GameScreen extends Screen {
 
         // --- (BLUE TEAM - RIGHT) ---
         VBox infoPane_R = new VBox(10);
-// ... (rest of the code for infoPane_R is unchanged) ...
         infoPane_R.setPrefWidth(400);
         infoPane_R.setMaxHeight(600);
         infoPane_R.setPadding(new Insets(15));
@@ -101,24 +107,36 @@ public class GameScreen extends Screen {
         );
         infoPane_R.setAlignment(Pos.TOP_CENTER);
 
+        // Team Label Box
         HBox teamBox_R = new HBox(8);
         teamBox_R.setAlignment(Pos.TOP_CENTER);
-        teamBox_R.setStyle("-fx-background-color: white; -fx-background-radius: 5;");
+        teamBox_R.setStyle("-fx-background-color: rgba(34, 34, 34, 0.6); " +
+                "-fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;"
+        );
         teamBox_R.setPadding(new Insets(5));
-        StackPane colorBox_R = new StackPane();
-        colorBox_R.setPrefSize(30, 30);
-        colorBox_R.setStyle("-fx-background-color: blue; -fx-border-color: white;");
+
+        // Team Color Box and Label
+        ImageView logoView_R = new ImageView(logoTeam_1);
+        logoView_R.setFitWidth(40);
+        logoView_R.setFitHeight(40);
+        logoView_R.setPreserveRatio(true);
+        StackPane colorBox_R = new StackPane(logoView_R);
+        colorBox_R.setPrefSize(40, 40);
+        colorBox_R.setStyle("-fx-background-color: rgba(255, 255, 255, 0.4); -fx-border-color: white;");
         Label teamLabel_R = new Label("BLUE");
         teamLabel_R.setTextFill(Color.BLUE);
-        teamLabel_R.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
+        teamLabel_R.setStyle("-fx-font-size: 30px; -fx-font-weight: bold;");
         teamBox_R.getChildren().addAll(colorBox_R, teamLabel_R);
 
+        // Team Lives Label
         Label teamLivesLabel_R = new Label("Team Lives");
         teamLivesLabel_R.setStyle("-fx-font-size: 16px; -fx-text-fill: white;");
 
+        // Hearts Container
         hearts_R = new HBox(5);
         hearts_R.setAlignment(Pos.TOP_CENTER);
 
+        // Score Box
         HBox scoreBox_R = new HBox(10);
         scoreBox_R.setAlignment(Pos.CENTER);
         Label scoreLabel_R = new Label("Score:");
@@ -130,6 +148,7 @@ public class GameScreen extends Screen {
         scoreValue_R.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-font-family: 'Monospaced';");
         scoreBox_R.getChildren().addAll(scoreLabel_R, scoreValue_R);
 
+        // Player Info UIs
         player1InfoUI_R = PlayerInfoBuilder.createPlayerInfoBox("P1", Pos.CENTER_RIGHT);
         player2InfoUI_R = PlayerInfoBuilder.createPlayerInfoBox("P2", Pos.CENTER_RIGHT);
 
@@ -145,12 +164,11 @@ public class GameScreen extends Screen {
         VBox.setMargin(player2InfoUI_R.getRootNode(), new Insets(10, 0, 0, 0));
 
         StackPane rightContainer = new StackPane(infoPane_R);
-        rightContainer.setPadding(new Insets(0, 20, 0, 20));
+        rightContainer.setPadding(new Insets(0, 100, 0, 100));
 
 
         // --- (RED TEAM - LEFT) ---
         VBox infoPane_L = new VBox(10);
-// ... (rest of the code for infoPane_L is unchanged) ...
         infoPane_L.setPrefWidth(400);
         infoPane_L.setMaxHeight(600);
         infoPane_L.setPadding(new Insets(15));
@@ -159,24 +177,36 @@ public class GameScreen extends Screen {
         );
         infoPane_L.setAlignment(Pos.TOP_CENTER);
 
+        // Team Label Box
         HBox teamBox_L = new HBox(8);
         teamBox_L.setAlignment(Pos.TOP_CENTER);
-        teamBox_L.setStyle("-fx-background-color: white; -fx-background-radius: 5;");
+        teamBox_L.setStyle("-fx-background-color: rgba(34, 34, 34, 0.6); " +
+                "-fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;"
+        );
         teamBox_L.setPadding(new Insets(5));
-        StackPane colorBox_L = new StackPane();
-        colorBox_L.setPrefSize(30, 30);
-        colorBox_L.setStyle("-fx-background-color: red; -fx-border-color: white;");
+
+        // Team Color Box and Label
+        ImageView logoView_L = new ImageView(logoTeam_2);
+        logoView_L.setFitWidth(40);
+        logoView_L.setFitHeight(40);
+        logoView_L.setPreserveRatio(true);
+        StackPane colorBox_L = new StackPane(logoView_L);
+        colorBox_L.setPrefSize(40, 40);
+        colorBox_L.setStyle("-fx-background-color: rgba(255, 255, 255, 0.4); -fx-border-color: white;");
         Label teamLabel_L = new Label("RED");
         teamLabel_L.setTextFill(Color.RED);
-        teamLabel_L.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
+        teamLabel_L.setStyle("-fx-font-size: 30px; -fx-font-weight: bold;");
         teamBox_L.getChildren().addAll(colorBox_L, teamLabel_L);
 
+        // Team Lives Label
         Label teamLivesLabel_L = new Label("Team Lives");
         teamLivesLabel_L.setStyle("-fx-font-size: 16px; -fx-text-fill: white;");
 
+        // Hearts Container
         hearts_L = new HBox(5);
         hearts_L.setAlignment(Pos.TOP_CENTER);
 
+        // Score Box
         HBox scoreBox_L = new HBox(10);
         scoreBox_L.setAlignment(Pos.CENTER);
         Label scoreLabel_L = new Label("Score:");
@@ -188,6 +218,7 @@ public class GameScreen extends Screen {
         scoreValue_L.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-font-family: 'Monospaced';");
         scoreBox_L.getChildren().addAll(scoreLabel_L, scoreValue_L);
 
+        // Player Info UIs
         player1InfoUI_L = PlayerInfoBuilder.createPlayerInfoBox("P1", Pos.CENTER_LEFT);
         player2InfoUI_L = PlayerInfoBuilder.createPlayerInfoBox("P2", Pos.CENTER_LEFT);
 
@@ -203,7 +234,7 @@ public class GameScreen extends Screen {
         VBox.setMargin(player2InfoUI_L.getRootNode(), new Insets(10, 0, 0, 0));
 
         StackPane leftContainer = new StackPane(infoPane_L);
-        leftContainer.setPadding(new Insets(0, 20, 0, 20));
+        leftContainer.setPadding(new Insets(0, 100, 0, 100));
 
         root.setRight(rightContainer);
         root.setLeft(leftContainer);
@@ -289,9 +320,13 @@ public class GameScreen extends Screen {
             return;
         }
 
-        playerUI.getPlayerName().setText(playerData.getName());
+        // (OPTIMIZED) Only set text if it's different
+        if (playerData.getName() != null && !playerUI.getPlayerName().getText().equals(playerData.getName())) {
+            playerUI.getPlayerName().setText(playerData.getName());
+        }
 
         // Update Health (assuming max 100)
+// ... (health/shield TODOs) ...
         // TODO: This logic is flawed, health bar width should be proportional
         // double healthWidth = (playerData.health / 100.0) * (playerUI.getRootNode().getWidth() - 10); // Example
         // playerUI.getHealthBar().setPrefWidth(healthWidth);
@@ -299,14 +334,28 @@ public class GameScreen extends Screen {
         // TODO: Add shield data
         // playerUI.getShieldBar().setPrefWidth(playerData.shield * 2.5);
 
-        // Update Gun Name
-        playerUI.getGunLabel().setText("RIFLE"); // TODO: Get gun name from data
+        // --- (MODIFIED) Update Gun Image ---
+        // TODO: Get *which* gun image from data
+        Image currentGunImage = RIFLE_IMAGE; // Placeholder
+        if (playerUI.getGunImageView().getImage() != currentGunImage) {
+            playerUI.getGunImageView().setImage(currentGunImage);
+        }
 
         // Update Ammo
+        // (OPTIMIZED) Only set text if it's different
         // TODO: Get max ammo from data
-        playerUI.getAmmoCount().setText(String.format("%d / 30", playerData.bulletsLeft));
+        String ammoText = String.format("%d / 30", playerData.bulletsLeft);
+        if (!playerUI.getAmmoCount().getText().equals(ammoText)) {
+            playerUI.getAmmoCount().setText(ammoText);
+        }
 
-        playerUI.getFiringMode().setText(playerData.firingMode.name());
+        // (OPTIMIZED) Only set text if it's different
+        if (playerData.firingMode != null) {
+            String fireModeText = playerData.firingMode.name();
+            if (!playerUI.getFiringMode().getText().equals(fireModeText)) {
+                playerUI.getFiringMode().setText(fireModeText);
+            }
+        }
 
         // TODO: Update Buffs
     }
