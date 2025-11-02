@@ -31,16 +31,16 @@ public class GameScreen extends Screen {
     private long lastTick;
 
     // --- UI Node References for RED Team (LEFT) ---
-    private Label scoreValue_L;
-    private HBox hearts_L;
-    private PlayerInfoUI player1InfoUI_L;
-    private PlayerInfoUI player2InfoUI_L;
+    private Label scoreValueLeft;
+    private HBox heartsLeft;
+    private PlayerInfoUI player1InfoUILeft;
+    private PlayerInfoUI player2InfoUILeft;
 
     // --- UI Node References for BLUE Team (RIGHT) ---
-    private Label scoreValue_R;
-    private HBox hearts_R;
-    private PlayerInfoUI player1InfoUI_R;
-    private PlayerInfoUI player2InfoUI_R;
+    private Label scoreValueRight;
+    private HBox heartsRight;
+    private PlayerInfoUI player1InfoUIRight;
+    private PlayerInfoUI player2InfoUIRight;
 
     // --- NEW: UI Node References for Top-Center Scoreboard ---
     private Label roundScoreLabel; // Shows "00 : 00"
@@ -127,144 +127,144 @@ public class GameScreen extends Screen {
 
 
         // --- (BLUE TEAM - RIGHT) ---
-        VBox infoPane_R = new VBox(10);
-        infoPane_R.setPrefWidth(400);
-        infoPane_R.setMaxHeight(600);
-        infoPane_R.setPadding(new Insets(15));
-        infoPane_R.setStyle("-fx-background-color: rgba(34, 34, 34, 0.4); " +
+        VBox infoPaneRight = new VBox(10);
+        infoPaneRight.setPrefWidth(400);
+        infoPaneRight.setMaxHeight(600);
+        infoPaneRight.setPadding(new Insets(15));
+        infoPaneRight.setStyle("-fx-background-color: rgba(34, 34, 34, 0.4); " +
                 "-fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;"
         );
-        infoPane_R.setAlignment(Pos.TOP_CENTER);
+        infoPaneRight.setAlignment(Pos.TOP_CENTER);
 
         // Team Label Box
-        HBox teamBox_R = new HBox(8);
-        teamBox_R.setAlignment(Pos.TOP_CENTER);
-        teamBox_R.setStyle("-fx-background-color: rgba(34, 34, 34, 0.6); " +
+        HBox teamBoxRight = new HBox(8);
+        teamBoxRight.setAlignment(Pos.TOP_CENTER);
+        teamBoxRight.setStyle("-fx-background-color: rgba(34, 34, 34, 0.6); " +
                 "-fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;"
         );
-        teamBox_R.setPadding(new Insets(5));
+        teamBoxRight.setPadding(new Insets(5));
 
         // Team Color Box and Label
-        ImageView logoView_R = new ImageView(logoTeam_1);
-        logoView_R.setFitWidth(40);
-        logoView_R.setFitHeight(40);
-        logoView_R.setPreserveRatio(true);
-        StackPane colorBox_R = new StackPane(logoView_R);
-        colorBox_R.setPrefSize(40, 40);
-        colorBox_R.setStyle("-fx-background-color: rgba(255, 255, 255, 0.4); -fx-border-color: white;");
-        Label teamLabel_R = new Label("BLUE");
-        teamLabel_R.setTextFill(Color.BLUE);
-        teamLabel_R.setStyle("-fx-font-size: 30px; -fx-font-weight: bold;");
-        teamBox_R.getChildren().addAll(colorBox_R, teamLabel_R);
+        ImageView logoViewRight = new ImageView(logoTeam_1);
+        logoViewRight.setFitWidth(40);
+        logoViewRight.setFitHeight(40);
+        logoViewRight.setPreserveRatio(true);
+        StackPane colorBoxRight = new StackPane(logoViewRight);
+        colorBoxRight.setPrefSize(40, 40);
+        colorBoxRight.setStyle("-fx-background-color: rgba(255, 255, 255, 0.4); -fx-border-color: white;");
+        Label teamLabelRight = new Label("BLUE");
+        teamLabelRight.setTextFill(Color.BLUE);
+        teamLabelRight.setStyle("-fx-font-size: 30px; -fx-font-weight: bold;");
+        teamBoxRight.getChildren().addAll(colorBoxRight, teamLabelRight);
 
         // Team Lives Label
-        Label teamLivesLabel_R = new Label("Team Lives");
-        teamLivesLabel_R.setStyle("-fx-font-size: 16px; -fx-text-fill: white;");
+        Label teamLivesLabelRight = new Label("Team Lives");
+        teamLivesLabelRight.setStyle("-fx-font-size: 16px; -fx-text-fill: white;");
 
         // Hearts Container
-        hearts_R = new HBox(5);
-        hearts_R.setAlignment(Pos.TOP_CENTER);
+        heartsRight = new HBox(5);
+        heartsRight.setAlignment(Pos.TOP_CENTER);
 
         // Score Box
-        HBox scoreBox_R = new HBox(10);
-        scoreBox_R.setAlignment(Pos.CENTER);
-        Label scoreLabel_R = new Label("Score:");
-        scoreLabel_R.setTextFill(Color.WHITE);
-        scoreLabel_R.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
+        HBox scoreBoxRight = new HBox(10);
+        scoreBoxRight.setAlignment(Pos.CENTER);
+        Label scoreLabelRight = new Label("Score:");
+        scoreLabelRight.setTextFill(Color.WHITE);
+        scoreLabelRight.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
 
-        scoreValue_R = new Label("0000000000000000");
-        scoreValue_R.setTextFill(Color.WHITE);
-        scoreValue_R.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-font-family: 'Monospaced';");
-        scoreBox_R.getChildren().addAll(scoreLabel_R, scoreValue_R);
+        scoreValueRight = new Label("0000000000000000");
+        scoreValueRight.setTextFill(Color.WHITE);
+        scoreValueRight.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-font-family: 'Monospaced';");
+        scoreBoxRight.getChildren().addAll(scoreLabelRight, scoreValueRight);
 
         // Player Info UIs
-        player1InfoUI_R = PlayerInfoBuilder.createPlayerInfoBox("P1", Pos.CENTER_RIGHT);
-        player2InfoUI_R = PlayerInfoBuilder.createPlayerInfoBox("P2", Pos.CENTER_RIGHT);
+        player1InfoUIRight = PlayerInfoBuilder.createPlayerInfoBox("P1", Pos.CENTER_RIGHT);
+        player2InfoUIRight = PlayerInfoBuilder.createPlayerInfoBox("P2", Pos.CENTER_RIGHT);
 
-        infoPane_R.getChildren().addAll(
-                teamBox_R,
-                teamLivesLabel_R,
-                hearts_R,
-                scoreBox_R,
-                player1InfoUI_R.getRootNode(),
-                player2InfoUI_R.getRootNode()
+        infoPaneRight.getChildren().addAll(
+                teamBoxRight,
+                teamLivesLabelRight,
+                heartsRight,
+                scoreBoxRight,
+                player1InfoUIRight.getRootNode(),
+                player2InfoUIRight.getRootNode()
         );
-        VBox.setMargin(player1InfoUI_R.getRootNode(), new Insets(15, 0, 0, 0));
-        VBox.setMargin(player2InfoUI_R.getRootNode(), new Insets(10, 0, 0, 0));
+        VBox.setMargin(player1InfoUIRight.getRootNode(), new Insets(15, 0, 0, 0));
+        VBox.setMargin(player2InfoUIRight.getRootNode(), new Insets(10, 0, 0, 0));
 
-        StackPane rightContainer = new StackPane(infoPane_R);
+        StackPane rightContainer = new StackPane(infoPaneRight);
         rightContainer.setPadding(new Insets(0, 100, 0, 100));
         // (FIX) Align the container vertically center
         BorderPane.setAlignment(rightContainer, Pos.CENTER);
 
 
         // --- (RED TEAM - LEFT) ---
-        VBox infoPane_L = new VBox(10);
-        infoPane_L.setPrefWidth(400);
-        infoPane_L.setMaxHeight(600);
-        infoPane_L.setPadding(new Insets(15));
-        infoPane_L.setStyle("-fx-background-color: rgba(34, 34, 34, 0.4); " +
+        VBox infoPaneLeft = new VBox(10);
+        infoPaneLeft.setPrefWidth(400);
+        infoPaneLeft.setMaxHeight(600);
+        infoPaneLeft.setPadding(new Insets(15));
+        infoPaneLeft.setStyle("-fx-background-color: rgba(34, 34, 34, 0.4); " +
                 "-fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;"
         );
-        infoPane_L.setAlignment(Pos.TOP_CENTER);
+        infoPaneLeft.setAlignment(Pos.TOP_CENTER);
 
         // Team Label Box
-        HBox teamBox_L = new HBox(8);
-        teamBox_L.setAlignment(Pos.TOP_CENTER);
-        teamBox_L.setStyle("-fx-background-color: rgba(34, 34, 34, 0.6); " +
+        HBox teamBoxLeft = new HBox(8);
+        teamBoxLeft.setAlignment(Pos.TOP_CENTER);
+        teamBoxLeft.setStyle("-fx-background-color: rgba(34, 34, 34, 0.6); " +
                 "-fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;"
         );
-        teamBox_L.setPadding(new Insets(5));
+        teamBoxLeft.setPadding(new Insets(5));
 
         // Team Color Box and Label
-        ImageView logoView_L = new ImageView(logoTeam_2);
-        logoView_L.setFitWidth(40);
-        logoView_L.setFitHeight(40);
-        logoView_L.setPreserveRatio(true);
-        StackPane colorBox_L = new StackPane(logoView_L);
-        colorBox_L.setPrefSize(40, 40);
-        colorBox_L.setStyle("-fx-background-color: rgba(255, 255, 255, 0.4); -fx-border-color: white;");
-        Label teamLabel_L = new Label("RED");
-        teamLabel_L.setTextFill(Color.RED);
-        teamLabel_L.setStyle("-fx-font-size: 30px; -fx-font-weight: bold;");
-        teamBox_L.getChildren().addAll(colorBox_L, teamLabel_L);
+        ImageView logoViewLeft = new ImageView(logoTeam_2);
+        logoViewLeft.setFitWidth(40);
+        logoViewLeft.setFitHeight(40);
+        logoViewLeft.setPreserveRatio(true);
+        StackPane colorBoxLeft = new StackPane(logoViewLeft);
+        colorBoxLeft.setPrefSize(40, 40);
+        colorBoxLeft.setStyle("-fx-background-color: rgba(255, 255, 255, 0.4); -fx-border-color: white;");
+        Label teamLabelLeft = new Label("RED");
+        teamLabelLeft.setTextFill(Color.RED);
+        teamLabelLeft.setStyle("-fx-font-size: 30px; -fx-font-weight: bold;");
+        teamBoxLeft.getChildren().addAll(colorBoxLeft, teamLabelLeft);
 
         // Team Lives Label
-        Label teamLivesLabel_L = new Label("Team Lives");
-        teamLivesLabel_L.setStyle("-fx-font-size: 16px; -fx-text-fill: white;");
+        Label teamLivesLabelLeft = new Label("Team Lives");
+        teamLivesLabelLeft.setStyle("-fx-font-size: 16px; -fx-text-fill: white;");
 
         // Hearts Container
-        hearts_L = new HBox(5);
-        hearts_L.setAlignment(Pos.TOP_CENTER);
+        heartsLeft = new HBox(5);
+        heartsLeft.setAlignment(Pos.TOP_CENTER);
 
         // Score Box
-        HBox scoreBox_L = new HBox(10);
-        scoreBox_L.setAlignment(Pos.CENTER);
-        Label scoreLabel_L = new Label("Score:");
-        scoreLabel_L.setTextFill(Color.WHITE);
-        scoreLabel_L.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
+        HBox scoreBoxLeft = new HBox(10);
+        scoreBoxLeft.setAlignment(Pos.CENTER);
+        Label scoreLabelLeft = new Label("Score:");
+        scoreLabelLeft.setTextFill(Color.WHITE);
+        scoreLabelLeft.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
 
-        scoreValue_L = new Label("0000000000000000");
-        scoreValue_L.setTextFill(Color.WHITE);
-        scoreValue_L.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-font-family: 'Monospaced';");
-        scoreBox_L.getChildren().addAll(scoreLabel_L, scoreValue_L);
+        scoreValueLeft = new Label("0000000000000000");
+        scoreValueLeft.setTextFill(Color.WHITE);
+        scoreValueLeft.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-font-family: 'Monospaced';");
+        scoreBoxLeft.getChildren().addAll(scoreLabelLeft, scoreValueLeft);
 
         // Player Info UIs
-        player1InfoUI_L = PlayerInfoBuilder.createPlayerInfoBox("P1", Pos.CENTER_LEFT);
-        player2InfoUI_L = PlayerInfoBuilder.createPlayerInfoBox("P2", Pos.CENTER_LEFT);
+        player1InfoUILeft = PlayerInfoBuilder.createPlayerInfoBox("P1", Pos.CENTER_LEFT);
+        player2InfoUILeft = PlayerInfoBuilder.createPlayerInfoBox("P2", Pos.CENTER_LEFT);
 
-        infoPane_L.getChildren().addAll(
-                teamBox_L,
-                teamLivesLabel_L,
-                hearts_L,
-                scoreBox_L,
-                player1InfoUI_L.getRootNode(),
-                player2InfoUI_L.getRootNode()
+        infoPaneLeft.getChildren().addAll(
+                teamBoxLeft,
+                teamLivesLabelLeft,
+                heartsLeft,
+                scoreBoxLeft,
+                player1InfoUILeft.getRootNode(),
+                player2InfoUILeft.getRootNode()
         );
-        VBox.setMargin(player1InfoUI_L.getRootNode(), new Insets(15, 0, 0, 0));
-        VBox.setMargin(player2InfoUI_L.getRootNode(), new Insets(10, 0, 0, 0));
+        VBox.setMargin(player1InfoUILeft.getRootNode(), new Insets(15, 0, 0, 0));
+        VBox.setMargin(player2InfoUILeft.getRootNode(), new Insets(10, 0, 0, 0));
 
-        StackPane leftContainer = new StackPane(infoPane_L);
+        StackPane leftContainer = new StackPane(infoPaneLeft);
         leftContainer.setPadding(new Insets(0, 100, 0, 100));
         // (FIX) Align the container vertically center
         BorderPane.setAlignment(leftContainer, Pos.CENTER);
@@ -313,14 +313,14 @@ public class GameScreen extends Screen {
         // Update Red Team UI (Left)
         // (FIXED) Removed 'if (this.redTeam != newRedTeam)'
         if (newRedTeam != null) {
-            updateTeamUI(newRedTeam, scoreValue_L, hearts_L, player1InfoUI_L, player2InfoUI_L, Color.RED);
+            updateTeamUI(newRedTeam, scoreValueLeft, heartsLeft, player1InfoUILeft, player2InfoUILeft, Color.RED);
             // this.redTeam = newRedTeam; // (REMOVED)
         }
 
         // Update Blue Team UI (Right)
         // (FIXED) Removed 'if (this.blueTeam != newBlueTeam)'
         if (newBlueTeam != null) {
-            updateTeamUI(newBlueTeam, scoreValue_R, hearts_R, player1InfoUI_R, player2InfoUI_R, Color.BLUE);
+            updateTeamUI(newBlueTeam, scoreValueRight, heartsRight, player1InfoUIRight, player2InfoUIRight, Color.BLUE);
             // this.blueTeam = newBlueTeam; // (REMOVED)
         }
 
