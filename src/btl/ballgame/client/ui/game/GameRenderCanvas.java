@@ -26,15 +26,12 @@ public class GameRenderCanvas extends Screen {
 
     @Override
     public void onInit() {
-
-        // (FIXED) This pane must be transparent
         setStyle("-fx-background-color: transparent;");
 
         StackPane centerPane = new StackPane();
         centerPane.setAlignment(Pos.CENTER);
 
         canvas = new Canvas(world.getWidth(), world.getHeight());
-        // (NEW) Make the canvas itself transparent
         canvas.setStyle("-fx-background-color: transparent;");
 
         centerPane.getChildren().add(canvas);
@@ -56,7 +53,6 @@ public class GameRenderCanvas extends Screen {
     public void doRender() {
         if (ctx == null) return;
 
-        // (FIX) Use fillRect(Color.BLACK) as requested
         ctx.setFill(Color.BLACK);
         ctx.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
@@ -69,7 +65,7 @@ public class GameRenderCanvas extends Screen {
 
     private void listenToKeys() {
         ArkanoidClientCore core = ArkanoidGame.core();
-        this.setFocusTraversable(true); // (GOOD) This is needed for keys
+        this.setFocusTraversable(true);
         this.setOnKeyPressed(event -> {
             var paddle = core.getPaddle();
             if (paddle == null) return;
