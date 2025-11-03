@@ -95,7 +95,6 @@ public class LoginScreen extends Screen {
 		});
 
 		createAccountBtn.setOnAction(e -> createAccountScreen());
-
 		disconnectButton.setOnAction(e -> {
 			SoundManager.clickBottonLogin();
 			core.disconnect();
@@ -106,7 +105,7 @@ public class LoginScreen extends Screen {
 		VBox loginBox = new VBox(10,
 			new Label("Please log in or create an account to continue!"),
 			username,
-			password, 
+			password,
 			statusLabel,
 			logInButton,
 			new Label(""), // evil layout hack
@@ -133,7 +132,7 @@ public class LoginScreen extends Screen {
 	}
 
 	private void createAccountScreen() {
-		SoundManager.clickBottonLogin();
+		SoundManager.clickSoundConfirm();;
 		CreateAccountScreen createNewAccount = new CreateAccountScreen();
 		ArkanoidGame.manager().setScreen(createNewAccount);
 	}
