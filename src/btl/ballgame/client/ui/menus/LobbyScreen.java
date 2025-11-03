@@ -1,10 +1,7 @@
 package btl.ballgame.client.ui.menus;
 
-import btl.ballgame.client.ArkanoidGame;
 import btl.ballgame.client.ui.screen.Screen;
 import javafx.application.Platform;
-import javafx.beans.property.*;
-import javafx.collections.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -16,72 +13,75 @@ import java.util.concurrent.*;
 
 public class LobbyScreen extends Screen {
 
-    private final TableView<RoomInfo> table = new TableView<>();
-    private final ObservableList<RoomInfo> rooms = FXCollections.observableArrayList();
-
-    // auto refresh
+    private VBox roomListContainer;
     private ScheduledExecutorService autoRefreshExec;
+    private RoomInfo selectedRoom = null;
+    private VBox roomDetailBox;
 
     public LobbyScreen() {
-        super("Lobby Browser");
+        super("Lobby Screen");
     }
 
     @Override
     public void onInit() {
 
-        setStyle("-fx-background-color: linear-gradient(to bottom, #1e1e1e, #2a2a2a);");
+        // Root layout
+        BorderPane root = new BorderPane();
+        root.setStyle("-fx-background-color: #1e1e1e;");
 
-        Label title = new Label("Available Rooms");
-        title.setTextFill(Color.WHITE);
-        title.setStyle("-fx-font-size: 22px; -fx-font-weight: bold;");
+        // header
+        Label header = new Label("Danh sách phòng");
+        header.setTextFill(Color.WHITE);
+        header.setStyle("-fx-font-size: 22px; -fx-font-weight: bold;");
+        BorderPane.setAlignment(header, Pos.CENTER);
+        BorderPane.setMargin(header, new Insets(10));
+        root.setTop(header);
 
-        // table
-        table.setItems(rooms);
-        table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        // center
+        HBox mainContent = new HBox(10);
+        mainContent.setPadding(new Insets(10));
 
-        TableColumn<RoomInfo, String> nameCol = new TableColumn<>("Room Name");
-        nameCol.setCellValueFactory(c -> c.getValue().nameProperty());
+        // room list
+        roomListContainer = new VBox(8);
+        roomListContainer.setPadding(new Insets(8));
 
-        TableColumn<RoomInfo, String> playersCol = new TableColumn<>("Players");
-        playersCol.setCellValueFactory(c ->
-                new SimpleStringProperty(c.getValue().getPlayers() + "/" + c.getValue().getMaxPlayers())
-        );
+        ScrollPane scroll = new ScrollPane(roomListContainer);
+        scroll.setFitToWidth(true);
 
-        TableColumn<RoomInfo, String> statusCol = new TableColumn<>("Status");
-        statusCol.setCellValueFactory(c -> c.getValue().statusProperty());
+        // room detail
+        roomDetailBox = new VBox(10);
+        roomDetailBox.setPadding(new Insets(15));
+        roomDetailBox.setStyle("-fx-background-color: #2b2b2b; -fx-border-color: white;");
+        Label noSelectLbl = new Label("Chọn 1 phòng để xem chi tiết");
+        noSelectLbl.setTextFill(Color.WHITE);
+        roomDetailBox.getChildren().add(noSelectLbl);
 
-        table.getColumns().addAll(nameCol, playersCol, statusCol);
-        table.setPrefHeight(400);
+        HBox centerBox = new HBox(10, scroll, roomDetailBox);
+        HBox.setHgrow(scroll, Priority.ALWAYS);
+        centerBox.setPrefHeight(450);
+        root.setCenter(centerBox);
 
         // button
-        Button joinBtn = new Button("Join Room");
-        Button createBtn = new Button("Create Room");
-        Button refreshBtn = new Button("Refresh");
-        Button backBtn = new Button("Back");
+        Button joinByCodeBtn = new Button("Vào bằng mã phòng");
+        Button createRoomBtn = new Button("Tạo phòng mới");
+        Button leaderboardBtn = new Button("Leaderboard");
+        Button exitBtn = new Button("Rời máy chủ");
 
-        MenuUtils.styleButton(joinBtn, "#699456", "#4c6940");
-        MenuUtils.styleButton(createBtn, "#4682b4", "#36648b");
-        MenuUtils.styleButton(refreshBtn, "#636363", "#454545");
-        MenuUtils.styleButton(backBtn, "#b22222", "#8b1a1a");
+        HBox footer = new HBox(10, joinByCodeBtn, createRoomBtn, leaderboardBtn, exitBtn);
+        footer.setAlignment(Pos.CENTER);
+        footer.setPadding(new Insets(10));
 
-        HBox buttons = new HBox(10, joinBtn, createBtn, refreshBtn, backBtn);
-        buttons.setAlignment(Pos.CENTER);
+        root.setBottom(footer);
 
-        VBox layout = new VBox(15, title, table, buttons);
-        layout.setAlignment(Pos.CENTER);
-        layout.setPadding(new Insets(20));
+        this.addElement(root);
 
-        this.addElement(layout);
+        // actions
+        createRoomBtn.setOnAction(e -> createRoomDialog());
+        exitBtn.setOnAction(e -> MenuUtils.displayServerSelector());
 
-        // action
-        joinBtn.setOnAction(e -> joinSelectedRoom());
-        createBtn.setOnAction(e -> createRoomDialog());
-        refreshBtn.setOnAction(e -> requestRoomList());
-        backBtn.setOnAction(e -> MenuUtils.displayServerSelector());
-
-        // auto refresh every 7s
+        // auto refresh (mock)
         autoRefreshExec = Executors.newSingleThreadScheduledExecutor();
-        autoRefreshExec.scheduleAtFixedRate(this::requestRoomList, 0, 7, TimeUnit.SECONDS);
+        autoRefreshExec.scheduleAtFixedRate(this::mockLoadRooms, 0, 5, TimeUnit.SECONDS);
     }
 
     @Override
@@ -89,60 +89,100 @@ public class LobbyScreen extends Screen {
         if (autoRefreshExec != null) autoRefreshExec.shutdownNow();
     }
 
-    private void requestRoomList() {
-        // TODO: send packet C2S_RequestRoomList to server
+    // load room
+    private void mockLoadRooms() {
         Platform.runLater(() -> {
-            rooms.setAll(
-                    new RoomInfo(1, "Room 1", 1, 2, "Waiting"),
-                    new RoomInfo(2, "Room 2", 2, 2, "Full"),
-                    new RoomInfo(3, "Vietnam Players", 1, 4, "Waiting")
+            roomListContainer.getChildren().clear();
+
+            List<RoomInfo> mock = List.of(
+                    new RoomInfo(1, "Phòng chiến 1v1", "1/2", "Chờ người chơi"),
+                    new RoomInfo(2, "Tổ đội 2v2", "2/4", "Đang tuyển"),
+                    new RoomInfo(3, "UET tryhard", "4/4", "Đầy"),
+                    new RoomInfo(4, "Không Lag", "1/4", "Chờ")
             );
+
+            for (RoomInfo r : mock) {
+                roomListContainer.getChildren().add(makeRoomCard(r));
+            }
         });
     }
 
-    private void joinSelectedRoom() {
-        RoomInfo selected = table.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            MenuUtils.toast("Please select a room.");
-            return;
-        }
-        // TODO: send packet C2S_JoinRoom(selected.roomId)
-        MenuUtils.toast("Joining " + selected.getName());
+    // creat room card id
+    private HBox makeRoomCard(RoomInfo room) {
+        HBox card = new HBox(10);
+        card.setPadding(new Insets(10));
+        card.setStyle("-fx-background-color: #2a2a2a; -fx-border-color: gray;");
+        card.setAlignment(Pos.CENTER_LEFT);
+
+        Label nameLbl = new Label(room.name);
+        nameLbl.setTextFill(Color.WHITE);
+
+        Label playerLbl = new Label(room.players);
+        playerLbl.setTextFill(Color.LIGHTGRAY);
+
+        Label statusLbl = new Label(room.status);
+        statusLbl.setTextFill(Color.LIGHTGRAY);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Button joinBtn = new Button("Tham gia");
+        joinBtn.setOnAction(e -> {
+            MenuUtils.toast("Tham gia phòng: " + room.name);
+        });
+
+        // click to select room
+        card.setOnMouseClicked(e -> {
+            selectedRoom = room;
+            updateRoomDetail(room);
+        });
+
+        card.getChildren().addAll(nameLbl, playerLbl, statusLbl, spacer, joinBtn);
+        return card;
+    }
+
+    // show room detail
+    private void updateRoomDetail(RoomInfo r) {
+        roomDetailBox.getChildren().clear();
+
+        Label title = new Label("Chi tiết phòng");
+        title.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+        title.setTextFill(Color.WHITE);
+
+        Label n = new Label("Tên phòng: " + r.name);
+        Label p = new Label("Người chơi: " + r.players);
+        Label s = new Label("Trạng thái: " + r.status);
+
+        n.setTextFill(Color.WHITE);
+        p.setTextFill(Color.WHITE);
+        s.setTextFill(Color.WHITE);
+
+        roomDetailBox.getChildren().addAll(title, n, p, s);
     }
 
     private void createRoomDialog() {
-        TextInputDialog dialog = new TextInputDialog("My Room");
-        dialog.setHeaderText("Create a new Room");
-        dialog.setContentText("Enter room name:");
+        TextInputDialog dialog = new TextInputDialog("Tên phòng");
+        dialog.setHeaderText("Tạo phòng mới");
+        dialog.setContentText("Nhập tên phòng:");
+
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(name -> {
-            // TODO: send packet C2S_CreateRoom(name)
-            MenuUtils.toast("Room created: " + name);
+            MenuUtils.toast("Đã tạo phòng: " + name);
         });
     }
 
-    // data table
-    public static class RoomInfo {
-        private final int roomId;
-        private final StringProperty name = new SimpleStringProperty();
-        private final IntegerProperty players = new SimpleIntegerProperty();
-        private final IntegerProperty maxPlayers = new SimpleIntegerProperty();
-        private final StringProperty status = new SimpleStringProperty();
+    // Simple room data
+    private static class RoomInfo {
+        int id;
+        String name;
+        String players;
+        String status;
 
-        public RoomInfo(int roomId, String name, int players, int maxPlayers, String status) {
-            this.roomId = roomId;
-            this.name.set(name);
-            this.players.set(players);
-            this.maxPlayers.set(maxPlayers);
-            this.status.set(status);
+        RoomInfo(int id, String name, String players, String status) {
+            this.id = id;
+            this.name = name;
+            this.players = players;
+            this.status = status;
         }
-
-        public int getRoomId() { return roomId; }
-        public StringProperty nameProperty() { return name; }
-        public String getName() { return name.get(); }
-
-        public int getPlayers() { return players.get(); }
-        public int getMaxPlayers() { return maxPlayers.get(); }
-        public StringProperty statusProperty() { return status; }
     }
 }
