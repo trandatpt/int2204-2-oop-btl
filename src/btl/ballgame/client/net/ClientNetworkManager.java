@@ -8,6 +8,7 @@ import btl.ballgame.client.ArkanoidGame;
 import btl.ballgame.client.ui.menus.InformationalScreen;
 import btl.ballgame.client.ui.menus.MenuUtils;
 import javafx.application.Platform;
+import btl.ballgame.client.ui.menus.LobbyScreen;
 
 public class ClientNetworkManager {
 	public static void connectToServer(String address) {
@@ -25,6 +26,8 @@ public class ClientNetworkManager {
 				socket.connect(new InetSocketAddress(address, 3636), 5000);
 				// if success, hand control to Arkanoid Core
 				ArkanoidGame.createCore(socket);
+				Platform.runLater(() -> ArkanoidGame.manager().setScreen(new LobbyScreen()));
+
 			} catch (IOException e) {
 				// if the user is the one "cancelling" this connection, dont show that screen
 				if (Thread.currentThread().isInterrupted()) return;
