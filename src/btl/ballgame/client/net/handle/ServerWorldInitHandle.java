@@ -3,9 +3,8 @@ package btl.ballgame.client.net.handle;
 import btl.ballgame.client.ArkanoidClientCore;
 import btl.ballgame.client.ArkanoidGame;
 import btl.ballgame.client.net.CServerConnection;
-import btl.ballgame.client.ui.game.GameCompositeScreen;
 import btl.ballgame.client.ui.game.GameRenderCanvas;
-import btl.ballgame.client.ui.game.GameScreen;
+import btl.ballgame.client.ui.game.GameScreenSolo;
 import btl.ballgame.protocol.packets.PacketHandler;
 import btl.ballgame.protocol.packets.out.PacketPlayOutWorldInit;
 import javafx.application.Platform;
@@ -26,14 +25,13 @@ public class ServerWorldInitHandle implements PacketHandler<PacketPlayOutWorldIn
 		);
 		
 		Platform.runLater(() -> {
-			try {
-			GameRenderCanvas grc = new GameRenderCanvas();
-            GameScreen ui = new GameScreen();
-            ArkanoidGame.manager().setScreen(new GameCompositeScreen(grc, ui));
-            grc.requestFocus();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+            GameRenderCanvas grc = new GameRenderCanvas();
+
+            GameScreenSolo ui = new GameScreenSolo(grc);
+
+            ArkanoidGame.manager().setScreen(ui);
+
+            ui.requestGameFocus();
 		});
 	}
 }

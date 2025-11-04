@@ -23,12 +23,12 @@ public class PlayerInfoUI {
     private final Region shieldBar;
     private final HBox buffBox;
 
-    public PlayerInfoUI(VBox rootNode, Label playerName, Label playerTag, ImageView gunImageView,
-                        Label ammoCount, Label firingMode, Region healthBar, Region shieldBar, HBox buffBox) {
+    public PlayerInfoUI(VBox rootNode, Label playerName, Label playerTag, ImageView gunImageView, Label ammoCount,
+                        Label firingMode, Region healthBar, Region shieldBar, HBox buffBox) {
         this.rootNode = rootNode;
         this.playerName = playerName;
         this.playerTag = playerTag;
-        this.gunImageView = gunImageView; // Added this
+        this.gunImageView = gunImageView;
         this.ammoCount = ammoCount;
         this.firingMode = firingMode;
         this.healthBar = healthBar;
@@ -52,9 +52,9 @@ public class PlayerInfoUI {
     }
 
     /**
-     * @return The Label displaying the gun's name (e.g., "AK-47").
+     * @return The ImageView displaying the gun's image.
      */
-    public ImageView getGunImageView() { // (MODIFIED)
+    public ImageView getGunImageView() {
         return gunImageView;
     }
 
