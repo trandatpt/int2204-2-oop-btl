@@ -63,21 +63,31 @@ public class GameScreenSolo extends Screen {
         BorderPane root = new BorderPane();
 
         // Background
-        BackgroundSize backgroundSize = new BackgroundSize(100, 100, true, true, false, true);
-        BackgroundImage backgroundImage = new BackgroundImage(
+        BackgroundSize mainBgSize = new BackgroundSize(100, 100, true, true, false, true);
+
+        BackgroundSize borderBgSize = new BackgroundSize(100, 100, true, true, false, true);
+        BackgroundImage mainBg = new BackgroundImage(
                 CSAssets.VS_BACKGROUND2, // Using GIF background
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundPosition.CENTER,
-                backgroundSize
+                mainBgSize
         );
-        root.setBackground(new Background(backgroundImage));
+
+        BackgroundImage borderBg = new BackgroundImage(
+                CSAssets.BORDER_BG, // Your new border image
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.CENTER,
+                borderBgSize // Also stretch to fit
+        );
+        root.setBackground(new Background(mainBg, borderBg));
 
         // --- Center: Game Canvas (The "left side" of the layout) ---
         if (this.gameRenderCanvas != null) {
             this.gameRenderCanvas.onInit();
             root.setCenter(this.gameRenderCanvas);
-            BorderPane.setMargin(this.gameRenderCanvas, new Insets(10, 10, 10, 200)); // Adjusted padding
+            BorderPane.setMargin(this.gameRenderCanvas, new Insets(10, 10, 40, 200)); // Adjusted padding
         }
 
         // --- TOP PANE (for LEVEL) ---
@@ -96,7 +106,7 @@ public class GameScreenSolo extends Screen {
         levelBox.setMaxWidth(Region.USE_PREF_SIZE);
 
         StackPane topPane = new StackPane(levelBox);
-        topPane.setPadding(new Insets(40, 0, 0, 580));
+        topPane.setPadding(new Insets(60, 0, 0, 580));
         topPane.setAlignment(Pos.TOP_LEFT);
         root.setTop(topPane);
 
@@ -150,7 +160,7 @@ public class GameScreenSolo extends Screen {
 
         // Container for padding/alignment
         StackPane rightContainer = new StackPane(infoPaneSolo);
-        rightContainer.setPadding(new Insets(0, 200, 0, 200)); // Adjusted padding
+        rightContainer.setPadding(new Insets(0, 200, 100, 200)); // Adjusted padding
         BorderPane.setAlignment(rightContainer, Pos.CENTER);
 
         root.setRight(rightContainer); // Set to RIGHT
