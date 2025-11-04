@@ -12,6 +12,11 @@ import java.util.concurrent.TimeUnit;
 import btl.ballgame.server.data.DataManager;
 import btl.ballgame.server.game.EntityRegistry;
 import btl.ballgame.server.game.entities.breakable.EntityBrick;
+import btl.ballgame.server.game.entities.breakable.EntityExplosiveBrick;
+import btl.ballgame.server.game.entities.breakable.EntityHardBrick;
+import btl.ballgame.server.game.entities.breakable.EntityItemBrick;
+import btl.ballgame.server.game.entities.dynamic.EntityAKBullet;
+import btl.ballgame.server.game.entities.dynamic.EntityFallingItem;
 import btl.ballgame.server.game.entities.dynamic.EntityPaddle;
 import btl.ballgame.server.game.entities.dynamic.EntityWreckingBall;
 import btl.ballgame.server.game.match.ArkanoidMatch;
@@ -169,8 +174,9 @@ public class ArkanoidServer {
 			playerManager.getPlayer(parts[1]).kick("Kicked");
 			break;
 		case "test": {
-			ArkanoidMatch match = new ArkanoidMatch(new MatchSettings(ArkanoidMode.SOLO_ENDLESS, 3, 180, 1));
+			ArkanoidMatch match = new ArkanoidMatch(new MatchSettings(ArkanoidMode.SOLO_ENDLESS, 2, 180, 3));
 			match.assignTeam(TeamColor.RED, Arrays.asList(playerManager.getPlayer(parts[1])));
+			//match.assignTeam(TeamColor.BLUE, Arrays.asList(playerManager.getPlayer(parts[2])));
 			match.start();
 			break;
 		}
@@ -184,9 +190,14 @@ public class ArkanoidServer {
 		// active participants
 		this.entityRegistry.registerEntity(EntityType.ENTITY_PADDLE, EntityPaddle.class);
 		this.entityRegistry.registerEntity(EntityType.ENTITY_BALL, EntityWreckingBall.class);
+		this.entityRegistry.registerEntity(EntityType.ENTITY_FALLING_ITEM, EntityFallingItem.class);
+		this.entityRegistry.registerEntity(EntityType.ENTITY_RIFLE_BULLET, EntityAKBullet.class);
 		
 		// static world entities (bricks)
 		this.entityRegistry.registerEntity(EntityType.ENTITY_BRICK_NORMAL, EntityBrick.class);
+		this.entityRegistry.registerEntity(EntityType.ENTITY_BRICK_ITEM, EntityItemBrick.class);
+		this.entityRegistry.registerEntity(EntityType.ENTITY_BRICK_HARD, EntityHardBrick.class);
+		this.entityRegistry.registerEntity(EntityType.ENTITY_BRICK_EXPLOSIVE, EntityExplosiveBrick.class);
 	}
 
 	private void registerPacketHandlers() {

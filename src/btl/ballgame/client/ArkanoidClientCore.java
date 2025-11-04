@@ -9,6 +9,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import btl.ballgame.client.net.CServerConnection;
+import btl.ballgame.client.net.handle.ServerClientFlagsHandle;
 import btl.ballgame.client.net.handle.ServerEntityBBSizeUpdateHandle;
 import btl.ballgame.client.net.handle.ServerEntityDestroyHandle;
 import btl.ballgame.client.net.handle.ServerEntityMetadataUpdateHandle;
@@ -24,7 +25,11 @@ import btl.ballgame.client.net.handle.ServerSocketCloseHandle;
 import btl.ballgame.client.net.systems.CSEntity;
 import btl.ballgame.client.net.systems.CSEntityRegistry;
 import btl.ballgame.client.net.systems.CSWorld;
+import btl.ballgame.client.net.systems.entities.CEntityAKBullet;
 import btl.ballgame.client.net.systems.entities.CEntityBrickNormal;
+import btl.ballgame.client.net.systems.entities.CEntityExplosiveBrick;
+import btl.ballgame.client.net.systems.entities.CEntityFallingItem;
+import btl.ballgame.client.net.systems.entities.CEntityItemBrick;
 import btl.ballgame.client.net.systems.entities.CEntityPaddle;
 import btl.ballgame.client.net.systems.entities.CEntityPaddleLocal;
 import btl.ballgame.client.net.systems.entities.CEntityWreckingBall;
@@ -33,6 +38,7 @@ import btl.ballgame.protocol.PacketRegistry;
 import btl.ballgame.protocol.ProtoUtils;
 import btl.ballgame.protocol.packets.in.PacketPlayInClientLogin;
 import btl.ballgame.protocol.packets.in.PacketPlayInClientUserCreation;
+import btl.ballgame.protocol.packets.out.PacketPlayOutClientFlags;
 import btl.ballgame.protocol.packets.out.PacketPlayOutCloseSocket;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntityBBSizeUpdate;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntityDestroy;
@@ -105,6 +111,7 @@ public class ArkanoidClientCore {
 		this.registry.registerHandler(PacketPlayOutEntityMetadata.class, new ServerEntityMetadataUpdateHandle());
 		this.registry.registerHandler(PacketPlayOutEntityBBSizeUpdate.class, new ServerEntityBBSizeUpdateHandle());
 		this.registry.registerHandler(PacketPlayOutEntityDestroy.class, new ServerEntityDestroyHandle());
+		this.registry.registerHandler(PacketPlayOutClientFlags.class, new ServerClientFlagsHandle());
 	}
 	
 	/**
@@ -161,7 +168,13 @@ public class ArkanoidClientCore {
 	private void registerEntities() {
 		this.entityRegistry.registerEntity(EntityType.ENTITY_PADDLE, CEntityPaddle::new);
 		this.entityRegistry.registerEntity(EntityType.ENTITY_BALL, CEntityWreckingBall::new);
+		this.entityRegistry.registerEntity(EntityType.ENTITY_FALLING_ITEM, CEntityFallingItem::new);
+		this.entityRegistry.registerEntity(EntityType.ENTITY_RIFLE_BULLET, CEntityAKBullet::new);
+
 		this.entityRegistry.registerEntity(EntityType.ENTITY_BRICK_NORMAL, CEntityBrickNormal::new);
+		this.entityRegistry.registerEntity(EntityType.ENTITY_BRICK_ITEM, CEntityItemBrick::new);
+		this.entityRegistry.registerEntity(EntityType.ENTITY_BRICK_HARD, CEntityBrickNormal::new);
+		this.entityRegistry.registerEntity(EntityType.ENTITY_BRICK_EXPLOSIVE, CEntityExplosiveBrick::new);
 	}
 	
 	public CSEntityRegistry getEntityRegistry() {

@@ -1,5 +1,7 @@
 eclipse.preferences.version=1
 encoding//src/btl/ballgame/client/net/systems/CSEntity.java=UTF-8
+encoding//src/btl/ballgame/client/net/systems/entities/CEntityAKBullet.java=UTF-8
+encoding//src/btl/ballgame/client/net/systems/entities/CEntityFallingItem.java=UTF-8
 encoding//src/btl/ballgame/client/net/systems/entities/CEntityWreckingBall.java=UTF-8
 encoding//src/btl/ballgame/client/ui/game/GameScreen.java=UTF-8
 encoding//src/btl/ballgame/client/ui/menus/InformationalScreen.java=UTF-8

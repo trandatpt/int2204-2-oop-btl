@@ -21,6 +21,6 @@ public class ClientPaddleInputHandle implements PacketHandler<PacketPlayInPaddle
 			return;
 		}
 		
-		match.paddleOf(player).enqueueMove(packet);
+		match.paddleOf(player).enqueueControl(packet);
 	}
 }

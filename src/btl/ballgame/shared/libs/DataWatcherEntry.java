@@ -23,6 +23,7 @@ public class DataWatcherEntry {
 			case 3 -> buffer.readInt64();
 			case 4 -> buffer.readFloat32();
 			case 5 -> buffer.readU8String();
+			case 6 -> buffer.readBool();
 			default -> throw new IllegalArgumentException("Unknown type id: " + typeId);
 		};
 		return new DataWatcherEntry(keyId, typeId, value);
@@ -38,6 +39,7 @@ public class DataWatcherEntry {
 			case 3 -> buffer.writeInt64((long) value);
 			case 4 -> buffer.writeFloat32((float) value);
 			case 5 -> buffer.writeU8String((String) value);
+			case 6 -> buffer.writeBool((boolean) value);
 			default -> throw new IllegalArgumentException("Unknown type id: " + typeId);
 		}
 	}

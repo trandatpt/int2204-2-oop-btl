@@ -2,15 +2,17 @@ package btl.ballgame.client.net.systems;
 
 import btl.ballgame.client.CSAssets;
 import btl.ballgame.client.TextureAtlas;
+import btl.ballgame.shared.libs.Constants.DriftBehavior;
+import btl.ballgame.shared.libs.Constants.ParticlePriority;
+import btl.ballgame.shared.libs.Constants.ParticleType;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
 
 /**
  * Supply information for rendering 
  */
-public interface IRenderInfo {
+public interface IRenderable {
 	int getRenderX();
 	int getRenderY();
 	int getRenderRotation();
@@ -19,6 +21,27 @@ public interface IRenderInfo {
 	
 	default TextureAtlas atlas() {
 		return CSAssets.sprites;
+	}
+	
+	/**
+	 * Draw a rotated image, SDL_RenderCopyEx equivalent
+	 */
+	default void drawRotated(GraphicsContext gc, Image img, 
+		double x, double y, 
+		double w, double h,
+		int rotation
+	) {
+		// save the state of the canvas so we can return later
+		gc.save();
+		// flip vertically around the target's center
+		double centerX = x + (w / 2.0);
+		double centerY = y + (h / 2.0);
+		gc.translate(centerX, centerY); // center the rotation
+		gc.rotate(rotation);
+		gc.translate(-centerX, -centerY); // restore
+		// draw the image
+		gc.drawImage(img, x, y, w, h);
+		gc.restore();
 	}
 	
 	/**

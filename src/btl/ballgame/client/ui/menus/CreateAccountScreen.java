@@ -104,6 +104,7 @@ public class CreateAccountScreen extends Screen {
 			}
 
             // send registration packet
+            SoundManager.clickBottonLogin();
             core.registerUser(user, pass, repPass);
 
             InformationalScreen creatingScreen = new InformationalScreen(

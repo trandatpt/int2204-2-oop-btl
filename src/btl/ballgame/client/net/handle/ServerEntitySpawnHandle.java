@@ -1,8 +1,5 @@
 package btl.ballgame.client.net.handle;
 
-import btl.ballgame.client.ArkanoidClientCore;
-import btl.ballgame.client.ArkanoidGame;
-import btl.ballgame.client.ClientPlayer;
 import btl.ballgame.client.net.CServerConnection;
 import btl.ballgame.client.net.systems.CSEntity;
 import btl.ballgame.client.net.systems.CSWorld;

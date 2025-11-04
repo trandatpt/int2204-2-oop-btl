@@ -3,9 +3,9 @@ package btl.ballgame.server.game.entities.dynamic;
 import java.util.List;
 
 import btl.ballgame.server.ArkaPlayer;
-import btl.ballgame.server.ArkanoidServer;
 import btl.ballgame.server.game.WorldEntity;
 import btl.ballgame.server.game.entities.BreakableEntity;
+import btl.ballgame.server.game.entities.IOwnableEntity;
 import btl.ballgame.shared.libs.AABB;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.Constants.*;
@@ -19,7 +19,7 @@ import btl.ballgame.shared.libs.Vector2f;
  * response with paddles and breakable blocks, and out-of-bounds (void)
  * handling.
  */
-public class EntityWreckingBall extends WorldEntity {
+public class EntityWreckingBall extends WorldEntity implements IOwnableEntity {
 	/** Default movement speed (units per sec). */
 	public static final float DEFAULT_SPEED = 320.0f;
 
@@ -53,11 +53,12 @@ public class EntityWreckingBall extends WorldEntity {
 		return !secondaryBall;
 	}
 	
-	public void setTempOwner(ArkaPlayer temporaryOwner) {
+	public void setOwner(ArkaPlayer temporaryOwner) {
 		this.temporaryOwner = temporaryOwner;
 	}
 	
-	public ArkaPlayer getTempOwner() {
+	@Override
+	public ArkaPlayer getOwner() {
 		return temporaryOwner;
 	}
 	 
@@ -123,17 +124,14 @@ public class EntityWreckingBall extends WorldEntity {
 		
 		boolean bouncedFromWorld = false;
 		Vector2f worldNormal = new Vector2f(0, 0);
-		Vector2f pushWorld = new Vector2f(0, 0); // correctional vector
 		
 		// left wall
 		if (getBoundingBox().minX < 0) {
-			pushWorld.x = -getBoundingBox().minX;
 			worldNormal = new Vector2f(1, 0);
 			bouncedFromWorld = true;
 		} 
 		// right wall
 		else if (getBoundingBox().maxX > worldWidth) {
-			pushWorld.x = getBoundingBox().maxX - worldWidth;
 			worldNormal = new Vector2f(-1, 0);
 			bouncedFromWorld = true;
 		}
@@ -142,7 +140,6 @@ public class EntityWreckingBall extends WorldEntity {
 		if (getBoundingBox().minY < 0) {
 			// if the world has a ceiling, bounces down
 			if (world.hasCeiling()) {
-				pushWorld.y = -getBoundingBox().minY;
 				worldNormal = new Vector2f(0, 1);
 				bouncedFromWorld = true;
 			} else if (getBoundingBox().minY < -30) {
@@ -157,8 +154,9 @@ public class EntityWreckingBall extends WorldEntity {
 		
 		// apply bounce response for world collisions
 		if (bouncedFromWorld) {
-			setLocation(currentLoc.clone().add(pushWorld));
+			//setLocation(currentLoc.clone().add(pushWorld));
 			bounce(worldNormal);
+			return;
 		}
 		
 		// check collisions with other entities
@@ -189,7 +187,7 @@ public class EntityWreckingBall extends WorldEntity {
 			// just another physics prop, it will softlock the game gradually 
 			// if the ball points straight up
 			if (collider instanceof EntityPaddle paddle) {
-				this.setTempOwner(paddle.getPlayer());
+				this.setOwner(paddle.getPlayer());
 				if (normal.x != 0) { // SPECIAL CASE: ball bounces on the edge
 					setLocation(currentLoc.add(push));
 					setDirection(paddle.isLowerPaddle() ? new Vector2f(0, -1) : new Vector2f(0, 1));

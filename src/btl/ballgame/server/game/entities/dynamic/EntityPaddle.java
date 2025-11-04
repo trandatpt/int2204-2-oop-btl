@@ -6,10 +6,14 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import btl.ballgame.protocol.packets.in.PacketPlayInPaddleControl;
 import btl.ballgame.server.ArkaPlayer;
 import btl.ballgame.server.game.entities.ControllableEntity;
+import btl.ballgame.server.game.match.ArkanoidMatch.PlayerInfo;
 import btl.ballgame.shared.libs.AABB;
+import btl.ballgame.shared.libs.Constants;
+
 import static btl.ballgame.shared.libs.Constants.*;
 import btl.ballgame.shared.libs.Location;
 import btl.ballgame.shared.libs.Utils;
+import btl.ballgame.shared.libs.Vector2f;
 import btl.ballgame.shared.libs.Constants.TeamColor;
 
 public class EntityPaddle extends ControllableEntity {
@@ -55,8 +59,8 @@ public class EntityPaddle extends ControllableEntity {
 	 * 
 	 * @param packet
 	 */
-	public void enqueueMove(PacketPlayInPaddleControl packet) {
-		if (!packet.isLeft() && !packet.isRight()) {
+	public void enqueueControl(PacketPlayInPaddleControl packet) {
+		if (!packet.isLeft() && !packet.isRight() && !packet.isShoot()) {
 			return;
 		}
 		moveQueue.add(packet);
@@ -97,6 +101,59 @@ public class EntityPaddle extends ControllableEntity {
 		this.move(-PADDLE_MOVE_UNITS);
 	}
 	
+	private int consecutiveShots = 0;
+	private long lastShot = 0;
+	private long lastMoved = 0;
+
+	public void shootBullet() {
+		PlayerInfo p = player.getCurrentGame().getPlayerInfoOf(player);
+		
+		// khoa an toan dang dong or ran out of ammo
+//		if (p.getFiringMode() == RifleMode.SAFE || p.getRifleAmmo() <= 0) {
+//			return;
+//		}
+		
+		Location initial = getLocation();
+		// if the player is the lower paddle, the bullet flies up
+		Vector2f direction = isLowerPaddle() ? 
+			new Vector2f(0, -1) : 
+			new Vector2f(0, 1)
+		;
+		
+		float spraySpread = 0.0f;
+		// if the player moved in the last 100ms, add spread
+		if (System.currentTimeMillis() - lastMoved < 100) {
+			// drift by +/-0.36
+			spraySpread = (world.random.nextFloat() - 0.5f) * 0.72f;
+		}
+		
+		// penalty for consecutive fires (spray)
+		// if the last shot is over 300ms ago, reset penalty (Spread)
+		if (System.currentTimeMillis() - lastShot >= 300) {
+			consecutiveShots = 0;
+		}
+		
+		// spread for up to 1 unit after 10 consecutive shots
+		float sprayFactor = Math.min(consecutiveShots / 10f, 1f); // ramps to 1.0 after 10 shots
+		spraySpread += (world.random.nextFloat() - 0.5f) * 1f * sprayFactor;
+		
+		direction.setX(spraySpread);
+		initial.setDirection(direction);
+		initial.add(direction.clone().normalize().multiply(Constants.PADDLE_HEIGHT + 10));
+		p.fireRounds(1);
+		
+		// spawn the bullet
+		EntityAKBullet bullet = new EntityAKBullet(
+			world.nextEntityId(), initial
+		);
+		bullet.setOwner(player);
+		world.runNextTick(() -> world.addEntity(bullet));
+		
+		// for penalty/spray calculation
+		consecutiveShots++;
+		lastShot = System.currentTimeMillis();
+	}
+	
 	@Override
 	public void onSpawn() {
 		if (player == null) return;
@@ -104,9 +161,10 @@ public class EntityPaddle extends ControllableEntity {
 		this.dataWatcher.watch(PADDLE_OWNER_META,
 			player.getUniqueId().getLeastSignificantBits()
 		);
-		this.dataWatcher.watch(PADDLE_UPSIDEDOWN_META, !lowerPaddle); // upper paddle = render upside down
+		this.dataWatcher.watch(PADDLE_EXPANDED_META, false);
+		this.dataWatcher.watch(RENDER_UPSIDEDOWN_META, !lowerPaddle); // upper paddle = render upside down
 	}
-	
+		
 	@Override
 	protected void tick() {
 		int processed = 0;
@@ -115,9 +173,14 @@ public class EntityPaddle extends ControllableEntity {
 			PacketPlayInPaddleControl packet = moveQueue.poll();
 			if (packet.isLeft()) {
 				moveLeft();
+				lastMoved = System.currentTimeMillis();
 			}
 			if (packet.isRight()) {
 				moveRight();
+				lastMoved = System.currentTimeMillis();
+			}
+			if (packet.isShoot() && (System.currentTimeMillis() - lastShot) > 250) {
+				shootBullet();
 			}
 			++processed;
 		}

@@ -1,11 +1,14 @@
 package btl.ballgame.server.game.match;
 
+import java.awt.Color;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import btl.ballgame.protocol.packets.out.PacketPlayOutClientFlags;
+import btl.ballgame.protocol.packets.out.PacketPlayOutGameOver;
 import btl.ballgame.protocol.packets.out.PacketPlayOutMatchJoin;
 import btl.ballgame.protocol.packets.out.PacketPlayOutMatchMetadata;
 import btl.ballgame.protocol.packets.out.PacketPlayOutWorldInit;
@@ -16,7 +19,11 @@ import btl.ballgame.server.ArkanoidServer;
 import btl.ballgame.server.game.WorldEntity;
 import btl.ballgame.server.game.WorldServer;
 import btl.ballgame.server.game.buffs.BaseEffect;
+import btl.ballgame.server.game.entities.BreakableEntity;
 import btl.ballgame.server.game.entities.breakable.EntityBrick;
+import btl.ballgame.server.game.entities.breakable.EntityExplosiveBrick;
+import btl.ballgame.server.game.entities.breakable.EntityHardBrick;
+import btl.ballgame.server.game.entities.breakable.EntityItemBrick;
 import btl.ballgame.server.game.entities.dynamic.*;
 import static btl.ballgame.shared.libs.Constants.*;
 import btl.ballgame.shared.libs.Location;
@@ -96,6 +103,8 @@ public class ArkanoidMatch {
 		runLater(30 * 5, () -> {
 			this.matchStarted = true;
 			changePhase(MatchPhase.MATCH_ACTIVE);
+			// allow players to move their paddles
+			this.world.broadcastPackets(new PacketPlayOutClientFlags(false));
 		});
 	}
 
@@ -107,6 +116,8 @@ public class ArkanoidMatch {
 		spawnPaddlesAndBalls();
 		spawnBricksAndBrushes();
 	}
+	
+	private Map<TeamColor, Location> initialBallSpawnLocation = new HashMap<>();
 	
 	// this function works regardless of mode due to the way it was implemented
 	private void spawnPaddlesAndBalls() {
@@ -131,35 +142,108 @@ public class ArkanoidMatch {
 			// the ball will fall down (+1) if the team is the upper one
 			// and fly up (-1) if lower
 			Vector2f initial = isBottomTeam ? new Vector2f(0, 1) : new Vector2f(0, -1);
-			EntityWreckingBall ball = new EntityWreckingBall(world.nextEntityId(),
-				new Location(world, 
-					world.getWidth() / 2, // middle the screen
-					lastY + (isBottomTeam ? -1 : 1) * BALL_SPAWN_MARGIN, // a little higher than the base
-					initial // initial flying vector
-				)
+			Location spawnLoc = new Location(world, 
+				world.getWidth() / 2, // middle the screen
+				lastY + (isBottomTeam ? -1 : 1) * (BALL_SPAWN_MARGIN + 20), // a little higher than the base
+				initial // initial flying vector
+			);
+			initialBallSpawnLocation.put(team, spawnLoc);
+			EntityWreckingBall ball = new EntityWreckingBall(
+				world.nextEntityId(),
+				spawnLoc
 			);
 			ball.setPrimaryBall(true);
 			world.addEntity(ball);
 		}
 	}
-	
-	// this function also work regardless of the gamemode
+
 	private void spawnBricksAndBrushes() {
-		int brickRows = 15;
-		int yOffset = getGameMode().isSinglePlayer() 
-			? BASE_MARGIN 
+		int brickRows = 11;
+		int cols = world.getWidth() / BRICK_WIDTH;
+		Random rand = world.random;
+
+		// this block is crazy
+		int yOffset = getGameMode().isSinglePlayer() ? 
+			BASE_MARGIN * 3
 			: (world.getHeight() / 2) - (BRICK_HEIGHT * (brickRows / 2))
 		;
 		
-		for (int dx = BRICK_WIDTH / 2; dx < world.getWidth(); dx += BRICK_WIDTH) {
-			for (int y = 0; y < brickRows; y++) {
-				Location brickLocation = new Location(world, 
-					dx, yOffset + y * BRICK_HEIGHT, 0
-				);
-				EntityBrick brick = new EntityBrick(world.nextEntityId(), brickLocation);
-				world.addEntity(brick);
+		int patternType = rand.nextInt(6);
+		float baseHue = rand.nextFloat();
+		float hueStep = 0.08f;
+		
+		// generate bricks
+		for (int y = 0; y < brickRows; y++) {
+			for (int x = 0; x < cols; x++) {
+				boolean place = false;
+				switch (patternType) {
+					case 0: { // boring, full with a cutout in the middle
+						place = y != ((brickRows - 1) / 2);
+						break;
+					}
+					case 1: { // checkerboard
+						place = (x + y) % 2 == 0;
+						break;
+					}
+					case 2: { // pyramid shape, grows smaller as it goes
+						int mid = (cols - 1) / 2;
+						int width = (brickRows - y);
+						place = (x >= mid - width && x <= mid + width);
+						break;
+					}
+					case 3: { // diamond holes
+						// manhattan distance = diamond
+						// dx + dy < N
+						double cx = (cols - 1) / 2.0;
+						double cy = (brickRows - 1) / 2.0;
+						double dx = Math.abs(x - cx);
+						double dy = Math.abs(y - cy);
+						place = (dx + dy <= brickRows / 2.0 + 1.0);
+						break;
+					}
+					case 4: { // vertical columns
+						place = (x % 3 != 0);
+						break;
+					}
+					case 5: { // rings at radius intervals
+						double cx = (cols - 1) / 2.0; // the middle brick (center)
+						double cy = (brickRows - 1) / 2.0;
+						double dx = Math.abs(x - cx);
+						double dy = Math.abs(y - cy);
+						double dist = Math.sqrt(dx * dx + dy * dy);
+						place = (dist % 3 < 1.5); // make hollowed rings
+						break;
+					}
+				}
+				
+				// if placed, place
+				if (place) {
+					Location loc = new Location(world, 
+						x * BRICK_WIDTH + (BRICK_WIDTH / 2), 
+						yOffset + y * BRICK_HEIGHT,
+					0);
+					EntityBrick brick = createBrickWithColor(rand, loc, baseHue + y * hueStep);
+					world.addEntity(brick);
+				}
 			}
 		}
+	}
+
+	private EntityBrick createBrickWithColor(Random rand, Location loc, float hue) {
+		int roll = rand.nextInt(100);
+		EntityBrick brick;
+		
+		if (roll < 5) {
+			brick = new EntityExplosiveBrick(world.nextEntityId(), loc);
+		} else if (roll < 10) {
+			brick = new EntityItemBrick(world.nextEntityId(), loc);
+		} else {
+			brick = new EntityBrick(world.nextEntityId(), loc);
+			float h = (hue % 1f + 1f) % 1f;
+			Color c = Color.getHSBColor(h, 0.8f, 1f);
+			brick.setTint((c.getRed() << 16) | (c.getGreen() << 8) | c.getBlue());
+		}
+		return brick;
 	}
 
 	/**
@@ -175,12 +259,12 @@ public class ArkanoidMatch {
 	}
 	
 	/**
-	 * Called when a round ends. Updates FT scores and resets teams for the next
+	 * Called when a MULTIPLAYER round ends. Updates FT scores and resets teams for the next
 	 * round.
 	 * 
 	 * @param roundWinner The team that won the round, can be null for tie.
 	 */
-	public void onRoundEnd(TeamColor roundWinner) {
+	public void onRoundMultiplayerEnd(TeamColor roundWinner) {
 		if (roundWinner != null) {
 			teams.get(roundWinner).addFTScore(1);
 		}
@@ -190,7 +274,14 @@ public class ArkanoidMatch {
 		prepareMatch();
 		syncMatchStateWithClients();
 	}
-
+	
+	public void onRoundSinglePlayerEnd() {
+		roundIndex++;
+		spawnBricksAndBrushes();
+		respawnBallAndPaddleFor(getTeam(TeamColor.RED));
+		syncMatchStateWithClients();
+	}
+	
 	/**
 	 * Called when a round times out. Determines the winner by Arkanoid score and
 	 * ends the round.
@@ -209,7 +300,7 @@ public class ArkanoidMatch {
 			// gambling
 			roundWinner = Math.random() < 0.5 ? TeamColor.RED : TeamColor.BLUE;
 		}
-		onRoundEnd(roundWinner);
+		onRoundMultiplayerEnd(roundWinner);
 	}
 
 	/**
@@ -235,7 +326,10 @@ public class ArkanoidMatch {
 	public TeamInfo getTeamOf(ArkaPlayer player) {
 		return teams.get(teamMap.get(player));
 	}
-
+	
+	public PlayerInfo getPlayerInfoOf(ArkaPlayer player) {
+		return getTeamOf(player).getPlayerInfo(player);
+	}
 	
 	public TeamInfo getTeam(TeamColor teamColor) {
 		return teams.get(teamColor);
@@ -343,8 +437,20 @@ public class ArkanoidMatch {
 	}
 	
 	private void concludeMatch() {
-		System.out.println("match concluded!");
 		this.changePhase(MatchPhase.CONCLUDED);
+		
+		if (gameMode.isSinglePlayer()) {
+			var gameOver = new PacketPlayOutGameOver(
+				getTeam(TeamColor.RED).getArkanoidScore(), 
+				roundIndex + 1, // level
+				0 // TODO, HIGH SCORE
+			);
+			world.broadcastPackets(gameOver);
+			return;
+		}
+		
+		// TODO handle multiplayer
+		return;
 	}
 	
 	// queued tasks
@@ -373,6 +479,11 @@ public class ArkanoidMatch {
 	
 	public void onMatchTick() {
 		if (gameMode.isSinglePlayer()) {
+			TeamInfo single = getTeam(TeamColor.RED); // red is the default team for SP
+			if (single.getLivesRemaining() <= 0) {
+				this.concludeMatch();
+				return;
+			}
 			return;
 		}
 		
@@ -414,7 +525,7 @@ public class ArkanoidMatch {
 					TeamColor winnerColor = teams.keySet().stream()
 						.filter(c -> c != team.getTeamColor()).findFirst()
 					.orElse(null);
-					this.onRoundEnd(winnerColor);
+					this.onRoundMultiplayerEnd(winnerColor);
 					return;
 				}
 			}
@@ -425,7 +536,28 @@ public class ArkanoidMatch {
 			onTimeout();
 		}
 	}
-
+	
+	public void respawnBallAndPaddleFor(TeamInfo team) {
+		EntityWreckingBall newBall = new EntityWreckingBall(
+			world.nextEntityId(),
+			initialBallSpawnLocation.get(team.getTeamColor())
+		);
+		newBall.setPrimaryBall(true);
+		world.runNextTick(() -> world.addEntity(newBall));
+			
+		int originalX = newBall.getLocation().getX();
+		// SNAP the team back to their original position
+		team.getPlayers().forEach(p -> {
+			EntityPaddle paddle = paddleOf(p);
+			if (paddle != null) {
+				// how convenience
+				paddle.teleport(paddle.getLocation().clone().setX(
+					originalX
+				));
+			}
+		});
+	}
+	
 	/**
 	 * Called when a ball falls into the void.
 	 * 
@@ -433,15 +565,60 @@ public class ArkanoidMatch {
 	 * @param side The side where it fell.
 	 */
 	public void onBallFallIntoVoid(EntityWreckingBall ball, VoidSide side) {
+		ball.remove();
+		TeamColor responsible = side == VoidSide.CEILING ? TeamColor.BLUE : TeamColor.RED;
+		if (!ball.isPrimaryBall()) { // bonus balls dont count
+			return;
+		}
+		
+		TeamInfo team = getTeam(responsible);
+		team.loseLife();
+		
+		int primaryBallsLeft = 0;
+		for (WorldEntity entity : this.world.getEntities()) {
+			if (entity instanceof EntityWreckingBall wb && wb.isPrimaryBall() && !wb.isDead()) {
+				++primaryBallsLeft;
+			}
+		}
+		
+		// lost both primary balls, bruh
+		// give the ball back to the one who just lost it
+		if (primaryBallsLeft <= 0) {
+			this.respawnBallAndPaddleFor(team);
+		}
 	}
 
 	/**
-	 * Called when a brick is destroyed.
+	 * Called when a breakable is destroyed.
 	 * 
-	 * @param brick       The brick entity.
-	 * @param destroyedBy The team color that destroyed it.
+	 * @param breakable       The broken entity.
+	 * @param destroyedBy The one who that destroyed it.
 	 */
-	public void onBrickDestroyed(EntityBrick brick, TeamColor destroyedBy) {
+	public void onBrickDestroyed(BreakableEntity breakable, ArkaPlayer destroyedBy) {
+		int score = 0;
+		if (breakable instanceof EntityHardBrick) {
+			score = 80 * (breakable.getMaxHealth()) * (roundIndex + 1);
+		} else if (breakable instanceof EntityExplosiveBrick) {
+			score = 200; // by itself, it WILL cause cascade
+		} else if (breakable instanceof EntityItemBrick) {
+			score = 500 * (roundIndex + 1);
+		} else {
+			score = 100 * (roundIndex + 1);
+		}
+		
+		getTeamOf(destroyedBy).addArkanoidScore(score);
+		
+		boolean allClear = true;
+		for (WorldEntity entity : this.world.getEntities()) {
+			if (entity instanceof EntityBrick eb && !eb.isDead()) {
+				allClear = false;
+			}
+		}
+		
+		if (allClear) {
+			onRoundSinglePlayerEnd();
+		}
+		
 		syncMatchStateWithClients();
 	}
 
@@ -566,7 +743,7 @@ public class ArkanoidMatch {
 				pe.uuid = p.getUniqueId(); // UUID
 				pe.health = (byte) pi.getHealth(); // paddle HP
 				pe.rifleState = (byte) pi.getFiringMode().ordinal(); // rifle mode
-				pe.bulletsLeft = (byte) pi.getAKRounds();
+				pe.rifleAmmo = (byte) pi.getRifleAmmo();
 				players.add(pe);
 			}
 
@@ -686,36 +863,36 @@ public class ArkanoidMatch {
 	    private final ArkaPlayer player;
 	    private int health;
 	    private RifleMode firingMode;
-	    private int akRounds;
+	    private int ammo;
 
 	    public PlayerInfo(ArkaPlayer player) {
 	        this.player = player;
 	        this.health = PADDLE_MAX_HEALTH;
 	        this.firingMode = RifleMode.SAFE;
-	        this.akRounds = 0;
+	        this.ammo = 0;
 	    }
 
 	    public ArkaPlayer getPlayer() {
 	        return player;
 	    }
 	    
-	    public int getAKRounds() {
-			return akRounds;
+	    public int getRifleAmmo() {
+			return ammo;
 		}
 	    
-	    public void setAKRounds(int akRounds) {
-			this.akRounds = Math.max(0, Math.min(AK_47_MAG_SIZE, akRounds));
+	    public void setAmmo(int akRounds) {
+			this.ammo = Math.max(0, Math.min(AK_47_MAG_SIZE, akRounds));
 		}
 	    
-	    public boolean pickupAKRounds(int amount) {
-	    	if (this.akRounds >= AK_47_MAG_SIZE) return false;
-	    	setAKRounds(getAKRounds() + amount);
+	    public boolean pickupAmmo(int amount) {
+	    	if (this.ammo >= AK_47_MAG_SIZE) return false;
+	    	setAmmo(getRifleAmmo() + amount);
 	    	return true;
 	    }
 	    
 	    public boolean fireRounds(int amount) {
-	    	if (this.akRounds <= 0 || getAKRounds() - amount < 0) return false;
-	    	setAKRounds(getAKRounds() - amount);
+	    	if (this.ammo <= 0 || getRifleAmmo() - amount < 0) return false;
+	    	setAmmo(getRifleAmmo() - amount);
 	    	return true;
 	    }
 	    

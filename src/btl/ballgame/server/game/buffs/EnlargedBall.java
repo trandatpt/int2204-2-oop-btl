@@ -20,6 +20,7 @@ public class EnlargedBall extends BaseEffect {
 		if (ball == null || ball.isDead()) return;
 		ball.setBallScale(2);
 		ball.getWatcher().watch(BALL_ENLARGED_META, true);
+		ball.updateMetadata();
 	}
 	
 	@Override
@@ -27,6 +28,7 @@ public class EnlargedBall extends BaseEffect {
 		if (ball == null || ball.isDead()) return;
 		ball.setBallScale(1);
 		ball.getWatcher().unwatch(BALL_ENLARGED_META);
+		ball.updateMetadata();
 	}
 	
 	@Override

@@ -17,7 +17,7 @@ import javafx.scene.text.TextAlignment;
 public class PlayerInfoBuilder {
     // (MODIFIED) Load both images
     static Image bulletImage = CSAssets.sprites.__get("item/Bullet-Tiles-01.png");
-    static Image ak47Image = CSAssets.sprites.__get("item/AK47-Tiles-01.png");
+    static Image ak47Image = CSAssets.sprites.__get("item/kalashnikov.png");
 
     // (FIX) Must be public static so GameScreen can read it for health bar math
     public static final double PLAYER_INFO_WIDTH = 400.0;

@@ -15,7 +15,7 @@ public class MatchSettings {
 		this.gamemode = ArkanoidMode.ONE_VERSUS_ONE; // in SOLO_ENDLESS, all of the settigns dont matter
 		this.firstToScore = 1;
 		this.timePerRound = 180; // seconds
-		this.teamLives = 2; // 2 hearts before perish
+		this.teamLives = 3; // 3 hearts before perish
 	}
 
 	/**

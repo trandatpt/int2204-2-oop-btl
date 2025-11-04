@@ -28,10 +28,6 @@ public class DataWatcher {
 	 * @throws IllegalArgumentException if the value type is not supported
 	 */
 	public void watch(short keyId, Object value) {
-		// implicit boolean cast
-		if (value instanceof Boolean b) {
-			value = (byte) (b ? 1 : 0);
-		}
 		byte typeId = detectType(value);
 		if (typeId == -1) {
 			throw new IllegalArgumentException("Unsupported type: " + value.getClass());
@@ -112,6 +108,8 @@ public class DataWatcher {
 			return 4;
 		if (value instanceof String)
 			return 5;
+		if (value instanceof Boolean) 
+			return 6;
 		return -1;
 	}
 }

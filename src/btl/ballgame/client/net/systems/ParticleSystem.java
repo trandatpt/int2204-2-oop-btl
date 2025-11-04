@@ -65,66 +65,15 @@ public class ParticleSystem {
 	public void render(ParticlePriority priority, GraphicsContext cv) {
 		var particles = particlesStorage.get(priority);
 		if (particles == null) return;
+		particles.removeIf(Particle::isDead);
 		particles.forEach(particle -> {
 			if (particle.isDead()) {
 				return;
 			}
 			particle.update();
-			this.renderParticle(cv, particle);
+			particle.render(cv);
 		});
 		cv.setGlobalAlpha(1.0);
-	}
-	
-	/**
-	 * Renders a single particle
-	 *
-	 * @param gc canvas
-	 * @param particle the particle to render
-	 */
-	private void renderParticle(GraphicsContext gc, Particle particle) {
-		gc.setGlobalAlpha(particle.alpha);
-		gc.save();
-
-		// rotate
-		if (particle.rotation != 0) {
-			gc.translate(particle.x, particle.y); // center the rotation
-			gc.rotate(particle.rotation);
-			gc.translate(-particle.x, -particle.y);
-		}
-		
-		double halfSize = particle.size / 2f;
-		switch (particle.type) {
-			case OVAL: {
-				gc.setFill(particle.color);
-				gc.fillOval(
-					particle.x - halfSize, 
-					particle.y - halfSize, 
-					particle.size, particle.size
-				);
-				break;
-			}
-			case RECTANGLE: {
-				gc.setFill(particle.color);
-				gc.fillRect(
-					particle.x - halfSize, 
-					particle.y - halfSize, 
-					particle.size, particle.size
-				);
-				break;
-			}
-			case SPRITE: {
-				if (particle.sprite != null) {
-					gc.drawImage(
-						particle.sprite, 
-						particle.x - halfSize, 
-						particle.y - halfSize, 
-						particle.size, particle.size
-					);
-				}
-				break;
-			}
-		}
-		gc.restore();
 	}
     
 	/**
@@ -198,11 +147,63 @@ public class ParticleSystem {
 				// apply "while drifting" behavior
 				if (driftBehavior.rotates) this.rotation += rotationSpeed;
 				if (driftBehavior.shrinks) this.size *= 0.9;
+				if (driftBehavior.grows) this.size *= 1.05;
 			}
 		}
 		
 		public boolean isDead() {
 			return life <= 0 || size <= 0;
+		}
+		
+		/**
+		 * Renders this particle
+		 *
+		 * @param gc canvas
+		 */
+		public void render(GraphicsContext gc) {
+			gc.setGlobalAlpha(this.alpha);
+			gc.save();
+
+			// rotate
+			if (this.rotation != 0) {
+				gc.translate(x, y); // center the rotation
+				gc.rotate(this.rotation);
+				gc.translate(-x, -y);
+			}
+			
+			double halfSize = this.size / 2f;
+			switch (this.type) {
+				case OVAL: {
+					gc.setFill(this.color);
+					gc.fillOval(
+						x - halfSize, 
+						y - halfSize, 
+						size, size
+					);
+					break;
+				}
+				case RECTANGLE: {
+					gc.setFill(color);
+					gc.fillRect(
+						x - halfSize, 
+						y - halfSize, 
+						size, size
+					);
+					break;
+				}
+				case SPRITE: {
+					if (sprite != null) {
+						gc.drawImage(
+							this.sprite, 
+							x - halfSize, 
+							y - halfSize, 
+							size, size
+						);
+					}
+					break;
+				}
+			}
+			gc.restore();
 		}
 	}
 }

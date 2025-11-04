@@ -21,6 +21,7 @@ public class ServerMatchInitHandle implements PacketHandler<PacketPlayOutMatchJo
 			packet.getArkanoidMode(), 
 			packet.getNameMap()
 		));
+		client.setControlPaddle(null); // reset state
 		
 		MenuUtils.showLoadingScreen("Joining world...");
 	}

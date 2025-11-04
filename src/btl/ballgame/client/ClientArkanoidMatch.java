@@ -92,7 +92,7 @@ public class ClientArkanoidMatch {
 				cpi.uuid = pe.uuid;
 				cpi.health = pe.health;
 				cpi.firingMode = RifleMode.of(pe.rifleState);
-				cpi.bulletsLeft = pe.bulletsLeft;
+				cpi.bulletsLeft = pe.rifleAmmo;
 				
 				playerInfos[i] = cpi;
 			}

@@ -11,42 +11,22 @@ import btl.ballgame.shared.libs.Constants.ParticlePriority;
 import btl.ballgame.shared.libs.Constants.ParticleType;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 
-public class CEntityBrickNormal extends CSEntity {
-	private final Image[] brickStages;
-	private int lastHealth;
+public class CEntityItemBrick extends CSEntity {
+	private final Image itemBrick;
 	private final Random rand = new Random();
 
-	public CEntityBrickNormal() {
-		brickStages = new Image[] { 
-			atlas().getAsImage("normal_brick", "very_damaged"),
-			atlas().getAsImage("normal_brick", "damaged"), 
-			atlas().getAsImage("normal_brick", "lightly_cracked"),
-			atlas().getAsImage("normal_brick", "intact") 
-		};
-	}
-
-	@Override
-	public void onEntitySpawn() {
-		this.lastHealth = getMaxHealth();
+	public CEntityItemBrick() {
+		itemBrick = atlas().getAsImage("item_brick", "intact");
 	}
 
 	@Override
 	public void render(GraphicsContext cv) {
-		float healthRatio = Math.max(0f, Math.min(1f, (float) getHealth() / getMaxHealth()));
-		int stageIndex = (int) (healthRatio * 3);
-		drawTinted(cv, brickStages[stageIndex], 
+		cv.drawImage(itemBrick, 
 			getRenderX(), getRenderY(), 
-			getRenderWidth(), getRenderHeight(),
-			getTint()
+			getRenderWidth(), getRenderHeight()
 		);
-		
-		// keep track of server-sent data
-		int currentHealth = getHealth();
-		if (currentHealth < this.lastHealth) {
-			spawnDamageParticles(this.lastHealth - currentHealth);
-		}
-		this.lastHealth = currentHealth;
 	}
 	
 	@Override
@@ -72,17 +52,13 @@ public class CEntityBrickNormal extends CSEntity {
 				dx, dy, 
 				24 + rand.nextInt(4), 
 				30 + rand.nextInt(20), 
-				TextureAtlas.fromRgbInt(getTint()),
+				Color.YELLOW,
 				null
 			);
 			
             getWorld().particles().spawn(ParticlePriority.AFTER_ENTITIES, particle);
         }
     }
-
-	public int getTint() {
-		return (int) this.getWatcher().get(Constants.BRICK_TINT_META);
-	}
 
 	public int getMaxHealth() {
 		return (int) this.getWatcher().get(Constants.MAX_HP_META_KEY);

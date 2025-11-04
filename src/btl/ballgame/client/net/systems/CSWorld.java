@@ -2,7 +2,6 @@ package btl.ballgame.client.net.systems;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
-
 import btl.ballgame.shared.libs.IWorld;
 
 public class CSWorld implements IWorld {

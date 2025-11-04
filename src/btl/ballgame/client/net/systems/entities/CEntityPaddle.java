@@ -35,6 +35,7 @@ public class CEntityPaddle extends CSInterpolatedEntity {
 			getRenderX(), getRenderY(),
 			getRenderWidth(), getRenderHeight()
 		);
+		
 		if (++frameCounter >= ANIM_FRAME_DELAY) {
 			frameCounter = 0;
 			currentAnimStage = (currentAnimStage + 1) % 3;
@@ -42,7 +43,6 @@ public class CEntityPaddle extends CSInterpolatedEntity {
 		cv.restore();
 	}
 
-	
 	@Override
 	public void onAfterWatcherUpdate() {
 		this.toUse = isExpanded() ? EXPANDED_NAMESPACE : NORMAL_NAMESPACE;
@@ -53,6 +53,6 @@ public class CEntityPaddle extends CSInterpolatedEntity {
 	}
 	
 	public boolean isUpsideDown() {
-		return (boolean) getWatcher().get(Constants.PADDLE_UPSIDEDOWN_META);
+		return (boolean) getWatcher().get(Constants.RENDER_UPSIDEDOWN_META);
 	}
 }

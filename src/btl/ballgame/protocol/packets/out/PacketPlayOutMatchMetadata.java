@@ -49,7 +49,7 @@ public class PacketPlayOutMatchMetadata extends NetworkPacket implements IPacket
 				buf.writeInt64(p.uuid.getLeastSignificantBits());
 				buf.writeInt8(p.health);
 				buf.writeInt8(p.rifleState);
-				buf.writeInt8(p.bulletsLeft);
+				buf.writeInt8(p.rifleAmmo);
 			}
 		}
 		// about 99 bytes per packet
@@ -75,7 +75,7 @@ public class PacketPlayOutMatchMetadata extends NetworkPacket implements IPacket
 				pe.uuid = new UUID(msb, lsb);
 				pe.health = buf.readInt8();
 				pe.rifleState = buf.readInt8();
-				pe.bulletsLeft = buf.readInt8();
+				pe.rifleAmmo = buf.readInt8();
 				team.players[j] = pe;
 			}
 			this.teams[i] = team;
@@ -93,7 +93,7 @@ public class PacketPlayOutMatchMetadata extends NetworkPacket implements IPacket
 	public static class PlayerEntry {
 		public UUID uuid;
 		public byte health;
-		public byte bulletsLeft;
+		public byte rifleAmmo;
 		public byte rifleState;
 	}
 }

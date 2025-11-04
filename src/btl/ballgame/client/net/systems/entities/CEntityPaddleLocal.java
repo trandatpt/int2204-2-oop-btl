@@ -11,10 +11,10 @@ import btl.ballgame.shared.libs.DataWatcher;
 import static btl.ballgame.shared.libs.Utils.*;
 
 public class CEntityPaddleLocal extends CEntityPaddle implements ITickableCEntity {
-	private boolean moveLeft = false, moveRight = false;
+	private boolean moveLeft = false, moveRight = false, shooting = false;
 	// this is the speculative position of the client
 	private int clientX;
-	private boolean canMove = true; // this is set by the server
+	private boolean canMove = false; // this is set by the server
 	
 	@Override
 	public int getRenderX() {
@@ -26,7 +26,7 @@ public class CEntityPaddleLocal extends CEntityPaddle implements ITickableCEntit
 	private long lastTickNano;
 	@Override
 	public void onTick() {
-		if (!this.canMove || (!moveLeft && !moveRight)) {
+		if (!this.canMove || (!moveLeft && !moveRight && !shooting)) {
 			return; // prevent from wasting data
 		}
 		// setting up lerp
@@ -36,7 +36,7 @@ public class CEntityPaddleLocal extends CEntityPaddle implements ITickableCEntit
 		if (moveLeft) move(-Constants.PADDLE_MOVE_UNITS);
 		if (moveRight) move(Constants.PADDLE_MOVE_UNITS);
 		ArkanoidGame.core().getConnection().sendPacket(
-			new PacketPlayInPaddleControl(moveLeft, moveRight)
+			new PacketPlayInPaddleControl(moveLeft, moveRight, shooting)
 		);
 	}
 	
@@ -55,6 +55,7 @@ public class CEntityPaddleLocal extends CEntityPaddle implements ITickableCEntit
 	
 	@Override
 	public void onEntitySpawn() {
+		super.onEntitySpawn();
 		// set the initial position
 		this.clientX = getServerLocation().getX();
 	}
@@ -78,6 +79,10 @@ public class CEntityPaddleLocal extends CEntityPaddle implements ITickableCEntit
 	
 	public void setMoveRight(boolean moveRight) {
 		this.moveRight = moveRight;
+	}
+	
+	public void setShooting(boolean shooting) {
+		this.shooting = shooting;
 	}
 	
 	public void setCanMoveStatus(boolean canMove) {
