@@ -51,6 +51,11 @@ public class Constants {
 		VERSUS_VICTORY,
 		VERSUS_DEFEAT
 	}
+	
+	public static enum EnumTitle {
+		TITLE, 
+		SUBTITLE
+	}
 
 	public static enum DriftBehavior {
 		NONE(false, false, false), 

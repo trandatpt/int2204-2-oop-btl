@@ -124,17 +124,14 @@ public class EntityWreckingBall extends WorldEntity implements IOwnableEntity {
 		
 		boolean bouncedFromWorld = false;
 		Vector2f worldNormal = new Vector2f(0, 0);
-		Vector2f pushWorld = new Vector2f(0, 0); // correctional vector
 		
 		// left wall
 		if (getBoundingBox().minX < 0) {
-			pushWorld.x = -getBoundingBox().minX;
 			worldNormal = new Vector2f(1, 0);
 			bouncedFromWorld = true;
 		} 
 		// right wall
 		else if (getBoundingBox().maxX > worldWidth) {
-			pushWorld.x = getBoundingBox().maxX - worldWidth;
 			worldNormal = new Vector2f(-1, 0);
 			bouncedFromWorld = true;
 		}
@@ -143,7 +140,6 @@ public class EntityWreckingBall extends WorldEntity implements IOwnableEntity {
 		if (getBoundingBox().minY < 0) {
 			// if the world has a ceiling, bounces down
 			if (world.hasCeiling()) {
-				pushWorld.y = -getBoundingBox().minY;
 				worldNormal = new Vector2f(0, 1);
 				bouncedFromWorld = true;
 			} else if (getBoundingBox().minY < -30) {
@@ -158,7 +154,7 @@ public class EntityWreckingBall extends WorldEntity implements IOwnableEntity {
 		
 		// apply bounce response for world collisions
 		if (bouncedFromWorld) {
-			setLocation(currentLoc.clone().add(pushWorld));
+			//setLocation(currentLoc.clone().add(pushWorld));
 			bounce(worldNormal);
 			return;
 		}

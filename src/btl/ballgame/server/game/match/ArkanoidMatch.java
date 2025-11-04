@@ -117,7 +117,7 @@ public class ArkanoidMatch {
 		spawnBricksAndBrushes();
 	}
 	
-	Map<TeamColor, Location> initialBallSpawnLocation = new HashMap<>();
+	private Map<TeamColor, Location> initialBallSpawnLocation = new HashMap<>();
 	
 	// this function works regardless of mode due to the way it was implemented
 	private void spawnPaddlesAndBalls() {
@@ -144,7 +144,7 @@ public class ArkanoidMatch {
 			Vector2f initial = isBottomTeam ? new Vector2f(0, 1) : new Vector2f(0, -1);
 			Location spawnLoc = new Location(world, 
 				world.getWidth() / 2, // middle the screen
-				lastY + (isBottomTeam ? -1 : 1) * BALL_SPAWN_MARGIN, // a little higher than the base
+				lastY + (isBottomTeam ? -1 : 1) * (BALL_SPAWN_MARGIN + 20), // a little higher than the base
 				initial // initial flying vector
 			);
 			initialBallSpawnLocation.put(team, spawnLoc);
@@ -162,17 +162,17 @@ public class ArkanoidMatch {
 		int cols = world.getWidth() / BRICK_WIDTH;
 		Random rand = world.random;
 
+		// this block is crazy
 		int yOffset = getGameMode().isSinglePlayer() ? 
 			BASE_MARGIN * 3
 			: (world.getHeight() / 2) - (BRICK_HEIGHT * (brickRows / 2))
 		;
-
-		// Pattern style (choose one per map)
-		int patternType = 5; // 0=full rows, 1=checker, 2=pyramid, 3=diamonds, 4=columns
-
+		
+		int patternType = rand.nextInt(6);
 		float baseHue = rand.nextFloat();
 		float hueStep = 0.08f;
-
+		
+		// generate bricks
 		for (int y = 0; y < brickRows; y++) {
 			for (int x = 0; x < cols; x++) {
 				boolean place = false;
@@ -215,7 +215,8 @@ public class ArkanoidMatch {
 						break;
 					}
 				}
-
+				
+				// if placed, place
 				if (place) {
 					Location loc = new Location(world, 
 						x * BRICK_WIDTH + (BRICK_WIDTH / 2), 
@@ -231,9 +232,11 @@ public class ArkanoidMatch {
 	private EntityBrick createBrickWithColor(Random rand, Location loc, float hue) {
 		int roll = rand.nextInt(100);
 		EntityBrick brick;
-
-		if (roll < 100) {
+		
+		if (roll < 5) {
 			brick = new EntityExplosiveBrick(world.nextEntityId(), loc);
+		} else if (roll < 10) {
+			brick = new EntityItemBrick(world.nextEntityId(), loc);
 		} else {
 			brick = new EntityBrick(world.nextEntityId(), loc);
 			float h = (hue % 1f + 1f) % 1f;
@@ -256,12 +259,12 @@ public class ArkanoidMatch {
 	}
 	
 	/**
-	 * Called when a round ends. Updates FT scores and resets teams for the next
+	 * Called when a MULTIPLAYER round ends. Updates FT scores and resets teams for the next
 	 * round.
 	 * 
 	 * @param roundWinner The team that won the round, can be null for tie.
 	 */
-	public void onRoundEnd(TeamColor roundWinner) {
+	public void onRoundMultiplayerEnd(TeamColor roundWinner) {
 		if (roundWinner != null) {
 			teams.get(roundWinner).addFTScore(1);
 		}
@@ -271,7 +274,14 @@ public class ArkanoidMatch {
 		prepareMatch();
 		syncMatchStateWithClients();
 	}
-
+	
+	public void onRoundSinglePlayerEnd() {
+		roundIndex++;
+		spawnBricksAndBrushes();
+		respawnBallAndPaddleFor(getTeam(TeamColor.RED));
+		syncMatchStateWithClients();
+	}
+	
 	/**
 	 * Called when a round times out. Determines the winner by Arkanoid score and
 	 * ends the round.
@@ -290,7 +300,7 @@ public class ArkanoidMatch {
 			// gambling
 			roundWinner = Math.random() < 0.5 ? TeamColor.RED : TeamColor.BLUE;
 		}
-		onRoundEnd(roundWinner);
+		onRoundMultiplayerEnd(roundWinner);
 	}
 
 	/**
@@ -427,7 +437,6 @@ public class ArkanoidMatch {
 	}
 	
 	private void concludeMatch() {
-		System.out.println("match concluded!");
 		this.changePhase(MatchPhase.CONCLUDED);
 		
 		if (gameMode.isSinglePlayer()) {
@@ -471,12 +480,10 @@ public class ArkanoidMatch {
 	public void onMatchTick() {
 		if (gameMode.isSinglePlayer()) {
 			TeamInfo single = getTeam(TeamColor.RED); // red is the default team for SP
-			
 			if (single.getLivesRemaining() <= 0) {
 				this.concludeMatch();
 				return;
 			}
-			
 			return;
 		}
 		
@@ -518,7 +525,7 @@ public class ArkanoidMatch {
 					TeamColor winnerColor = teams.keySet().stream()
 						.filter(c -> c != team.getTeamColor()).findFirst()
 					.orElse(null);
-					this.onRoundEnd(winnerColor);
+					this.onRoundMultiplayerEnd(winnerColor);
 					return;
 				}
 			}
@@ -529,7 +536,28 @@ public class ArkanoidMatch {
 			onTimeout();
 		}
 	}
-
+	
+	public void respawnBallAndPaddleFor(TeamInfo team) {
+		EntityWreckingBall newBall = new EntityWreckingBall(
+			world.nextEntityId(),
+			initialBallSpawnLocation.get(team.getTeamColor())
+		);
+		newBall.setPrimaryBall(true);
+		world.runNextTick(() -> world.addEntity(newBall));
+			
+		int originalX = newBall.getLocation().getX();
+		// SNAP the team back to their original position
+		team.getPlayers().forEach(p -> {
+			EntityPaddle paddle = paddleOf(p);
+			if (paddle != null) {
+				// how convenience
+				paddle.teleport(paddle.getLocation().clone().setX(
+					originalX
+				));
+			}
+		});
+	}
+	
 	/**
 	 * Called when a ball falls into the void.
 	 * 
@@ -548,7 +576,7 @@ public class ArkanoidMatch {
 		
 		int primaryBallsLeft = 0;
 		for (WorldEntity entity : this.world.getEntities()) {
-			if (entity instanceof EntityWreckingBall wb && wb.isPrimaryBall()) {
+			if (entity instanceof EntityWreckingBall wb && wb.isPrimaryBall() && !wb.isDead()) {
 				++primaryBallsLeft;
 			}
 		}
@@ -556,24 +584,7 @@ public class ArkanoidMatch {
 		// lost both primary balls, bruh
 		// give the ball back to the one who just lost it
 		if (primaryBallsLeft <= 0) {
-			EntityWreckingBall newBall = new EntityWreckingBall(
-				world.nextEntityId(),
-				initialBallSpawnLocation.get(responsible)
-			);
-			newBall.setPrimaryBall(true);
-			world.runNextTick(() -> world.addEntity(ball));
-			
-			int originalX = newBall.getLocation().getX();
-			// SNAP the team back to their original position
-			team.getPlayers().forEach(p -> {
-				EntityPaddle paddle = paddleOf(p);
-				if (paddle != null) {
-					// how convenience
-					paddle.teleport(paddle.getLocation().clone().setX(
-						originalX
-					));
-				}
-			});
+			this.respawnBallAndPaddleFor(team);
 		}
 	}
 
@@ -596,6 +607,18 @@ public class ArkanoidMatch {
 		}
 		
 		getTeamOf(destroyedBy).addArkanoidScore(score);
+		
+		boolean allClear = true;
+		for (WorldEntity entity : this.world.getEntities()) {
+			if (entity instanceof EntityBrick eb && !eb.isDead()) {
+				allClear = false;
+			}
+		}
+		
+		if (allClear) {
+			onRoundSinglePlayerEnd();
+		}
+		
 		syncMatchStateWithClients();
 	}
 
