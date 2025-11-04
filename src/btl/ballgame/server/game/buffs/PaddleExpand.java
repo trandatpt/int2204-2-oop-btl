@@ -19,6 +19,7 @@ public class PaddleExpand extends BaseEffect {
 		if (paddle == null || paddle.isDead()) return;
 		paddle.setBoundingBox(PADDLE_WIDTH + EXPANDED_WIDTH, PADDLE_HEIGHT);
 		paddle.getWatcher().watch(PADDLE_EXPANDED_META, true);
+		paddle.updateMetadata();
 	}
 	
 	@Override
@@ -26,6 +27,7 @@ public class PaddleExpand extends BaseEffect {
 		if (paddle == null || paddle.isDead()) return;
 		paddle.setBoundingBox(PADDLE_WIDTH, PADDLE_HEIGHT);
 		paddle.getWatcher().unwatch(PADDLE_EXPANDED_META);
+		paddle.updateMetadata();
 	}
 	
 	@Override

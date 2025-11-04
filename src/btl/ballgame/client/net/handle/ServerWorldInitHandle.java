@@ -26,10 +26,14 @@ public class ServerWorldInitHandle implements PacketHandler<PacketPlayOutWorldIn
 		);
 		
 		Platform.runLater(() -> {
+			try {
 			GameRenderCanvas grc = new GameRenderCanvas();
             GameScreen ui = new GameScreen();
             ArkanoidGame.manager().setScreen(new GameCompositeScreen(grc, ui));
             grc.requestFocus();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		});
 	}
 }

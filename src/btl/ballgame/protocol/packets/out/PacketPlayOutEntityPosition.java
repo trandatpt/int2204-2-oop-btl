@@ -25,7 +25,7 @@ public class PacketPlayOutEntityPosition extends NetworkPacket implements IPacke
 	
 	@Override
 	public void write(PacketByteBuf buffer) {
-		buffer.writeInt16((short) this.entityId);
+		buffer.writeVarUInt(this.entityId);
 		buffer.writeInt16((short) this.location.getX());
 		buffer.writeInt16((short) this.location.getY());
 		buffer.writeInt16((short) this.location.getRotation());
@@ -33,7 +33,7 @@ public class PacketPlayOutEntityPosition extends NetworkPacket implements IPacke
 
 	@Override
 	public void read(PacketByteBuf buffer) {
-		this.entityId = buffer.readInt16();
+		this.entityId = buffer.readVarUInt();
 		this.location = new Location(null, 
 			(int) buffer.readInt16(), // read X position
 			(int) buffer.readInt16(), // read Y position

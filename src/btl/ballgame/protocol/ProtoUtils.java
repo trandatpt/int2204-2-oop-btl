@@ -23,6 +23,7 @@ public class ProtoUtils {
 		PLAYIN_PONG                = 0x004,
 		PLAYIN_PADDLE_INPUT        = 0x005,
 		PLAYIN_FIRING_MODE_CHANGE  = 0x006,
+		PLAYIN_CHANGE_RUN_POSITION = 0x007,
 		// outbound packets (server -> client)
 		PLAYOUT_CLIENT_HELLO_ACK   = 0xC00,
 		PLAYOUT_LOGIN_ACK 		   = 0xC01,
@@ -35,7 +36,9 @@ public class ProtoUtils {
 		PLAYOUT_ENTITY_DESTROY     = 0xC08,
 		PLAYOUT_MATCH_JOIN         = 0xC09,
 		PLAYOUT_WORLD_INIT         = 0xC0A,
-		PLAYOUT_MATCH_META_UPDATE  = 0xC0B
+		PLAYOUT_MATCH_META_UPDATE  = 0xC0B,
+		PLAYOUT_GAME_OVER_SCREEN   = 0xC0C,
+		PLAYOUT_CLIENT_FLAGS       = 0xC0D
 	;
 	
 	/**
@@ -55,6 +58,7 @@ public class ProtoUtils {
 		registry.registerPacket(PLAYIN_PONG, PacketPlayInPong.class, PacketPlayInPong::new);
 		registry.registerPacket(PLAYIN_PADDLE_INPUT, PacketPlayInPaddleControl.class, PacketPlayInPaddleControl::new);
 		registry.registerPacket(PLAYIN_FIRING_MODE_CHANGE, PacketPlayInChangeFireMode.class, PacketPlayInChangeFireMode::new);
+		registry.registerPacket(PLAYIN_CHANGE_RUN_POSITION, PacketPlayInChangeGunPosition.class, PacketPlayInChangeGunPosition::new);
 		
 		// PLAYOUT (Server -> Client)
 		registry.registerPacket(PLAYOUT_CLIENT_HELLO_ACK, PacketPlayOutHelloAck.class, PacketPlayOutHelloAck::new);
@@ -70,5 +74,7 @@ public class ProtoUtils {
 		registry.registerPacket(PLAYOUT_WORLD_INIT, PacketPlayOutWorldInit.class, PacketPlayOutWorldInit::new);
 		registry.registerPacket(PLAYOUT_MATCH_JOIN, PacketPlayOutMatchJoin.class, PacketPlayOutMatchJoin::new);
 		registry.registerPacket(PLAYOUT_MATCH_META_UPDATE, PacketPlayOutMatchMetadata.class, PacketPlayOutMatchMetadata::new);
+		registry.registerPacket(PLAYOUT_GAME_OVER_SCREEN, PacketPlayOutGameOver.class, PacketPlayOutGameOver::new);
+		registry.registerPacket(PLAYOUT_CLIENT_FLAGS, PacketPlayOutClientFlags.class, PacketPlayOutClientFlags::new);
 	}
 }

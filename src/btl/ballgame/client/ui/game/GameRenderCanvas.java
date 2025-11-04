@@ -74,6 +74,7 @@ public class GameRenderCanvas extends Screen {
 		    switch (event.getCode()) {
 		        case LEFT -> paddle.setMoveLeft(true);
 		        case RIGHT -> paddle.setMoveRight(true);
+		        case SPACE -> paddle.setShooting(true);
 		        default -> {}
 		    }
 		});
@@ -83,6 +84,7 @@ public class GameRenderCanvas extends Screen {
 		    switch (event.getCode()) {
 		        case LEFT -> paddle.setMoveLeft(false);
 		        case RIGHT -> paddle.setMoveRight(false);
+		        case SPACE -> paddle.setShooting(false);
 		        default -> {}
 		    }
 		});

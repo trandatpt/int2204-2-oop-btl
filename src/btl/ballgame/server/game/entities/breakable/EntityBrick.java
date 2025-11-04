@@ -2,6 +2,8 @@ package btl.ballgame.server.game.entities.breakable;
 
 import btl.ballgame.server.game.WorldEntity;
 import btl.ballgame.server.game.entities.BreakableEntity;
+import btl.ballgame.server.game.entities.IOwnableEntity;
+import btl.ballgame.server.game.entities.dynamic.EntityPaddle;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.Location;
 
@@ -43,11 +45,14 @@ public class EntityBrick extends BreakableEntity {
 	
 	@Override
 	public int getMaxHealth() {
-		return 5; // one hit and it breaks
+		return 1; // one hit and it breaks
 	}
 	
 	@Override
 	public void onObjectBroken(WorldEntity damager) {
+		if (damager instanceof IOwnableEntity ownable) {
+			world.getHandle().onBrickDestroyed(this, ownable.getOwner());
+		}
 		this.remove();
 	}
 }

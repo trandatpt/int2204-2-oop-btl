@@ -340,8 +340,11 @@ public abstract class WorldEntity {
 	 * </p>
 	 */
 	public final void entityTick() {
+		if (this.isDead()) return;
 		this.tick();
-		this.dispatchLocationUpdate();
+		if (!this.isDead()) { // the entity could remove itself in .tick()
+			this.dispatchLocationUpdate();
+		}
 	}
 	
 	/** @return Width of the entity. */

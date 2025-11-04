@@ -7,17 +7,16 @@ import java.util.function.Consumer;
 
 import btl.ballgame.server.game.WorldEntity;
 import btl.ballgame.shared.libs.Constants;
-import btl.ballgame.shared.libs.DataWatcher;
 import btl.ballgame.shared.libs.Location;
 import btl.ballgame.shared.libs.Vector2f;
 
 public class EntityFallingItem extends WorldEntity {
-	final int velocity = 6;
+	final int velocity = 4;
 	
 	private TeamColor receiver;
 	private Consumer<EntityPaddle> onPickUp;
 	private ItemType itemType;
-
+	
 	public EntityFallingItem(int id, Location location, TeamColor teamColor, ItemType itemType) {
 		super(id, location);
 		this.setDirection(teamColor.equals(TeamColor.RED)

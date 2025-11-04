@@ -42,6 +42,7 @@ public class WorldServer implements IWorld {
 	/** the random generator */
 	public final Random random;
 	
+	/** the match assigned to this world */
 	private ArkanoidMatch match;
 	
 	/** tick utilities **/
@@ -239,7 +240,7 @@ public class WorldServer implements IWorld {
 		// are members of this world
 		this.broadcastPackets(new PacketPlayOutEntitySpawn(
 			(byte) type.ordinal(), 
-			(short) entity.getId(), 
+			entity.getId(), 
 			entity.getWatcher(), 
 			entity.getLocation(),
 			entity.getBoundingBox()
@@ -314,6 +315,8 @@ public class WorldServer implements IWorld {
      *
      * @apiNote Use this method with caution, as it may result 
      * in previously assigned IDs being reused!!!
+     * 
+     * P/S: im not going to use this
      */
 	public void squashIdCounter() {
 		currentId = 0;

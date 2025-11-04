@@ -212,6 +212,7 @@ public class CServerConnection implements ConnectionCtx {
 	 * @param e the exception that occurred
 	 */
 	private void handleConnectionException(Throwable e) {
+		e.printStackTrace();
 		if (closed) return;
 		if (e instanceof EOFException) {
 			closeWithNotify("java.io.EOFException: Server closed connection");
@@ -225,6 +226,5 @@ public class CServerConnection implements ConnectionCtx {
 			closeWithNotify("Timed out");
 			return;
 		}
-		closeWithNotify(e.toString());
 	}
 }

@@ -33,7 +33,7 @@ public class TextureAtlas {
 		if (sheet.isError()) {
 			throw new RuntimeException("Failed to load! " + imagePath);
 		}
-
+		
 		// build the spritesheet
 		Json namespaces = atlas.at("sprites");
 		for (String namespace : namespaces.asJsonMap().keySet()) {
@@ -103,6 +103,13 @@ public class TextureAtlas {
 			argb & 0xFF,
 			((argb >> 24) & 0xFF) / 255.0 // the first byte
 		);
+	}
+	
+	public static int fromFXColor(Color color) {
+		return ((int) (color.getRed() * 255) << 16) 
+			| ((int) (color.getGreen() * 255) << 8)
+			| ((int) (color.getBlue() * 255))
+		;
 	}
 	
 	public class Sprite {

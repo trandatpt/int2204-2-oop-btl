@@ -198,6 +198,7 @@ public class ParticleSystem {
 				// apply "while drifting" behavior
 				if (driftBehavior.rotates) this.rotation += rotationSpeed;
 				if (driftBehavior.shrinks) this.size *= 0.9;
+				if (driftBehavior.grows) this.size *= 1.05;
 			}
 		}
 		

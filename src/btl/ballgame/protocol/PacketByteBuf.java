@@ -153,6 +153,23 @@ public class PacketByteBuf {
 		backend.put(bytes);
 	}
 	
+	/** Writes a variable-length UNSIGNED integer (varUint) */
+	public void writeVarUInt(int value) {
+		// this is literally fucking dang black magic
+		// if the number CANNOT fit in 7 bits, write sequentally
+		// 0xFFFFFF80 = 11111111111111111111111110000000, we extract the upper bits
+		// to see if anything is in there, if its != 0, something IS in there, which means
+		// > than 7 bits
+		while ((value & 0xFFFFFF80) != 0L) {
+			// write that part of the number (the lower 7 bits)
+			// and attach a continuation bit on top (0x80)
+			writeInt8((byte) ((value & 0x7F) | 0x80));
+			value >>>= 7; // remove the written 7 bits
+		}
+		// write the rest
+		writeInt8((byte) (value & 0x7F));
+	}
+	
 	/** Reads a boolean (1 byte). */
 	public boolean readBool() {
 		return backend.get() != 0x0;
@@ -205,6 +222,21 @@ public class PacketByteBuf {
 		byte[] bytes = new byte[len];
 		backend.get(bytes);
 		return new String(bytes, StandardCharsets.UTF_8);
+	}
+	
+	/** Reads a variable-length UNSIGNED INTEGER */
+	public int readVarUInt() {
+		int readCount = 0, result = 0; // bookkeeping
+		byte current;
+		do {
+			current = readInt8();
+			int value = (current & 0x7F); // extract the lower 7 bits, that is what we want to read
+			result |= (value << (7 * readCount)); // reconstruct the final number, bit by bit
+			if (++readCount > 5) {
+				throw new RuntimeException("what kind of number are you reading??");
+			}
+		} while ((current & 0x80) != 0); // if the MSB is NOT an 1, STOP!
+		return result;
 	}
 	
 	/**

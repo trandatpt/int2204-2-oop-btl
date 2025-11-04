@@ -3,9 +3,9 @@ package btl.ballgame.server.game.entities.dynamic;
 import java.util.List;
 
 import btl.ballgame.server.ArkaPlayer;
-import btl.ballgame.server.ArkanoidServer;
 import btl.ballgame.server.game.WorldEntity;
 import btl.ballgame.server.game.entities.BreakableEntity;
+import btl.ballgame.server.game.entities.IOwnableEntity;
 import btl.ballgame.shared.libs.AABB;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.Constants.*;
@@ -19,7 +19,7 @@ import btl.ballgame.shared.libs.Vector2f;
  * response with paddles and breakable blocks, and out-of-bounds (void)
  * handling.
  */
-public class EntityWreckingBall extends WorldEntity {
+public class EntityWreckingBall extends WorldEntity implements IOwnableEntity {
 	/** Default movement speed (units per sec). */
 	public static final float DEFAULT_SPEED = 320.0f;
 
@@ -53,11 +53,12 @@ public class EntityWreckingBall extends WorldEntity {
 		return !secondaryBall;
 	}
 	
-	public void setTempOwner(ArkaPlayer temporaryOwner) {
+	public void setOwner(ArkaPlayer temporaryOwner) {
 		this.temporaryOwner = temporaryOwner;
 	}
 	
-	public ArkaPlayer getTempOwner() {
+	@Override
+	public ArkaPlayer getOwner() {
 		return temporaryOwner;
 	}
 	 
@@ -159,6 +160,7 @@ public class EntityWreckingBall extends WorldEntity {
 		if (bouncedFromWorld) {
 			setLocation(currentLoc.clone().add(pushWorld));
 			bounce(worldNormal);
+			return;
 		}
 		
 		// check collisions with other entities
@@ -189,7 +191,7 @@ public class EntityWreckingBall extends WorldEntity {
 			// just another physics prop, it will softlock the game gradually 
 			// if the ball points straight up
 			if (collider instanceof EntityPaddle paddle) {
-				this.setTempOwner(paddle.getPlayer());
+				this.setOwner(paddle.getPlayer());
 				if (normal.x != 0) { // SPECIAL CASE: ball bounces on the edge
 					setLocation(currentLoc.add(push));
 					setDirection(paddle.isLowerPaddle() ? new Vector2f(0, -1) : new Vector2f(0, 1));

@@ -17,7 +17,7 @@ import javafx.scene.canvas.GraphicsContext;
  * interactive object in the client world that is managed by the networking
  * layer
  */
-public abstract class CSEntity implements IRenderInfo {
+public abstract class CSEntity implements IRenderable {
 	/** The unique server-assigned entity ID. */
 	private int id;
 	/** Contains metadata values for this entity (e.g., health, status, etc). */
