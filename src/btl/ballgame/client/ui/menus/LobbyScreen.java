@@ -1,5 +1,8 @@
 package btl.ballgame.client.ui.menus;
 
+import btl.ballgame.client.ArkanoidClientCore;
+import btl.ballgame.client.ArkanoidGame;
+import btl.ballgame.client.ui.audio.SoundManager;
 import btl.ballgame.client.ui.screen.Screen;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -12,7 +15,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public class LobbyScreen extends Screen {
-
+    private ArkanoidClientCore core;
     private VBox roomListContainer;
     private ScheduledExecutorService autoRefreshExec;
     private RoomInfo selectedRoom = null;
@@ -20,6 +23,9 @@ public class LobbyScreen extends Screen {
 
     public LobbyScreen() {
         super("Lobby Screen");
+        if ((this.core = ArkanoidGame.core()) == null) {
+			throw new IllegalStateException("What the fuck??");
+		}
     }
 
     @Override
@@ -73,11 +79,15 @@ public class LobbyScreen extends Screen {
 
         root.setBottom(footer);
 
-        this.addElement(root);
+        this.addElement("lobbyRoot", root);
 
         // actions
         createRoomBtn.setOnAction(e -> createRoomDialog());
-        exitBtn.setOnAction(e -> MenuUtils.displayServerSelector());
+        exitBtn.setOnAction(e -> {
+            SoundManager.clickSoundConfirm();
+            core.disconnect();
+            MenuUtils.displayServerSelector();
+        });
 
         // auto refresh (mock)
         autoRefreshExec = Executors.newSingleThreadScheduledExecutor();
@@ -161,6 +171,7 @@ public class LobbyScreen extends Screen {
     }
 
     private void createRoomDialog() {
+        SoundManager.clickSoundConfirm();
         TextInputDialog dialog = new TextInputDialog("Tên phòng");
         dialog.setHeaderText("Tạo phòng mới");
         dialog.setContentText("Nhập tên phòng:");
