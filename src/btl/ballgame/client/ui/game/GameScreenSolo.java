@@ -38,7 +38,6 @@ public class GameScreenSolo extends Screen {
     private VBox playerBoxSolo; // NEW: dynamic player container
 
     // --- Image Assets ---
-    // Using logoTeam_1 (Blue) as seen in the solo layout image
     private static final Image logoTeam_1 = CSAssets.sprites.__get("logo/logoTeam_1.png");
     private static final Image RIFLE_IMAGE = CSAssets.sprites.__get("item/AK47-Tiles-01.png");
     private static final Image heartImage = CSAssets.sprites.__get("item/Heart-Tiles-01.png");
@@ -131,7 +130,7 @@ public class GameScreenSolo extends Screen {
 
         // Container for padding/alignment (copied from GameScreen)
         StackPane leftContainer = new StackPane(infoPaneSolo);
-        leftContainer.setPadding(new Insets(0, 10, 0, 20)); // Adjusted padding
+        leftContainer.setPadding(new Insets(0, 200, 0, 200)); // Adjusted padding
         BorderPane.setAlignment(leftContainer, Pos.CENTER);
 
         root.setLeft(leftContainer);
@@ -158,9 +157,9 @@ public class GameScreenSolo extends Screen {
 
         // --- (MODIFIED) Only update one team ---
 
-        CTeamInfo soloTeam = match.getTeams().get(TeamColor.BLUE);
+        CTeamInfo soloTeam = match.getTeams().get(TeamColor.RED);
         if (soloTeam != null) {
-            updateTeamUI(soloTeam, scoreValueSolo, heartsSolo, playerBoxSolo, Color.BLUE);
+            updateTeamUI(soloTeam, scoreValueSolo, heartsSolo, playerBoxSolo, Color.RED);
         }
 
         // --- NO Top Scoreboard update ---
