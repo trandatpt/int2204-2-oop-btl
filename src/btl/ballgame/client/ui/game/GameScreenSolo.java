@@ -21,9 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Creates a Solo Game Screen layout with info on the left
- * and the game canvas filling the center/right area.
- * Based on GameScreen.java and the user's solo layout image.
+ * Creates a Solo Game Screen layout with info on the right
+ * and the game canvas filling the center/left area.
  */
 public class GameScreenSolo extends Screen {
     private ClientArkanoidMatch match;
@@ -31,15 +30,17 @@ public class GameScreenSolo extends Screen {
 
     private AnimationTimer gameLoop;
     private long lastTick;
+    private long delta = 0;
 
-    // --- UI Node References for SOLO (LEFT) ---
+    // --- UI Node References for SOLO (RIGHT) ---
     private Label scoreValueSolo;
     private HBox heartsSolo;
-    private VBox playerBoxSolo; // NEW: dynamic player container
+    private VBox playerBoxSolo;
+    private Label levelLabel; // (NEW) For "LEVEL X" text
 
     // --- Image Assets ---
     private static final Image logoTeam_1 = CSAssets.sprites.__get("logo/logoTeam_1.png");
-    private static final Image RIFLE_IMAGE = CSAssets.sprites.__get("item/AK47-Tiles-01.png");
+    private static final Image RIFLE_IMAGE = CSAssets.sprites.__get("item/kalashnikov.png");
     private static final Image heartImage = CSAssets.sprites.__get("item/Heart-Tiles-01.png");
 
     // Map of player UUID to PlayerInfoUI for reuse
@@ -61,10 +62,10 @@ public class GameScreenSolo extends Screen {
     public void onInit() {
         BorderPane root = new BorderPane();
 
-        // Background (copied from GameScreen)
+        // Background
         BackgroundSize backgroundSize = new BackgroundSize(100, 100, true, true, false, true);
         BackgroundImage backgroundImage = new BackgroundImage(
-                CSAssets.VS_BACKGROUND,
+                CSAssets.VS_BACKGROUND2, // Using GIF background
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundPosition.CENTER,
@@ -72,40 +73,59 @@ public class GameScreenSolo extends Screen {
         );
         root.setBackground(new Background(backgroundImage));
 
-        // --- Center: Game Canvas (The "right side" of the layout) ---
+        // --- Center: Game Canvas (The "left side" of the layout) ---
         if (this.gameRenderCanvas != null) {
             this.gameRenderCanvas.onInit();
             root.setCenter(this.gameRenderCanvas);
-            // Add margin to push it away from the left panel and top
-            BorderPane.setMargin(this.gameRenderCanvas, new Insets(10, 20, 10, 10));
+            BorderPane.setMargin(this.gameRenderCanvas, new Insets(10, 10, 10, 200)); // Adjusted padding
         }
 
+        // --- TOP PANE (for LEVEL) ---
+        levelLabel = new Label("LEVEL 1"); // Placeholder
+        levelLabel.setTextFill(Color.WHITE);
+        levelLabel.setStyle("-fx-font-size: 36px; -fx-font-weight: bold; -fx-font-family: 'Arial'; -fx-text-fill: white; -fx-stroke: red; -fx-stroke-width: 2;");
+        levelLabel.setPadding(new Insets(5));
 
-        // --- SOLO INFO PANE ---
+        StackPane levelBox = new StackPane(levelLabel);
+        levelBox.setStyle(
+                "-fx-background-color: rgba(34, 34, 34, 0.6); " +
+                        "-fx-border-color: white; " +
+                        "-fx-border-radius: 10; " +
+                        "-fx-background-radius: 10;"
+        );
+        levelBox.setMaxWidth(Region.USE_PREF_SIZE);
+
+        StackPane topPane = new StackPane(levelBox);
+        topPane.setPadding(new Insets(40, 0, 0, 580));
+        topPane.setAlignment(Pos.TOP_LEFT);
+        root.setTop(topPane);
+
+
+        // --- SOLO INFO PANE (RIGHT) ---
         VBox infoPaneSolo = new VBox(10);
-        infoPaneSolo.setPrefWidth(400); // Same width as GameScreen
-        infoPaneSolo.setMaxHeight(600); // Same height
+        infoPaneSolo.setPrefWidth(400);
+        infoPaneSolo.setMaxHeight(400);
         infoPaneSolo.setPadding(new Insets(15));
-        infoPaneSolo.setStyle("-fx-background-color: rgba(34,34,34,0.4); -fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;");
+        infoPaneSolo.setStyle("-fx-background-color: rgba(34,34,34,0.7); -fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;");
         infoPaneSolo.setAlignment(Pos.TOP_CENTER);
 
-        // Team Box (Using Blue logo from image, but "SOLO" text)
+        // Team Box
         HBox teamBoxSolo = new HBox(8);
         teamBoxSolo.setAlignment(Pos.TOP_CENTER);
         teamBoxSolo.setPadding(new Insets(5));
         teamBoxSolo.setStyle("-fx-background-color: rgba(34,34,34,0.6); -fx-border-color: white; -fx-border-radius: 10;");
 
-        ImageView logoViewSolo = new ImageView(logoTeam_1); // Blue logo
+        ImageView logoViewSolo = new ImageView(logoTeam_1);
         logoViewSolo.setFitWidth(40);
         logoViewSolo.setFitHeight(40);
         StackPane colorBoxSolo = new StackPane(logoViewSolo);
         colorBoxSolo.setPrefSize(40, 40);
-        Label teamLabelSolo = new Label("SOLO"); // Changed text
-        teamLabelSolo.setTextFill(Color.WHITE); // Changed color
+        Label teamLabelSolo = new Label("SOLO");
+        teamLabelSolo.setTextFill(Color.WHITE);
         teamLabelSolo.setStyle("-fx-font-size: 30px; -fx-font-weight: bold;");
         teamBoxSolo.getChildren().addAll(colorBoxSolo, teamLabelSolo);
 
-        Label teamLivesLabelSolo = new Label("Lives"); // Changed text
+        Label teamLivesLabelSolo = new Label("Lives");
         teamLivesLabelSolo.setStyle("-fx-font-size: 16px; -fx-text-fill: white;");
 
         heartsSolo = new HBox(5);
@@ -122,28 +142,43 @@ public class GameScreenSolo extends Screen {
         scoreBoxSolo.getChildren().addAll(scoreLabelSolo, scoreValueSolo);
 
         playerBoxSolo = new VBox(10);
-        playerBoxSolo.setAlignment(Pos.CENTER_LEFT); // Solo is on the left
+        playerBoxSolo.setAlignment(Pos.CENTER_RIGHT); // Align right
         playerBoxSolo.setId("playerBoxSolo");
 
         infoPaneSolo.getChildren().addAll(teamBoxSolo, teamLivesLabelSolo, heartsSolo, scoreBoxSolo, playerBoxSolo);
         VBox.setMargin(playerBoxSolo, new Insets(15, 0, 0, 0));
 
-        // Container for padding/alignment (copied from GameScreen)
-        StackPane leftContainer = new StackPane(infoPaneSolo);
-        leftContainer.setPadding(new Insets(0, 200, 0, 200)); // Adjusted padding
-        BorderPane.setAlignment(leftContainer, Pos.CENTER);
+        // Container for padding/alignment
+        StackPane rightContainer = new StackPane(infoPaneSolo);
+        rightContainer.setPadding(new Insets(0, 200, 0, 200)); // Adjusted padding
+        BorderPane.setAlignment(rightContainer, Pos.CENTER);
 
-        root.setLeft(leftContainer);
+        root.setRight(rightContainer); // Set to RIGHT
         this.addElement("root", root);
 
-        // --- Game Loop (copied from GameScreen) ---
+        // --- Game Loop (Fixed Timestep) ---
         lastTick = System.nanoTime();
+
+        final long MAX_DELTA_TIME_NS = Constants.NS_PER_TICK * 5;
+        final float fixedTpf = 1.0f / Constants.TICKS_PER_SECOND;
+
         gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                float tpf = (float) ((now - lastTick) / 1_000_000_000.0);
+                long elapsedTime = now - lastTick;
                 lastTick = now;
-                onUpdate(tpf);
+
+                if (elapsedTime > MAX_DELTA_TIME_NS) {
+                    elapsedTime = MAX_DELTA_TIME_NS;
+                }
+
+                delta += elapsedTime;
+
+                while (delta >= Constants.NS_PER_TICK) {
+                    onUpdate(fixedTpf); // <-- Use fixed tpf
+                    delta -= Constants.NS_PER_TICK;
+                }
+
                 if (gameRenderCanvas != null) {
                     gameRenderCanvas.doRender();
                 }
@@ -153,16 +188,22 @@ public class GameScreenSolo extends Screen {
     }
 
     public void onUpdate(float tpf) {
-        if (match == null || match.getTeams() == null) return;
+        if (match == null) return;
+
+        // (NEW) Update Level Counter (using getRoundIndex())
+        String levelText = String.format("LEVEL %d", match.getRoundIndex());
+        if (levelLabel != null && !levelLabel.getText().equals(levelText)) {
+            levelLabel.setText(levelText);
+        }
+
+        if (match.getTeams() == null) return;
 
         // --- (MODIFIED) Only update one team ---
-
+        // (Assuming RED team for solo, as per last file)
         CTeamInfo soloTeam = match.getTeams().get(TeamColor.RED);
         if (soloTeam != null) {
             updateTeamUI(soloTeam, scoreValueSolo, heartsSolo, playerBoxSolo, Color.RED);
         }
-
-        // --- NO Top Scoreboard update ---
     }
 
     /**
@@ -189,10 +230,10 @@ public class GameScreenSolo extends Screen {
         playerBox.getChildren().clear();
         if (teamData.players != null) {
             for (CPlayerInfo player : teamData.players) {
-                // (MODIFIED) Always align left for solo
                 PlayerInfoUI ui = playerUIMap.computeIfAbsent(
                         player.uuid.toString(),
-                        k -> PlayerInfoBuilder.createPlayerInfoBox(player.getName(), Pos.CENTER_LEFT)
+                        // (FIXED) Use "P" as the tag, AND align RIGHT
+                        k -> PlayerInfoBuilder.createPlayerInfoBox("P", Pos.CENTER_RIGHT)
                 );
                 updatePlayerUI(ui, player);
                 playerBox.getChildren().add(ui.getRootNode());
@@ -213,6 +254,11 @@ public class GameScreenSolo extends Screen {
 
         double healthPercent = (double) playerData.health / (double) Constants.PADDLE_MAX_HEALTH;
         playerUI.getHealthBar().setPrefWidth(PlayerInfoBuilder.PLAYER_INFO_WIDTH * healthPercent);
+
+        String healthText = String.format("%d / %d", playerData.health, Constants.PADDLE_MAX_HEALTH);
+        if (!playerUI.getHealthLabel().getText().equals(healthText)) {
+            playerUI.getHealthLabel().setText(healthText);
+        }
 
         Image currentGunImage = RIFLE_IMAGE;
         if (playerUI.getGunImageView().getImage() != currentGunImage) {
@@ -237,3 +283,4 @@ public class GameScreenSolo extends Screen {
         if (gameLoop != null) gameLoop.stop();
     }
 }
+

@@ -269,7 +269,9 @@ public class GameScreen extends Screen {
             for (CPlayerInfo player : teamData.players) {
                 PlayerInfoUI ui = playerUIMap.computeIfAbsent(
                         player.uuid.toString(),
-                        k -> PlayerInfoBuilder.createPlayerInfoBox(player.getName(), teamColor == Color.RED ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT)
+                        k -> PlayerInfoBuilder.createPlayerInfoBox(
+                                player.getName(), teamColor == Color.RED ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT
+                        )
                 );
                 updatePlayerUI(ui, player);
                 playerBox.getChildren().add(ui.getRootNode());

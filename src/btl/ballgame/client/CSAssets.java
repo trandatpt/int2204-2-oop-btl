@@ -1,17 +1,18 @@
 package btl.ballgame.client;
 
+import btl.ballgame.client.ui.audio.SoundManager;
 import javafx.scene.image.Image;
 
 import java.io.File;
-
-import btl.ballgame.client.ui.audio.SoundManager;
 
 public class CSAssets {
 	public static TextureAtlas sprites;
 	
 	public static final Image
 		LOGO = image("arkgo.png"),
-		VS_BACKGROUND = image("vs-bkg.jpg")
+		VS_BACKGROUND = image("vs-bkg.jpg"),
+        VS_BACKGROUND2 = image("background.gif"),
+        BORDER_BG = image("BorderBackground.png")
 	;
 	
 	public static void init() {

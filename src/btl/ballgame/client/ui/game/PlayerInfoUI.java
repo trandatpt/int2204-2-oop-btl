@@ -20,11 +20,12 @@ public class PlayerInfoUI {
     private final Label ammoCount;
     private final Label firingMode;
     private final Region healthBar;
-    private final Region shieldBar;
+    // (REMOVED) private final Region shieldBar;
     private final HBox buffBox;
+    private final Label healthLabel; // (NEW) For "100/100" text
 
     public PlayerInfoUI(VBox rootNode, Label playerName, Label playerTag, ImageView gunImageView, Label ammoCount,
-                        Label firingMode, Region healthBar, Region shieldBar, HBox buffBox) {
+                        Label firingMode, Region healthBar, HBox buffBox, Label healthLabel) { // (MODIFIED)
         this.rootNode = rootNode;
         this.playerName = playerName;
         this.playerTag = playerTag;
@@ -32,8 +33,9 @@ public class PlayerInfoUI {
         this.ammoCount = ammoCount;
         this.firingMode = firingMode;
         this.healthBar = healthBar;
-        this.shieldBar = shieldBar;
+        // (REMOVED) this.shieldBar = shieldBar;
         this.buffBox = buffBox;
+        this.healthLabel = healthLabel; // (NEW)
     }
 
     /**
@@ -70,12 +72,19 @@ public class PlayerInfoUI {
         return healthBar;
     }
 
-    public Region getShieldBar() {
-        return shieldBar;
-    }
+    /**
+     * @return (REMOVED)
+     */
+    // public Region getShieldBar() {
+    //     return shieldBar;
+    // }
 
     public HBox getBuffBox() {
         return buffBox;
+    }
+
+    public Label getHealthLabel() { // (NEW) Getter for healthLabel
+        return healthLabel;
     }
 }
 

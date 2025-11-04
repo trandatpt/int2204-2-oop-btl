@@ -25,13 +25,15 @@ public class ServerWorldInitHandle implements PacketHandler<PacketPlayOutWorldIn
 		);
 		
 		Platform.runLater(() -> {
-            GameRenderCanvas grc = new GameRenderCanvas();
-
-            GameScreenSolo ui = new GameScreenSolo(grc);
-
-            ArkanoidGame.manager().setScreen(ui);
-
-            ui.requestGameFocus();
+            try {
+                GameRenderCanvas grc = new GameRenderCanvas();
+                GameScreenSolo ui = new GameScreenSolo(grc);
+                ArkanoidGame.manager().setScreen(ui);
+                ui.requestGameFocus();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
 		});
 	}
 }

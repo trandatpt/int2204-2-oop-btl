@@ -57,19 +57,25 @@ public class PlayerInfoBuilder {
         healthStack.setMaxHeight(20);
         healthStack.setPrefWidth(PLAYER_INFO_WIDTH);
         healthStack.setMaxWidth(PLAYER_INFO_WIDTH);
-
-        Region healthBg = new Region();
-        healthBg.setStyle("-fx-background-color: #555; -fx-background-radius: 5;");
-
-        Region shieldBar = new Region();
-        shieldBar.setStyle("-fx-background-color: #3498db; -fx-background-radius: 5;");
+        healthStack.setStyle("-fx-background-color: #555; -fx-background-radius: 5;"); // (MODIFIED) Health background is now gray
 
         Region healthBar = new Region();
         healthBar.setStyle("-fx-background-color: #e74c3c; -fx-background-radius: 5;");
 
-        healthStack.getChildren().addAll(healthBg, shieldBar, healthBar);
-        StackPane.setAlignment(healthBar, isLeft ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT);
-        StackPane.setAlignment(shieldBar, isLeft ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT);
+        // (REMOVED) Shield Bar
+        // Region shieldBar = new Region();
+        // shieldBar.setStyle("-fx-background-color: #3498db; -fx-background-radius: 5;");
+        // shieldBar.setPrefWidth(0);
+
+        Label healthLabel = new Label("100/100"); // (NEW) HP text label
+        healthLabel.setTextFill(Color.WHITE);
+        healthLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+
+        // (MODIFIED) Order of layers: healthBg (gray) -> healthBar (red) -> healthLabel (text)
+        healthStack.getChildren().addAll(healthBar, healthLabel); // (MODIFIED) Removed shieldBar
+        StackPane.setAlignment(healthBar, Pos.CENTER_LEFT); // (MODIFIED) Health bar always aligns left
+        // (REMOVED) StackPane.setAlignment(shieldBar, Pos.CENTER_LEFT);
+        StackPane.setAlignment(healthLabel, Pos.CENTER); // (MODIFIED) HP text always in center
 
         // --- Buffs ---
         HBox buffBox = createBuffBox();
@@ -113,7 +119,7 @@ public class PlayerInfoBuilder {
         );
         bulletBox.setAlignment(isLeft ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT);
 
-        Label ammoLabel = new Label("00 / 30"); // Placeholder
+        Label ammoLabel = new Label("30 / 30"); // Placeholder
         ammoLabel.setTextFill(Color.WHITE);
         ammoLabel.setStyle("-fx-font-size: 14px;");
 
@@ -168,8 +174,9 @@ public class PlayerInfoBuilder {
         playerBox.getChildren().addAll(nameBox, healthStack, bottomRow);
 
         // --- Create and return the wrapper ---
+        // (MODIFIED) Removed shieldBar
         return new PlayerInfoUI(playerBox, nameLabel, tagLabel, gunImageView, ammoLabel,
-                fireModeLabel, healthBar, shieldBar, buffBox);
+                fireModeLabel, healthBar, buffBox, healthLabel);
     }
 
     /**
