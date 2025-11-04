@@ -72,13 +72,14 @@ public class TextParticle extends ParticleSystem.Particle {
 
 	@Override
 	public void render(GraphicsContext gc) {
+		gc.save();
 		gc.setGlobalAlpha(alpha);
 		gc.setFont(font);
 		gc.setFill(color);
 		double cw = gc.getCanvas().getWidth();
 		double ch = gc.getCanvas().getHeight();
 		double centerX = (cw - textWidth) / 2.0;
-		double baselineY = ch + (textHeight - baselineOffset) + yOffset;
+		double baselineY = ch / 2.0 + (textHeight / 2.0 - baselineOffset) + yOffset;
 		gc.fillText(text, centerX, baselineY);
 		gc.restore();
 	}
