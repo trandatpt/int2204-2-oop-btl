@@ -44,6 +44,7 @@ public class SoundManager {
     public static void playloop(String id) {
         MediaPlayer player = sounds.get(id);
         if (player != null) {
+            player.stop();
             player.setCycleCount(MediaPlayer.INDEFINITE);
             player.play();
         } else {

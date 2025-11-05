@@ -63,6 +63,10 @@ public class MenuUtils {
 	public static void displayOneVsOne() {
 
 	}
+
+	public static void displayLobbyScreen() {
+		
+	}
 	
 	public static void displayServerSelector() {
 		ServerSelector selector = new ServerSelector(
