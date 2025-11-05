@@ -20,23 +20,30 @@ public class LobbyScreen extends Screen {
     private ScheduledExecutorService autoRefreshExec;
     private RoomInfo selectedRoom = null;
     private VBox roomDetailBox;
-
+    private List<RoomInfo> mock;
     public LobbyScreen() {
         super("Lobby Screen");
         if ((this.core = ArkanoidGame.core()) == null) {
 			throw new IllegalStateException("What the fuck??");
 		}
+
+        this.mock  = new ArrayList<>();
+        mock.add(new RoomInfo("Room 1vs1", "0/2", "Waiting..."));
+        mock.add(new RoomInfo("Room 2vs2", "0/4", "Waiting..."));
+        mock.add(new RoomInfo("UET tryhard", "4/4", "Full"));
+        mock.add(new RoomInfo("No Lag", "1/4", "Wait"));
     }
 
     @Override
     public void onInit() {
+        SoundManager.playloop("MusicInGame");
 
         // Root layout
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: #1e1e1e;");
 
         // header
-        Label header = new Label("Danh sách phòng");
+        Label header = new Label("List Room");
         header.setTextFill(Color.WHITE);
         header.setStyle("-fx-font-size: 22px; -fx-font-weight: bold;");
         BorderPane.setAlignment(header, Pos.CENTER);
@@ -58,7 +65,7 @@ public class LobbyScreen extends Screen {
         roomDetailBox = new VBox(10);
         roomDetailBox.setPadding(new Insets(15));
         roomDetailBox.setStyle("-fx-background-color: #2b2b2b; -fx-border-color: white;");
-        Label noSelectLbl = new Label("Chọn 1 phòng để xem chi tiết");
+        Label noSelectLbl = new Label("Choose one room to view details");
         noSelectLbl.setTextFill(Color.WHITE);
         roomDetailBox.getChildren().add(noSelectLbl);
 
@@ -68,10 +75,10 @@ public class LobbyScreen extends Screen {
         root.setCenter(centerBox);
 
         // button
-        Button joinByCodeBtn = new Button("Vào bằng mã phòng");
-        Button createRoomBtn = new Button("Tạo phòng mới");
+        Button joinByCodeBtn = new Button("Join by Code");
+        Button createRoomBtn = new Button("Create new room");
         Button leaderboardBtn = new Button("Leaderboard");
-        Button exitBtn = new Button("Rời máy chủ");
+        Button exitBtn = new Button("Exit server");
 
         HBox footer = new HBox(10, joinByCodeBtn, createRoomBtn, leaderboardBtn, exitBtn);
         footer.setAlignment(Pos.CENTER);
@@ -82,16 +89,14 @@ public class LobbyScreen extends Screen {
         this.addElement("lobbyRoot", root);
 
         // actions
+        joinByCodeBtn.setOnAction(e -> joinByCode());
         createRoomBtn.setOnAction(e -> createRoomDialog());
-        exitBtn.setOnAction(e -> {
-            SoundManager.clickSoundConfirm();
-            core.disconnect();
-            MenuUtils.displayServerSelector();
-        });
+        leaderboardBtn.setOnAction(e -> leaderBoard());
+        exitBtn.setOnAction(e -> exit());
 
         // auto refresh (mock)
         autoRefreshExec = Executors.newSingleThreadScheduledExecutor();
-        autoRefreshExec.scheduleAtFixedRate(this::mockLoadRooms, 0, 5, TimeUnit.SECONDS);
+        autoRefreshExec.scheduleAtFixedRate(this::mockLoadRooms, 0, 1, TimeUnit.SECONDS);
     }
 
     @Override
@@ -103,16 +108,8 @@ public class LobbyScreen extends Screen {
     private void mockLoadRooms() {
         Platform.runLater(() -> {
             roomListContainer.getChildren().clear();
-
-            List<RoomInfo> mock = List.of(
-                    new RoomInfo(1, "Phòng chiến 1v1", "1/2", "Chờ người chơi"),
-                    new RoomInfo(2, "Tổ đội 2v2", "2/4", "Đang tuyển"),
-                    new RoomInfo(3, "UET tryhard", "4/4", "Đầy"),
-                    new RoomInfo(4, "Không Lag", "1/4", "Chờ")
-            );
-
-            for (RoomInfo r : mock) {
-                roomListContainer.getChildren().add(makeRoomCard(r));
+        for (RoomInfo room : mock) {
+                roomListContainer.getChildren().add(makeRoomCard(room));
             }
         });
     }
@@ -136,10 +133,8 @@ public class LobbyScreen extends Screen {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        Button joinBtn = new Button("Tham gia");
-        joinBtn.setOnAction(e -> {
-            MenuUtils.toast("Tham gia phòng: " + room.name);
-        });
+        Button joinBtn = new Button("Join");
+        joinBtn.setOnAction(e -> joinRoom(room));
 
         // click to select room
         card.setOnMouseClicked(e -> {
@@ -155,13 +150,13 @@ public class LobbyScreen extends Screen {
     private void updateRoomDetail(RoomInfo r) {
         roomDetailBox.getChildren().clear();
 
-        Label title = new Label("Chi tiết phòng");
+        Label title = new Label("Room details");
         title.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
         title.setTextFill(Color.WHITE);
 
-        Label n = new Label("Tên phòng: " + r.name);
-        Label p = new Label("Người chơi: " + r.players);
-        Label s = new Label("Trạng thái: " + r.status);
+        Label n = new Label("Room name: " + r.name);
+        Label p = new Label("Players: " + r.players);
+        Label s = new Label("Status: " + r.status);
 
         n.setTextFill(Color.WHITE);
         p.setTextFill(Color.WHITE);
@@ -172,28 +167,164 @@ public class LobbyScreen extends Screen {
 
     private void createRoomDialog() {
         SoundManager.clickSoundConfirm();
-        TextInputDialog dialog = new TextInputDialog("Tên phòng");
-        dialog.setHeaderText("Tạo phòng mới");
-        dialog.setContentText("Nhập tên phòng:");
 
-        Optional<String> result = dialog.showAndWait();
-        result.ifPresent(name -> {
-            MenuUtils.toast("Đã tạo phòng: " + name);
-        });
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Create new room");
+        dialog.setHeaderText("Enter room information");
+
+        // text
+        TextField nameField = new TextField();
+        nameField.setPromptText("Room Name");
+
+        // create combo box choose type of room
+        ComboBox<String> typeBox = new ComboBox<>();
+        typeBox.getItems().addAll("1vs1", "2vs2");
+        typeBox.setValue("1vs1");
+
+        // new table
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        grid.add(new Label("Name: "), 0, 0);
+        grid.add(nameField, 1, 0);
+        grid.add(new Label("Type: "), 0, 1);
+        grid.add(typeBox, 1, 1);
+
+        // add content
+        dialog.getDialogPane().setContent(grid);
+
+        //add button OK, Cancel
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        
+        //waiting......
+        Optional<ButtonType> result = dialog.showAndWait();
+
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            String roomName = nameField.getText();
+            String roomType = typeBox.getValue();
+
+            // +++++++send to server
+
+            roomType = convert(roomType);
+            addRoom(
+                new RoomInfo(roomName == "" ? "Room " + roomType : roomName,
+                            roomType,
+                            "Waiting..."
+                )
+            );
+            MenuUtils.toast("Room has been created: " + roomName + " (" + roomType + ")");
+        }
+    }
+
+    // Join Room by Code
+    private void joinByCode() {
+        // + code
+    }
+
+    // Leader Board
+    private void leaderBoard() {
+        // + code
+    }
+
+    // Back
+    private void exit() {
+        SoundManager.clickBottonLogin();
+        core.disconnect();
+        MenuUtils.displayServerSelector();
+    }
+
+    // Join Room
+    private void joinRoom(RoomInfo room) {
+        if (room.getNumberOfRoom() == room.getMaxNumberOfRoom()) {
+            SoundManager.clickFalse();
+            MenuUtils.toast("False to join: " + room.name + "/n" + "Status: " + room.status);
+            // code sent to server
+        } else {
+            SoundManager.clickSoundConfirm();
+            MenuUtils.toast("Join the room: " + room.name);
+
+            // code sent to server
+
+            // set number room
+            room.setNumberOfRoom(room.getNumberOfRoom() + 1);
+            // new Screen
+            if (room.getMaxNumberOfRoom() == 2) {
+                RoomScreenOneVsOne roomSreen = new RoomScreenOneVsOne();
+                ArkanoidGame.manager().setScreen(roomSreen);
+            } else {
+                RoomScreenTwoVsTwo roomSreen = new RoomScreenTwoVsTwo();
+                ArkanoidGame.manager().setScreen(roomSreen);
+            }
+        }
+    }
+
+    // add new room
+    private void addRoom(RoomInfo room) {
+        mock.add(room);
+    }
+
+    // change room information (change room's name)
+    private void changeInforRoom(String name, int index) {
+        mock.get(index).setName(name);
     }
 
     // Simple room data
     private static class RoomInfo {
+        private static int sizeRoom = 0;
         int id;
         String name;
         String players;
         String status;
 
-        RoomInfo(int id, String name, String players, String status) {
-            this.id = id;
+        RoomInfo(String name, String players, String status) {
+            sizeRoom++;
+            this.id = sizeRoom;
             this.name = name;
             this.players = players;
             this.status = status;
         }
+
+        void setPlayers(String players) {
+            this.players = players;
+        }
+
+        void setStatus(String status) {
+            this.status = status;
+        }
+
+        // rename
+        void setName(String name) {
+            this.name = name;
+        }
+
+        // take number of room
+        int getNumberOfRoom() {
+            return Character.getNumericValue(players.charAt(0));
+        }
+
+        // take max number of room
+        int getMaxNumberOfRoom() {
+            return Character.getNumericValue(players.charAt(2));
+        }
+
+        // change number player
+        void setNumberOfRoom(int number) {
+            if (number == this.getMaxNumberOfRoom()) {
+                this.setStatus("Full");
+                System.out.println("Room " + this.name + " " + this.status);
+            }
+            players = players.substring(1);
+            players = number + players;
+            System.out.println("Number Of Room " + this.name + " is " + this.players);
+        }
+    }
+
+    private String convert(String input) {
+        int number1 = Character.getNumericValue(input.charAt(0));
+        int number2 = Character.getNumericValue(input.charAt(3));
+        number2 = number2 + number1;
+        return "0/" + number2;
     }
 }
