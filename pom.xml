@@ -34,8 +34,8 @@
 	</dependencies>
 	
 	<build>
-		<sourceDirectory>src</sourceDirectory>
-		<testSourceDirectory>src</testSourceDirectory>
+		<sourceDirectory>src/btl/ballgame</sourceDirectory>
+		<testSourceDirectory>src/test/btl/ballgame</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>org.openjfx</groupId>
