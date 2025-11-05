@@ -1,6 +1,8 @@
 package btl.ballgame.client;
 
 import javafx.scene.image.Image;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 
 import java.io.File;
 
@@ -27,6 +29,23 @@ public class CSAssets {
 		File file = new File("assets/" + path);
 		if (!file.exists()) {
 			throw new RuntimeException("Required asset: " + path + " is missing!");
+		}
+		return new Image(file.toURI().toString());
+	}
+
+	public static MediaPlayer video(String path) {
+		File file = new File("assets/" + path);
+		if (!file.exists()) {
+			throw new RuntimeException("Required video: " + path + " is missing!");
+		}
+		Media media = new Media(file.toURI().toString());
+		return new MediaPlayer(media);
+	}
+
+	public static Image gif(String path) {
+		File file = new File("assets/" + path);
+		if (!file.exists()) {
+			throw new RuntimeException("Required gif: " + path + " is missing!");
 		}
 		return new Image(file.toURI().toString());
 	}

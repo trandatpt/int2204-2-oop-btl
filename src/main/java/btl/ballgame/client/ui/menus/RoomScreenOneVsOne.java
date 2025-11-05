@@ -2,19 +2,20 @@ package btl.ballgame.client.ui.menus;
 
 import btl.ballgame.client.ArkanoidClientCore;
 import btl.ballgame.client.ArkanoidGame;
+import btl.ballgame.client.CSAssets;
 import btl.ballgame.client.ui.audio.SoundManager;
 import btl.ballgame.client.ui.screen.Screen;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 
 public class RoomScreenOneVsOne extends Screen {
     private ArkanoidClientCore core;
-    private BoxPlayer team1Box;
-    private BoxPlayer team2Box;
+    private BoxPlayer player1Box;
+    private BoxPlayer player2Box;
 
     public RoomScreenOneVsOne() {
         super("Room 1 vs 1");
@@ -25,26 +26,52 @@ public class RoomScreenOneVsOne extends Screen {
 
     @Override
     public void onInit() {
-
         // Root layout
         BorderPane root = new BorderPane();
-        root.setStyle("-fx-background-color: #1e1e1e;");
+        // back ground
+        BackgroundSize backgroundSize = new BackgroundSize(100, 100, true, true, false, true);
+        BackgroundImage backgroundImage = new BackgroundImage(
+                CSAssets.VS_BACKGROUND,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.CENTER,
+                backgroundSize
+        );
+        root.setBackground(new Background(backgroundImage));
 
-        // Header
-        Label header = new Label("1 vs 1 Battle Room");
-        header.setTextFill(Color.WHITE);
-        header.setStyle("-fx-font-size: 22px; -fx-font-weight: bold;");
-        BorderPane.setAlignment(header, Pos.CENTER);
-        BorderPane.setMargin(header, new Insets(10));
-        root.setTop(header);
+        // id + title header
+        Label roomId = new Label("ID: ");
+        roomId.setTextFill(Color.WHITE);
+        roomId.setStyle("-fx-font-size: 12px; -fx-font-weight: normal;");
+
+        Label labelHeader = new Label("1 vs 1 Battle Room");
+        labelHeader.setTextFill(Color.WHITE);
+        labelHeader.setStyle("-fx-font-size: 22px; -fx-font-weight: bold;");
+
+        VBox headerBox = new VBox(5);
+        headerBox.setPadding(new Insets(10));
+
+        HBox idBox = new HBox();
+        idBox.setAlignment(Pos.CENTER_LEFT);
+        idBox.getChildren().add(roomId);
+
+        HBox titleBox = new HBox();
+        titleBox.setAlignment(Pos.CENTER);
+        titleBox.getChildren().add(labelHeader);
+
+        headerBox.getChildren().addAll(idBox, titleBox);
+
+        BorderPane.setAlignment(headerBox, Pos.CENTER);
+        BorderPane.setMargin(headerBox, new Insets(10));
+        root.setTop(headerBox);
 
         // Center content
-        HBox centerBox = new HBox(150);
+        HBox centerBox = new HBox(350);
         centerBox.setAlignment(Pos.CENTER);
         centerBox.setPadding(new Insets(20));
 
-        team1Box = createPlayerBox("Team 1");
-        team2Box = createPlayerBox("Team 2");
+        VBox team1Box = createTeamBox("Player 1", Color.RED, CSAssets.LOGO, player1Box);
+        VBox team2Box = createTeamBox("Player 2", Color.BLUE, CSAssets.LOGO, player2Box);
 
         centerBox.getChildren().addAll(team1Box, team2Box);
         root.setCenter(centerBox);
@@ -72,21 +99,50 @@ public class RoomScreenOneVsOne extends Screen {
         this.addElement("room1v1", root);
     }
 
-    private BoxPlayer createPlayerBox(String placeholder) {
-        BoxPlayer box = new BoxPlayer(placeholder, 300, 400);
-        box.setAlignment(Pos.TOP_CENTER);
-        box.setPadding(new Insets(15));
-        box.setPrefSize(300, 400);
-        box.setStyle("-fx-background-color: #2b2b2b; -fx-border-color: white; -fx-border-width: 2px;");
+
+    private VBox createTeamBox(String teamName, Color c, Image image, BoxPlayer playerBox) {
+        VBox teamBox = new VBox(25);
+        teamBox.setAlignment(Pos.CENTER);
+        teamBox.setPadding(new Insets(15));
+        teamBox.setPrefSize(350, 450);
+
+        String color;
+        if (c.equals(Color.RED)) {
+            color = "red";
+        } else {
+            color = "blue";
+        }
+
+        teamBox.setStyle(
+                "-fx-background-color: #2b2b2b;" +
+                "-fx-border-color: " + color + ";" +
+                "-fx-border-width: 2px;" +
+                "-fx-background-radius: 10;" +
+                "-fx-border-radius: 10;"
+            );
+
+        Label teamLabel = new Label(teamName);
+        teamLabel.setTextFill(c);
+        teamLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+
+        BoxPlayer player = createPlayerBox(teamName, image);
+        player1Box = player;
+        teamBox.getChildren().add(teamLabel);
+        teamBox.getChildren().add(player);
+        return teamBox;
+    }
+
+    private BoxPlayer createPlayerBox(String placeholder, Image image) {
+        BoxPlayer box = new BoxPlayer(placeholder, 280, 400, image);
 
         box.getNameField().setOnAction(e -> {
             String text = box.getNameField().getText().trim();
 
             String otherName = null;
-            if (placeholder.equals("Team 1") && team2Box != null && team2Box.getLabelName() != null) {
-                otherName = team2Box.getLabelName().getText();
-            } else if (placeholder.equals("Team 2") && team1Box != null && team1Box.getLabelName() != null) {
-                otherName = team1Box.getLabelName().getText();
+            if (placeholder.equals("Team 1") && player2Box != null && player2Box.getLabelName() != null) {
+                otherName = player2Box.getLabelName().getText();
+            } else if (placeholder.equals("Team 2") && player1Box != null && player1Box.getLabelName() != null) {
+                otherName = player1Box.getLabelName().getText();
             }
 
             // check duplicate
@@ -106,19 +162,12 @@ public class RoomScreenOneVsOne extends Screen {
             box.getLabelName().setVisible(true);
             box.removeField();
         });
-
-        // add sprite placeholder (để trống cho sau này)
-        // StackPane spriteArea = new StackPane();
-        // spriteArea.setPrefSize(250, 300);
-        // spriteArea.setStyle("-fx-border-color: #666; -fx-border-style: dashed; -fx-border-width: 2px;");
-        // box.getChildren().addAll(nameField, duplicateLabel, nameLabel, spriteArea);
-
         return box;
     }
 
 
     private void startGame() {
-        if (!team1Box.hasName() || !team2Box.hasName()) {
+        if (!player1Box.hasName() || !player2Box.hasName()) {
             SoundManager.clickFalse();
             System.out.println("Please enter both player names!");
             return;

@@ -207,10 +207,9 @@ public class LobbyScreen extends Screen {
 
             // +++++++send to server
 
-            roomType = convert(roomType);
             addRoom(
                 new RoomInfo(roomName == "" ? "Room " + roomType : roomName,
-                            roomType,
+                            convert(roomType),
                             "Waiting..."
                 )
             );
@@ -258,6 +257,10 @@ public class LobbyScreen extends Screen {
                 ArkanoidGame.manager().setScreen(roomSreen);
             }
         }
+    }
+
+    private void DeleteRoom() {
+
     }
 
     // add new room

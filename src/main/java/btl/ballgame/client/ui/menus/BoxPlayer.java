@@ -5,6 +5,12 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -15,12 +21,21 @@ public class BoxPlayer extends VBox {
     private Label nameLabel;
     private Label warningLabel;
 
-    public BoxPlayer(String placeholder, double width, double height) {
+    public BoxPlayer(String placeholder, double width, double height, Image image) {
         super(10);
         setAlignment(Pos.TOP_CENTER);
         setPadding(new Insets(15));
         setPrefSize(width, height);
         setStyle("-fx-background-color: #2b2b2b; -fx-border-color: white; -fx-border-width: 2px;");
+        
+        BackgroundImage backgroundImage = new BackgroundImage(
+            image,
+            BackgroundRepeat.NO_REPEAT,
+            BackgroundRepeat.NO_REPEAT,
+            BackgroundPosition.CENTER,
+            new BackgroundSize(100, 100, true, true, false, true)
+        );
+        setBackground(new Background(backgroundImage));
 
         nameField = new TextField();
         nameField.setPromptText(placeholder + " name...");

@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class SoundManager {
     private static final Map<String, MediaPlayer> sounds = new HashMap<>();
-    private static double volume = 0.5;
+    private static double volume = 0.1;
 
     public static void loadSound(String id, String path) {
         try {
