@@ -65,15 +65,25 @@ public class GameScreen extends Screen {
     public void onInit() {
         BorderPane root = new BorderPane();
 
-        BackgroundSize backgroundSize = new BackgroundSize(100, 100, true, true, false, true);
-        BackgroundImage backgroundImage = new BackgroundImage(
-                CSAssets.VS_BACKGROUND,
+        BackgroundSize mainBgSize = new BackgroundSize(100, 100, true, true, false, true);
+
+        BackgroundSize borderBgSize = new BackgroundSize(100, 100, true, true, false, true);
+        BackgroundImage mainBg = new BackgroundImage(
+                CSAssets.VS_BACKGROUND2, // Using GIF background
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundPosition.CENTER,
-                backgroundSize
+                mainBgSize
         );
-        root.setBackground(new Background(backgroundImage));
+
+        BackgroundImage borderBg = new BackgroundImage(
+                CSAssets.BORDER_BG, // Your new border image
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.CENTER,
+                borderBgSize // Also stretch to fit
+        );
+        root.setBackground(new Background(mainBg, borderBg));
 
         // --- Center canvas ---
         if (this.gameRenderCanvas != null) {
