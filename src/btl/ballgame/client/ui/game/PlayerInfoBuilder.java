@@ -19,7 +19,7 @@ public class PlayerInfoBuilder {
     static Image bulletImage = CSAssets.sprites.__get("item/Bullet-Tiles-01.png");
     static Image ak47Image = CSAssets.sprites.__get("item/kalashnikov.png");
 
-    // (FIX) Must be public static so GameScreen can read it for health bar math
+    //Health bar width
     public static final double PLAYER_INFO_WIDTH = 400.0;
 
     /**
@@ -57,42 +57,40 @@ public class PlayerInfoBuilder {
         healthStack.setMaxHeight(20);
         healthStack.setPrefWidth(PLAYER_INFO_WIDTH);
         healthStack.setMaxWidth(PLAYER_INFO_WIDTH);
-        healthStack.setStyle("-fx-background-color: #555; -fx-background-radius: 5;"); // (MODIFIED) Health background is now gray
+        healthStack.setStyle("-fx-background-color: #555; -fx-background-radius: 5;");
 
         Region healthBar = new Region();
         healthBar.setStyle("-fx-background-color: #e74c3c; -fx-background-radius: 5;");
 
-        // (REMOVED) Shield Bar
-
-        Label healthLabel = new Label("100/100"); // (NEW) HP text label
+        Label healthLabel = new Label("100/100"); // Placeholder
         healthLabel.setTextFill(Color.WHITE);
         healthLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
 
         // (MODIFIED) Order of layers: healthBg (gray) -> healthBar (red) -> healthLabel (text)
-        healthStack.getChildren().addAll(healthBar, healthLabel); // (MODIFIED) Removed shieldBar
-        StackPane.setAlignment(healthBar, Pos.CENTER_LEFT); // (MODIFIED) Health bar always aligns left
-        StackPane.setAlignment(healthLabel, Pos.CENTER); // (MODIFIED) HP text always in center
+        healthStack.getChildren().addAll(healthBar, healthLabel);
+        StackPane.setAlignment(healthBar, Pos.CENTER_LEFT);
+        StackPane.setAlignment(healthLabel, Pos.CENTER);
 
         // --- Buffs ---
-        // (NEW) Create buff timers (placeholders)
+        // Buff timers (placeholders)
         Label buffTimer1 = createBuffTimerLabel();
         Label buffTimer2 = createBuffTimerLabel();
         Label buffTimer3 = createBuffTimerLabel();
 
-        // (NEW) Create buff slots (VBox containing icon + timer)
+        // Buff slots (VBox containing icon + timer)
         VBox buffSlot1 = createBuffSlot(buffTimer1);
         VBox buffSlot2 = createBuffSlot(buffTimer2);
         VBox buffSlot3 = createBuffSlot(buffTimer3);
 
-        // (NEW) Create the HBox for buffs
-        HBox buffBox = new HBox(5); // 5px spacing between VBoxes
+        // HBox for buffs
+        HBox buffBox = new HBox(5);
         buffBox.getChildren().addAll(buffSlot1, buffSlot2, buffSlot3);
         buffBox.setMaxWidth(Region.USE_PREF_SIZE);
         buffBox.setMaxHeight(Region.USE_PREF_SIZE);
 
         // --- Gun ---
         ImageView gunImageView = new ImageView(ak47Image);
-        gunImageView.setFitHeight(40); // Set height to match buff slots
+        gunImageView.setFitHeight(40);
         gunImageView.setPreserveRatio(true);
 
         // --- A container for the gun image to give it a background ---
@@ -150,22 +148,21 @@ public class PlayerInfoBuilder {
         ammoBox.getChildren().add(ammoDetailsVBox);
 
 
-        // --- New 3-Item Row (Gun, Ammo, Buffs) ---
+        // --- Item Row (Gun, Ammo, Buffs) ---
         HBox bottomRow = new HBox(10);
         bottomRow.setPrefWidth(PLAYER_INFO_WIDTH);
         bottomRow.setMaxWidth(PLAYER_INFO_WIDTH);
         bottomRow.setAlignment(Pos.CENTER_LEFT);
 
-        // --- Create Spacer to push items apart ---
+        // Create Spacer to push items apart
         Region buffSpacer = new Region();
         HBox.setHgrow(buffSpacer, Priority.ALWAYS);
 
-        // --- Create a new HBox for [Gun] + [Ammo] ---
+        // Create a new HBox for [Gun] + [Ammo]
         HBox gunAndAmmoBox = new HBox(5);
         gunAndAmmoBox.setAlignment(Pos.CENTER_LEFT);
         gunAndAmmoBox.setMaxHeight(Region.USE_PREF_SIZE);
 
-        // Add children based on alignment
         if (isLeft) {
             // Red Team (Left Side): [Gun] [Ammo] ... [Buffs]
             gunAndAmmoBox.getChildren().addAll(gunImageContainer, ammoBox);
@@ -178,11 +175,10 @@ public class PlayerInfoBuilder {
 
 
         // --- Add all to main VBox (3 rows) ---
-        playerBox.getChildren().clear(); // Clear previous items
+        playerBox.getChildren().clear();
         playerBox.getChildren().addAll(nameBox, healthStack, bottomRow);
 
         // --- Create and return the wrapper ---
-        // (MODIFIED) Removed shieldBar, added 3 buff timers
         return new PlayerInfoUI(playerBox, nameLabel, tagLabel, gunImageView, ammoLabel,
                 fireModeLabel, healthBar, buffBox, healthLabel,
                 buffTimer1, buffTimer2, buffTimer3);
@@ -199,7 +195,7 @@ public class PlayerInfoBuilder {
      * @return A VBox layout for one buff slot.
      */
     private static VBox createBuffSlot(Label timerLabel) {
-        VBox slotVBox = new VBox(2); // 2px spacing between icon and timer
+        VBox slotVBox = new VBox(2); // spacing between icon and timer
         slotVBox.setAlignment(Pos.CENTER);
 
         // This is the buff icon slot
@@ -216,7 +212,7 @@ public class PlayerInfoBuilder {
      * (NEW) Helper method to create and style a buff timer label.
      */
     private static Label createBuffTimerLabel() {
-        Label timerLabel = new Label("3s"); // Placeholder text
+        Label timerLabel = new Label("3s"); // Placeholder
         timerLabel.setTextFill(Color.WHITE);
         timerLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold;");
         timerLabel.setVisible(true); // Hide by default, show when buff is active

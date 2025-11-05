@@ -26,6 +26,7 @@ public class GameScreen extends Screen {
 
     private AnimationTimer gameLoop;
     private long lastTick;
+    private long delta = 0;
 
     // --- UI Node References for RED Team (LEFT) ---
     private Label scoreValueLeft;
@@ -65,9 +66,10 @@ public class GameScreen extends Screen {
     public void onInit() {
         BorderPane root = new BorderPane();
 
+        // --- Set Background ---
         BackgroundSize mainBgSize = new BackgroundSize(100, 100, true, true, false, true);
-
         BackgroundSize borderBgSize = new BackgroundSize(100, 100, true, true, false, true);
+        // Main Background
         BackgroundImage mainBg = new BackgroundImage(
                 CSAssets.VS_BACKGROUND3,
                 BackgroundRepeat.NO_REPEAT,
@@ -75,7 +77,7 @@ public class GameScreen extends Screen {
                 BackgroundPosition.CENTER,
                 mainBgSize
         );
-
+        // Border Background
         BackgroundImage borderBg = new BackgroundImage(
                 CSAssets.BORDER_BG,
                 BackgroundRepeat.NO_REPEAT,
@@ -100,12 +102,18 @@ public class GameScreen extends Screen {
         // Round Score Label
         roundScoreLabel = new Label("00 : 00");
         roundScoreLabel.setTextFill(Color.WHITE);
-        roundScoreLabel.setStyle("-fx-font-size: 36px; -fx-font-weight: bold; -fx-font-family: 'Monospaced';");
+        roundScoreLabel.setStyle("-fx-font-size: 36px; " +
+                "-fx-font-weight: bold; " +
+                "-fx-font-family: 'Monospaced';"
+        );
 
         // Time Label
         timeLabel = new Label("TIME 00:00");
         timeLabel.setTextFill(Color.WHITE);
-        timeLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-font-family: 'Monospaced';");
+        timeLabel.setStyle("-fx-font-size: 18px; " +
+                "-fx-font-weight: bold; " +
+                "-fx-font-family: 'Monospaced';"
+        );
 
         topCenterBox.getChildren().addAll(roundScoreLabel, timeLabel);
 
@@ -118,7 +126,7 @@ public class GameScreen extends Screen {
         );
         scoreboardContainer.setMaxWidth(Region.USE_PREF_SIZE);
 
-        // (NEW) Create an alignment pane for the top
+        // Create an alignment pane for the top
         StackPane topPane = new StackPane(scoreboardContainer);
         topPane.setPadding(new Insets(10, 0, 0, 0));
         topPane.setAlignment(Pos.CENTER);
@@ -134,13 +142,22 @@ public class GameScreen extends Screen {
         infoPaneRight.setPrefWidth(400);
         infoPaneRight.setMaxHeight(600);
         infoPaneRight.setPadding(new Insets(40, 15, 15, 15));
-        infoPaneRight.setStyle("-fx-background-color: rgba(34, 34, 34, 0.7); -fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;");
+        infoPaneRight.setStyle("-fx-background-color: rgba(34, 34, 34, 0.7); " +
+                "-fx-border-color: white; " +
+                "-fx-border-radius: 10; " +
+                "-fx-background-radius: 10;"
+        );
         infoPaneRight.setAlignment(Pos.TOP_CENTER);
 
+        // Team Box for BLUE Team
         HBox teamBoxRight = new HBox(8);
         teamBoxRight.setAlignment(Pos.TOP_CENTER);
         teamBoxRight.setPadding(new Insets(5));
-        teamBoxRight.setStyle("-fx-background-color: rgba(34,34,34,0.6); -fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;");
+        teamBoxRight.setStyle("-fx-background-color: rgba(34,34,34,0.6); " +
+                "-fx-border-color: white; " +
+                "-fx-border-radius: 10; " +
+                "-fx-background-radius: 10;"
+        );
 
         // Team Logo and Label for BLUE Team
         ImageView logoViewRight = new ImageView(logoTeam_1);
@@ -168,7 +185,10 @@ public class GameScreen extends Screen {
         scoreLabelRight.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
         scoreValueRight = new Label("0000000000000000");
         scoreValueRight.setTextFill(Color.WHITE);
-        scoreValueRight.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-font-family: 'Monospaced';");
+        scoreValueRight.setStyle("-fx-font-size: 20px; " +
+                "-fx-font-weight: bold; " +
+                "-fx-font-family: 'Monospaced';"
+        );
         scoreBoxRight.getChildren().addAll(scoreLabelRight, scoreValueRight);
 
         // Player Box for BLUE Team
@@ -179,6 +199,7 @@ public class GameScreen extends Screen {
         infoPaneRight.getChildren().addAll(teamBoxRight, teamLivesLabelRight, heartsRight, scoreBoxRight, playerBoxRight);
         VBox.setMargin(playerBoxRight, new Insets(15, 0, 0, 0));
 
+        // Border for BLUE Team
         ImageView borderViewRight = new ImageView(CSAssets.BORDER_BLUE);
         borderViewRight.setFitWidth(400);
         borderViewRight.setFitHeight(600);
@@ -195,13 +216,22 @@ public class GameScreen extends Screen {
         infoPaneLeft.setPrefWidth(400);
         infoPaneLeft.setMaxHeight(600);
         infoPaneLeft.setPadding(new Insets(40, 15, 15, 15));
-        infoPaneLeft.setStyle("-fx-background-color: rgba(34, 34, 34, 0.7); -fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;");
+        infoPaneLeft.setStyle("-fx-background-color: rgba(34, 34, 34, 0.7); " +
+                "-fx-border-color: white; " +
+                "-fx-border-radius: 10; " +
+                "-fx-background-radius: 10;"
+        );
         infoPaneLeft.setAlignment(Pos.TOP_CENTER);
 
+        // Team Box for RED Team
         HBox teamBoxLeft = new HBox(8);
         teamBoxLeft.setAlignment(Pos.TOP_CENTER);
         teamBoxLeft.setPadding(new Insets(5));
-        teamBoxLeft.setStyle("-fx-background-color: rgba(34,34,34,0.6); -fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;");
+        teamBoxLeft.setStyle("-fx-background-color: rgba(34,34,34,0.6); " +
+                "-fx-border-color: white; " +
+                "-fx-border-radius: 10; " +
+                "-fx-background-radius: 10;"
+        );
 
         // Team Logo and Label for RED Team
         ImageView logoViewLeft = new ImageView(logoTeam_2);
@@ -229,7 +259,9 @@ public class GameScreen extends Screen {
         scoreLabelLeft.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
         scoreValueLeft = new Label("0000000000000000");
         scoreValueLeft.setTextFill(Color.WHITE);
-        scoreValueLeft.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-font-family: 'Monospaced';");
+        scoreValueLeft.setStyle("-fx-font-size: 20px; " +
+                "-fx-font-weight: bold; " +
+                "-fx-font-family: 'Monospaced';");
         scoreBoxLeft.getChildren().addAll(scoreLabelLeft, scoreValueLeft);
 
         // Player Box for RED Team
@@ -240,6 +272,7 @@ public class GameScreen extends Screen {
         infoPaneLeft.getChildren().addAll(teamBoxLeft, teamLivesLabelLeft, heartsLeft, scoreBoxLeft, playerBoxLeft);
         VBox.setMargin(playerBoxLeft, new Insets(15, 0, 0, 0));
 
+        // Border for RED Team
         ImageView borderViewLeft = new ImageView(CSAssets.BORDER_RED);
         borderViewLeft.setFitWidth(400);
         borderViewLeft.setFitHeight(600);
@@ -254,13 +287,29 @@ public class GameScreen extends Screen {
         root.setLeft(leftContainer);
         this.addElement("root", root);
 
+        // --- Start Game Loop ---
         lastTick = System.nanoTime();
+
+        final long MAX_DELTA_TIME_NS = Constants.NS_PER_TICK * 5;
+        final float fixedTpf = 1.0f / Constants.TICKS_PER_SECOND;
+
         gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                float tpf = (float) ((now - lastTick) / 1_000_000_000.0);
+                long elapsedTime = now - lastTick;
                 lastTick = now;
-                onUpdate(tpf);
+
+                if (elapsedTime > MAX_DELTA_TIME_NS) {
+                    elapsedTime = MAX_DELTA_TIME_NS;
+                }
+
+                delta += elapsedTime;
+
+                while (delta >= Constants.NS_PER_TICK) {
+                    onUpdate(fixedTpf);
+                    delta -= Constants.NS_PER_TICK;
+                }
+
                 if (gameRenderCanvas != null) {
                     gameRenderCanvas.doRender();
                 }
@@ -272,6 +321,7 @@ public class GameScreen extends Screen {
     public void onUpdate(float tpf) {
         if (match == null || match.getTeams() == null) return;
 
+        // Get Team Info
         CTeamInfo redTeam = match.getTeams().get(TeamColor.RED);
         CTeamInfo blueTeam = match.getTeams().get(TeamColor.BLUE);
 
@@ -319,10 +369,12 @@ public class GameScreen extends Screen {
     private void updatePlayerUI(PlayerInfoUI playerUI, CPlayerInfo playerData) {
         if (playerUI == null || playerData == null) return;
 
+        // Update Player Name
         if (playerData.getName() != null && !playerUI.getPlayerName().getText().equals(playerData.getName())) {
             playerUI.getPlayerName().setText(playerData.getName());
         }
 
+        // Update Health Bar
         double healthPercent = (double) playerData.health / (double) Constants.PADDLE_MAX_HEALTH;
         playerUI.getHealthBar().setPrefWidth(PlayerInfoBuilder.PLAYER_INFO_WIDTH * healthPercent);
 
@@ -331,11 +383,13 @@ public class GameScreen extends Screen {
             playerUI.getGunImageView().setImage(currentGunImage);
         }
 
+        // Update Ammo Count
         String ammoText = String.format("%d / %d", playerData.bulletsLeft, 30);
         if (!playerUI.getAmmoCount().getText().equals(ammoText)) {
             playerUI.getAmmoCount().setText(ammoText);
         }
 
+        // Update Firing Mode
         if (playerData.firingMode != null) {
             String fireModeText = playerData.firingMode.name();
             if (!playerUI.getFiringMode().getText().equals(fireModeText)) {

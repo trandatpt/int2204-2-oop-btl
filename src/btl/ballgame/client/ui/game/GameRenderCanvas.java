@@ -52,8 +52,6 @@ public class GameRenderCanvas extends Screen {
         ctx = canvas.getGraphicsContext2D();
         ctx.setImageSmoothing(true);
 
-        // (REMOVED) AnimationTimer was moved to GameCompositeScreen
-
         this.listenToKeys();
     }
 

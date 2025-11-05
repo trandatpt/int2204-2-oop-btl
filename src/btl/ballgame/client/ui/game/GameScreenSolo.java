@@ -62,12 +62,12 @@ public class GameScreenSolo extends Screen {
     public void onInit() {
         BorderPane root = new BorderPane();
 
-        // Background
+        // --- Set Background Images ---
         BackgroundSize mainBgSize = new BackgroundSize(100, 100, true, true, false, true);
 
         BackgroundSize borderBgSize = new BackgroundSize(100, 100, true, true, false, true);
         BackgroundImage mainBg = new BackgroundImage(
-                CSAssets.VS_BACKGROUND2, // Using GIF background
+                CSAssets.VS_BACKGROUND2,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundPosition.CENTER,
@@ -75,25 +75,31 @@ public class GameScreenSolo extends Screen {
         );
 
         BackgroundImage borderBg = new BackgroundImage(
-                CSAssets.BORDER_BG, // Your new border image
+                CSAssets.BORDER_BG,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundPosition.CENTER,
-                borderBgSize // Also stretch to fit
+                borderBgSize
         );
         root.setBackground(new Background(mainBg, borderBg));
 
-        // --- Center: Game Canvas (The "left side" of the layout) ---
+        // --- Center: Game Canvas ---
         if (this.gameRenderCanvas != null) {
             this.gameRenderCanvas.onInit();
             root.setCenter(this.gameRenderCanvas);
-            BorderPane.setMargin(this.gameRenderCanvas, new Insets(10, 10, 40, 200)); // Adjusted padding
+            BorderPane.setMargin(this.gameRenderCanvas, new Insets(10, 10, 40, 200));
         }
 
         // --- TOP PANE (for LEVEL) ---
         levelLabel = new Label("LEVEL 1"); // Placeholder
         levelLabel.setTextFill(Color.WHITE);
-        levelLabel.setStyle("-fx-font-size: 36px; -fx-font-weight: bold; -fx-font-family: 'Arial'; -fx-text-fill: white; -fx-stroke: red; -fx-stroke-width: 2;");
+        levelLabel.setStyle("-fx-font-size: 36px; " +
+                "-fx-font-weight: bold; " +
+                "-fx-font-family: 'Arial'; " +
+                "-fx-text-fill: white; " +
+                "-fx-stroke: red; " +
+                "-fx-stroke-width: 2;"
+        );
         levelLabel.setPadding(new Insets(5));
 
         StackPane levelBox = new StackPane(levelLabel);
@@ -111,36 +117,47 @@ public class GameScreenSolo extends Screen {
         root.setTop(topPane);
 
 
-        // --- SOLO INFO PANE (RIGHT) ---
+        // --- SOLO INFO PANE ---
         VBox infoPaneSolo = new VBox(10);
         infoPaneSolo.setPrefWidth(400);
         infoPaneSolo.setMaxHeight(400);
-        infoPaneSolo.setPadding(new Insets(15));
-        infoPaneSolo.setStyle("-fx-background-color: rgba(34,34,34,0.7); -fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;");
+        infoPaneSolo.setPadding(new Insets(30, 15, 15, 15));
+        infoPaneSolo.setStyle("-fx-background-color: rgba(34,34,34,0.7); " +
+                "-fx-border-color: white; " +
+                "-fx-border-radius: 10; " +
+                "-fx-background-radius: 10;"
+        );
         infoPaneSolo.setAlignment(Pos.TOP_CENTER);
 
         // Team Box
         HBox teamBoxSolo = new HBox(8);
         teamBoxSolo.setAlignment(Pos.TOP_CENTER);
         teamBoxSolo.setPadding(new Insets(5));
-        teamBoxSolo.setStyle("-fx-background-color: rgba(34,34,34,0.6); -fx-border-color: white; -fx-border-radius: 10;");
+        teamBoxSolo.setStyle("-fx-background-color: rgba(34,34,34,0.6); " +
+                "-fx-border-color: white; " +
+                "-fx-border-radius: 10;"
+        );
 
+        // Team Logo and Label
         ImageView logoViewSolo = new ImageView(logoTeam_1);
         logoViewSolo.setFitWidth(40);
         logoViewSolo.setFitHeight(40);
         StackPane colorBoxSolo = new StackPane(logoViewSolo);
         colorBoxSolo.setPrefSize(40, 40);
         Label teamLabelSolo = new Label("SOLO");
-        teamLabelSolo.setTextFill(Color.WHITE);
+        teamLabelSolo.setTextFill(Color.LIGHTBLUE);
         teamLabelSolo.setStyle("-fx-font-size: 30px; -fx-font-weight: bold;");
         teamBoxSolo.getChildren().addAll(colorBoxSolo, teamLabelSolo);
 
+        // Lives Label
         Label teamLivesLabelSolo = new Label("Lives");
         teamLivesLabelSolo.setStyle("-fx-font-size: 16px; -fx-text-fill: white;");
 
+        // Hearts HBox
         heartsSolo = new HBox(5);
         heartsSolo.setAlignment(Pos.TOP_CENTER);
 
+        // Score HBox
         HBox scoreBoxSolo = new HBox(10);
         scoreBoxSolo.setAlignment(Pos.CENTER);
         Label scoreLabelSolo = new Label("Score:");
@@ -148,25 +165,37 @@ public class GameScreenSolo extends Screen {
         scoreLabelSolo.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
         scoreValueSolo = new Label("0000000000000000");
         scoreValueSolo.setTextFill(Color.WHITE);
-        scoreValueSolo.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-font-family: 'Monospaced';");
+        scoreValueSolo.setStyle("-fx-font-size: 20px; " +
+                "-fx-font-weight: bold; " +
+                "-fx-font-family: 'Monospaced';"
+        );
         scoreBoxSolo.getChildren().addAll(scoreLabelSolo, scoreValueSolo);
 
+        // Player
         playerBoxSolo = new VBox(10);
-        playerBoxSolo.setAlignment(Pos.CENTER_RIGHT); // Align right
+        playerBoxSolo.setAlignment(Pos.CENTER_RIGHT);
         playerBoxSolo.setId("playerBoxSolo");
 
-        infoPaneSolo.getChildren().addAll(teamBoxSolo, teamLivesLabelSolo, heartsSolo, scoreBoxSolo, playerBoxSolo);
+        infoPaneSolo.getChildren().addAll(teamBoxSolo, teamLivesLabelSolo,
+                heartsSolo, scoreBoxSolo, playerBoxSolo);
         VBox.setMargin(playerBoxSolo, new Insets(15, 0, 0, 0));
 
+        // Border Image
+        ImageView borderViewSolo = new ImageView(CSAssets.BORDER_BLUE);
+        borderViewSolo.setFitWidth(400);
+        borderViewSolo.setFitHeight(400);
+        borderViewSolo.setPreserveRatio(false);
+        borderViewSolo.setMouseTransparent(true);
+
         // Container for padding/alignment
-        StackPane rightContainer = new StackPane(infoPaneSolo);
-        rightContainer.setPadding(new Insets(0, 200, 100, 200)); // Adjusted padding
+        StackPane rightContainer = new StackPane(infoPaneSolo, borderViewSolo);
+        rightContainer.setPadding(new Insets(0, 200, 100, 200));
         BorderPane.setAlignment(rightContainer, Pos.CENTER);
 
-        root.setRight(rightContainer); // Set to RIGHT
+        root.setRight(rightContainer);
         this.addElement("root", root);
 
-        // --- Game Loop (Fixed Timestep) ---
+        // --- Game Loop ---
         lastTick = System.nanoTime();
 
         final long MAX_DELTA_TIME_NS = Constants.NS_PER_TICK * 5;
@@ -185,7 +214,7 @@ public class GameScreenSolo extends Screen {
                 delta += elapsedTime;
 
                 while (delta >= Constants.NS_PER_TICK) {
-                    onUpdate(fixedTpf); // <-- Use fixed tpf
+                    onUpdate(fixedTpf);
                     delta -= Constants.NS_PER_TICK;
                 }
 
@@ -200,7 +229,7 @@ public class GameScreenSolo extends Screen {
     public void onUpdate(float tpf) {
         if (match == null) return;
 
-        // (NEW) Update Level Counter (using getRoundIndex())
+        // Level Counter
         String levelText = String.format("LEVEL %d", match.getRoundIndex());
         if (levelLabel != null && !levelLabel.getText().equals(levelText)) {
             levelLabel.setText(levelText);
@@ -208,8 +237,7 @@ public class GameScreenSolo extends Screen {
 
         if (match.getTeams() == null) return;
 
-        // --- (MODIFIED) Only update one team ---
-        // (Assuming RED team for solo, as per last file)
+        // Update SOLO Team Info
         CTeamInfo soloTeam = match.getTeams().get(TeamColor.RED);
         if (soloTeam != null) {
             updateTeamUI(soloTeam, scoreValueSolo, heartsSolo, playerBoxSolo, Color.RED);
@@ -220,7 +248,8 @@ public class GameScreenSolo extends Screen {
      * (Copied from GameScreen)
      * Helper method to update all UI components for a single team.
      */
-    private void updateTeamUI(CTeamInfo teamData, Label scoreLabel, HBox heartsBox, VBox playerBox, Color teamColor) {
+    private void updateTeamUI(CTeamInfo teamData, Label scoreLabel,
+                              HBox heartsBox, VBox playerBox, Color teamColor) {
         if (teamData == null) return;
 
         String scoreText = String.format("%016d", teamData.arkScore);
@@ -242,7 +271,6 @@ public class GameScreenSolo extends Screen {
             for (CPlayerInfo player : teamData.players) {
                 PlayerInfoUI ui = playerUIMap.computeIfAbsent(
                         player.uuid.toString(),
-                        // (FIXED) Use "P" as the tag, AND align RIGHT
                         k -> PlayerInfoBuilder.createPlayerInfoBox("P", Pos.CENTER_RIGHT)
                 );
                 updatePlayerUI(ui, player);
