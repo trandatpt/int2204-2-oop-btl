@@ -10,6 +10,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 
 public class RoomScreenTwoVsTwo extends Screen {
@@ -17,8 +18,8 @@ public class RoomScreenTwoVsTwo extends Screen {
     private ArkanoidClientCore core;
     private BoxPlayer[] team1Boxes = new BoxPlayer[2];
     private BoxPlayer[] team2Boxes = new BoxPlayer[2];
-    private Image[] team1Images = new Image[2];
-    private Image[] team2Images = new Image[2];
+    private MediaPlayer[] team1Background = new MediaPlayer[2];
+    private MediaPlayer[] team2Background = new MediaPlayer[2];
 
     public RoomScreenTwoVsTwo() {
         super("Room 2 vs 2");
@@ -26,10 +27,10 @@ public class RoomScreenTwoVsTwo extends Screen {
             throw new IllegalStateException("Core is null!");
         }
         // add Image
-        team1Images[0] = CSAssets.LOGO;
-        team1Images[1] = CSAssets.LOGO;
-        team2Images[0] = CSAssets.LOGO;
-        team2Images[1] = CSAssets.LOGO;
+        team1Background[0] = CSAssets.randomGif();
+        team1Background[1] = CSAssets.randomGif();
+        team2Background[0] = CSAssets.randomGif();
+        team2Background[1] = CSAssets.randomGif();
     }
 
     @Override
@@ -74,12 +75,12 @@ public class RoomScreenTwoVsTwo extends Screen {
         root.setTop(headerBox);
 
         // Center content
-        HBox centerBox = new HBox(350);
+        HBox centerBox = new HBox(300);
         centerBox.setAlignment(Pos.CENTER);
         centerBox.setPadding(new Insets(20));
 
-        VBox team1Box = createTeamBox("Team 1", Color.RED, team1Images, team1Boxes);
-        VBox team2Box = createTeamBox("Team 2", Color.BLUE, team2Images, team2Boxes);
+        VBox team1Box = createTeamBox("Team 1", Color.RED, team1Background, team1Boxes);
+        VBox team2Box = createTeamBox("Team 2", Color.BLUE, team2Background, team2Boxes);
 
         centerBox.getChildren().addAll(team1Box, team2Box);
         root.setCenter(centerBox);
@@ -107,11 +108,16 @@ public class RoomScreenTwoVsTwo extends Screen {
         this.addElement("room2v2", root);
     }
 
-    private VBox createTeamBox(String teamName, Color c, Image[] image, BoxPlayer[] teamBoxes) {
-        VBox teamBox = new VBox(25);
+    private VBox createTeamBox(String teamName, Color c, MediaPlayer[] media, BoxPlayer[] teamBoxes) {
+        VBox teamBoxFull = new VBox(10);
+        teamBoxFull.setAlignment(Pos.CENTER);
+        teamBoxFull.setPadding(new Insets(15));
+        teamBoxFull.setMaxSize(800, 800);
+
+
+        HBox teamBox = new HBox(20);
         teamBox.setAlignment(Pos.CENTER);
-        teamBox.setPadding(new Insets(15));
-        teamBox.setPrefSize(350, 450);
+        teamBox.setPrefSize(600, 800);
 
         String color = null;
         if (c.equals(Color.RED)) {
@@ -120,7 +126,7 @@ public class RoomScreenTwoVsTwo extends Screen {
             color = "blue";
         }
 
-        teamBox.setStyle(
+        teamBoxFull.setStyle(
             "-fx-background-color: #2b2b2b;" +
             "-fx-border-color: " + color + ";" +
             "-fx-border-width: 2px;" +
@@ -132,17 +138,19 @@ public class RoomScreenTwoVsTwo extends Screen {
         teamLabel.setTextFill(c);
         teamLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
-        teamBox.getChildren().add(teamLabel);
         for (int i = 0; i < 2; i++) {
-            BoxPlayer playerBox = createPlayerBox(teamName + " - Player " + (i + 1), image[i]);
+            BoxPlayer playerBox = createPlayerBox(teamName + " - Player " + (i + 1), media[i]);
             teamBoxes[i] = playerBox;
             teamBox.getChildren().add(playerBox);
         }
-        return teamBox;
+        teamBoxFull.getChildren().addAll(teamLabel, teamBox);
+        teamBoxFull.setAlignment(Pos.CENTER);
+
+        return teamBoxFull;
     }
 
-    private BoxPlayer createPlayerBox(String placeholder, Image image) {
-        BoxPlayer box = new BoxPlayer(placeholder, 280, 180, image);
+    private BoxPlayer createPlayerBox(String placeholder, MediaPlayer media) {
+        BoxPlayer box = new BoxPlayer(placeholder, 259.2, 460.8, media);
 
         box.getNameField().setOnAction(e -> {
             String text = box.getNameField().getText().trim();
@@ -151,13 +159,15 @@ public class RoomScreenTwoVsTwo extends Screen {
             String[] existingNames = getAllPlayerNames();
 
             if (text.isEmpty()) {
+                SoundManager.clickFalse();
                 box.showWarning("Name cannot be empty!");
                 return;
             }
 
             // check duplicate
             for (String n : existingNames) {
-                if (n != null && text.equalsIgnoreCase(n)) {
+                if (n != null && text.equals(n)) {
+                    SoundManager.clickFalse();
                     box.showWarning("Duplicate name!");
                     return;
                 }
@@ -195,7 +205,7 @@ public class RoomScreenTwoVsTwo extends Screen {
                 return;
             }
         }
-        //SoundManager.clickBottonLogin();
+        SoundManager.clickBottonLogin();
         // add code
     }
 

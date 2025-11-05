@@ -8,20 +8,24 @@ import btl.ballgame.client.ui.screen.Screen;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.layout.*;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 
 public class RoomScreenOneVsOne extends Screen {
     private ArkanoidClientCore core;
     private BoxPlayer player1Box;
     private BoxPlayer player2Box;
+    private MediaPlayer player1Background;
+    private MediaPlayer player2Background;
 
     public RoomScreenOneVsOne() {
         super("Room 1 vs 1");
         if ((this.core = ArkanoidGame.core()) == null) {
             throw new IllegalStateException("Core is null!");
         }
+        player1Background = CSAssets.randomGif();
+        player2Background = CSAssets.randomGif();
     }
 
     @Override
@@ -66,12 +70,12 @@ public class RoomScreenOneVsOne extends Screen {
         root.setTop(headerBox);
 
         // Center content
-        HBox centerBox = new HBox(350);
+        HBox centerBox = new HBox(400);
         centerBox.setAlignment(Pos.CENTER);
         centerBox.setPadding(new Insets(20));
 
-        VBox team1Box = createTeamBox("Player 1", Color.RED, CSAssets.LOGO, player1Box);
-        VBox team2Box = createTeamBox("Player 2", Color.BLUE, CSAssets.LOGO, player2Box);
+        VBox team1Box = createTeamBox("Player 1", Color.RED, player1Background);
+        VBox team2Box = createTeamBox("Player 2", Color.BLUE, player2Background);
 
         centerBox.getChildren().addAll(team1Box, team2Box);
         root.setCenter(centerBox);
@@ -100,7 +104,7 @@ public class RoomScreenOneVsOne extends Screen {
     }
 
 
-    private VBox createTeamBox(String teamName, Color c, Image image, BoxPlayer playerBox) {
+    private VBox createTeamBox(String teamName, Color c, MediaPlayer media) {
         VBox teamBox = new VBox(25);
         teamBox.setAlignment(Pos.CENTER);
         teamBox.setPadding(new Insets(15));
@@ -125,35 +129,40 @@ public class RoomScreenOneVsOne extends Screen {
         teamLabel.setTextFill(c);
         teamLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
-        BoxPlayer player = createPlayerBox(teamName, image);
-        player1Box = player;
-        teamBox.getChildren().add(teamLabel);
-        teamBox.getChildren().add(player);
+        BoxPlayer player = createPlayerBox(teamName, media);
+        if (teamName.equals("Player 1")) {
+            player1Box = player;
+        } else {
+            player2Box = player;
+        }
+        
+        teamBox.getChildren().addAll(teamLabel, player);
         return teamBox;
     }
 
-    private BoxPlayer createPlayerBox(String placeholder, Image image) {
-        BoxPlayer box = new BoxPlayer(placeholder, 280, 400, image);
+    private BoxPlayer createPlayerBox(String placeholder, MediaPlayer media) {
+        BoxPlayer box = new BoxPlayer(placeholder, 288, 512, media);
 
         box.getNameField().setOnAction(e -> {
             String text = box.getNameField().getText().trim();
 
-            String otherName = null;
-            if (placeholder.equals("Team 1") && player2Box != null && player2Box.getLabelName() != null) {
-                otherName = player2Box.getLabelName().getText();
-            } else if (placeholder.equals("Team 2") && player1Box != null && player1Box.getLabelName() != null) {
-                otherName = player1Box.getLabelName().getText();
-            }
+            // collect all other names
+            String[] existingNames = getAllPlayerNames();
 
             // check duplicate
             if (text.isEmpty()) {
                 SoundManager.clickFalse();
                 box.showWarning("Name cannot be empty!");
                 return;
-            } else if (otherName != null && text.equalsIgnoreCase(otherName)) {
-                SoundManager.clickFalse();
-                box.showWarning("Duplicate name!");
-                return;
+            }
+
+            // check duplicate
+            for (String n : existingNames) {
+                if (n != null && text.equals(n)) {
+                    SoundManager.clickFalse();
+                    box.showWarning("Duplicate name!");
+                    return;
+                }
             }
 
             SoundManager.clickSoundConfirm();
@@ -165,6 +174,16 @@ public class RoomScreenOneVsOne extends Screen {
         return box;
     }
 
+    private String[] getAllPlayerNames() {
+        String[] names = new String[2];
+            if (player1Box != null && player1Box.getLabelName().isVisible()) {
+                names[0] = player1Box.getLabelName().getText();
+            }
+            if (player2Box != null && player2Box.getLabelName().isVisible()) {
+                names[1] = player2Box.getLabelName().getText();
+            }
+        return names;
+    }
 
     private void startGame() {
         if (!player1Box.hasName() || !player2Box.hasName()) {
