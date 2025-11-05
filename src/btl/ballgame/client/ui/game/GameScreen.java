@@ -134,7 +134,7 @@ public class GameScreen extends Screen {
         infoPaneRight.setPrefWidth(400);
         infoPaneRight.setMaxHeight(600);
         infoPaneRight.setPadding(new Insets(40, 15, 15, 15));
-        infoPaneRight.setStyle("-fx-background-color: rgba(59, 130, 246, 0.7); -fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;");
+        infoPaneRight.setStyle("-fx-background-color: rgba(59, 130, 246, 0.5); -fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;");
         infoPaneRight.setAlignment(Pos.TOP_CENTER);
 
         HBox teamBoxRight = new HBox(8);
@@ -195,7 +195,7 @@ public class GameScreen extends Screen {
         infoPaneLeft.setPrefWidth(400);
         infoPaneLeft.setMaxHeight(600);
         infoPaneLeft.setPadding(new Insets(40, 15, 15, 15));
-        infoPaneLeft.setStyle("-fx-background-color: rgba(220, 38, 38, 0.7); -fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;");
+        infoPaneLeft.setStyle("-fx-background-color: rgba(220, 38, 38, 0.5); -fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;");
         infoPaneLeft.setAlignment(Pos.TOP_CENTER);
 
         HBox teamBoxLeft = new HBox(8);

@@ -2,6 +2,7 @@ package btl.ballgame.client.ui.game;
 
 import btl.ballgame.client.ArkanoidClientCore;
 import btl.ballgame.client.ArkanoidGame;
+import btl.ballgame.client.CSAssets;
 import btl.ballgame.client.ClientArkanoidMatch;
 import btl.ballgame.client.net.systems.CSWorld;
 import btl.ballgame.client.ui.screen.Screen;
@@ -9,8 +10,9 @@ import btl.ballgame.shared.libs.Constants.ParticlePriority;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color; // (KEPT) Color is needed
+import javafx.scene.paint.Color;
 
 public class GameRenderCanvas extends Screen {
     private CSWorld world;
@@ -34,7 +36,16 @@ public class GameRenderCanvas extends Screen {
         canvas = new Canvas(world.getWidth(), world.getHeight());
         canvas.setStyle("-fx-background-color: transparent;");
 
-        centerPane.getChildren().add(canvas);
+        ImageView borderView = new ImageView(CSAssets.BORDER_GAME);
+
+        double borderWidth = world.getWidth() + 60;
+        double borderHeight = world.getHeight() + 45;
+
+        borderView.setFitWidth(borderWidth);
+        borderView.setFitHeight(borderHeight);
+        borderView.setPreserveRatio(false);
+
+        centerPane.getChildren().addAll(borderView, canvas);
 
         this.addElement("centerPane", centerPane);
 

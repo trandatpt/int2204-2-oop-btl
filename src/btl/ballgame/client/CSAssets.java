@@ -15,7 +15,8 @@ public class CSAssets {
         VS_BACKGROUND3 = image("background2.gif"),
         BORDER_BG = image("BorderBackground.png"),
         BORDER_RED = image("redBorder.png"),
-        BORDER_BLUE = image("blueBorder.png")
+        BORDER_BLUE = image("blueBorder.png"),
+        BORDER_GAME = image("GameBorder.png");
 	;
 	
 	public static void init() {
