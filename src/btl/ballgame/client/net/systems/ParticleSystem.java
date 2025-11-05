@@ -2,6 +2,7 @@ package btl.ballgame.client.net.systems;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -65,6 +66,7 @@ public class ParticleSystem {
 	public void render(ParticlePriority priority, GraphicsContext cv) {
 		var particles = particlesStorage.get(priority);
 		if (particles == null) return;
+		cv.save();
 		particles.removeIf(Particle::isDead);
 		particles.forEach(particle -> {
 			if (particle.isDead()) {
@@ -73,7 +75,11 @@ public class ParticleSystem {
 			particle.update();
 			particle.render(cv);
 		});
-		cv.setGlobalAlpha(1.0);
+		cv.restore();
+	}
+	
+	public Collection<Particle> get(ParticlePriority priority) {
+		return particlesStorage.get(priority);
 	}
     
 	/**
@@ -151,8 +157,14 @@ public class ParticleSystem {
 			}
 		}
 		
+		private boolean removed = false;
+		
+		public void remove() {
+			this.removed = true;
+		}
+		
 		public boolean isDead() {
-			return life <= 0 || size <= 0;
+			return removed || life <= 0 || size <= 0;
 		}
 		
 		/**
@@ -161,8 +173,8 @@ public class ParticleSystem {
 		 * @param gc canvas
 		 */
 		public void render(GraphicsContext gc) {
-			gc.setGlobalAlpha(this.alpha);
 			gc.save();
+			gc.setGlobalAlpha(this.alpha);
 
 			// rotate
 			if (this.rotation != 0) {

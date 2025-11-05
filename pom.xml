@@ -7,6 +7,8 @@
 	<properties>
 		<java.version>18</java.version>
 		<javafx.version>22.0.2</javafx.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
 	
 	<dependencies>
@@ -43,6 +45,7 @@
 				<version>3.8.1</version>
 				<configuration>
 					<release>18</release>
+					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
 		</plugins>

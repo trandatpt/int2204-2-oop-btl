@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import btl.ballgame.client.net.CServerConnection;
 import btl.ballgame.client.net.handle.ServerClientFlagsHandle;
+import btl.ballgame.client.net.handle.ServerDisplayTitleHandle;
 import btl.ballgame.client.net.handle.ServerEntityBBSizeUpdateHandle;
 import btl.ballgame.client.net.handle.ServerEntityDestroyHandle;
 import btl.ballgame.client.net.handle.ServerEntityMetadataUpdateHandle;
@@ -51,6 +52,7 @@ import btl.ballgame.protocol.packets.out.PacketPlayOutLoginAck;
 import btl.ballgame.protocol.packets.out.PacketPlayOutMatchJoin;
 import btl.ballgame.protocol.packets.out.PacketPlayOutMatchMetadata;
 import btl.ballgame.protocol.packets.out.PacketPlayOutPing;
+import btl.ballgame.protocol.packets.out.PacketPlayOutTitle;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.EntityType;
 
@@ -112,6 +114,7 @@ public class ArkanoidClientCore {
 		this.registry.registerHandler(PacketPlayOutEntityBBSizeUpdate.class, new ServerEntityBBSizeUpdateHandle());
 		this.registry.registerHandler(PacketPlayOutEntityDestroy.class, new ServerEntityDestroyHandle());
 		this.registry.registerHandler(PacketPlayOutClientFlags.class, new ServerClientFlagsHandle());
+		this.registry.registerHandler(PacketPlayOutTitle.class, new ServerDisplayTitleHandle());
 	}
 	
 	/**

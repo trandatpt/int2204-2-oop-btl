@@ -6,6 +6,7 @@ import btl.ballgame.server.ArkaPlayer;
 import btl.ballgame.server.game.WorldEntity;
 import btl.ballgame.server.game.entities.IOwnableEntity;
 import btl.ballgame.server.game.entities.dynamic.EntityFallingItem;
+import btl.ballgame.server.game.match.ArkanoidMatch;
 
 public class EntityItemBrick extends EntityBrick {
 	public EntityItemBrick(int id, Location location) {
@@ -19,17 +20,20 @@ public class EntityItemBrick extends EntityBrick {
 
 	@Override
 	public void onObjectBroken(WorldEntity damager) {
-		if (damager instanceof IOwnableEntity wb) {
+		if (damager instanceof IOwnableEntity wb && wb.getOwner() != null) {
 			ArkaPlayer owner = wb.getOwner();
 			Location loc = getLocation();
+			ArkanoidMatch match = owner.getCurrentGame();
+			if (match == null) return;
+			
 			EntityFallingItem buff = new EntityFallingItem(
 				world.nextEntityId(),
 				new Location(world, loc.getX(), loc.getY(), 0),
-				owner.getCurrentGame().getTeamOf(owner).getTeamColor(),
+				match.getTeamOf(owner).getTeamColor(),
 				ItemType.values()[world.random.nextInt(2)]
 			);
 			buff.onPickup(e -> {
-				System.out.println(e.getPlayer().getName() + " picked me up!");
+				match.onItemCollected(buff, owner);
 			});
 			world.runNextTick(() -> world.addEntity(buff));
 		}

@@ -1,9 +1,11 @@
 package btl.ballgame.client.net.systems.entities;
 
+import btl.ballgame.client.ArkanoidGame;
 import btl.ballgame.client.net.systems.CSInterpolatedEntity;
 import btl.ballgame.client.net.systems.ParticleSystem;
 import btl.ballgame.shared.libs.Constants.ParticlePriority;
 import btl.ballgame.shared.libs.Constants.ParticleType;
+import btl.ballgame.shared.libs.Constants.TeamColor;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.Constants.DriftBehavior;
 import javafx.scene.canvas.GraphicsContext;
@@ -13,9 +15,11 @@ import javafx.scene.paint.Color;
 public class CEntityWreckingBall extends CSInterpolatedEntity {
 	private Image ballImage;
 	private boolean primary;
+	private boolean renderUpsideDown;
 	
 	public CEntityWreckingBall() {
 		this.ballImage = atlas().getAsImage("ball", "ball_normal");
+		this.renderUpsideDown = ArkanoidGame.core().getActiveMatch().getCurrentTeam() == TeamColor.BLUE;
 	}
 	
 	@Override
@@ -29,12 +33,22 @@ public class CEntityWreckingBall extends CSInterpolatedEntity {
 		super.render(cv); // interpolation
 		int tint = primary ? 0xFFFFFF : 0xe00707; // red if the ball is unimportant
 		
+		cv.save();
+		if (renderUpsideDown) { // if the item falls up (blue), flip it
+			// flip vertically around the item's center
+			double centerY = getRenderY() + (getRenderHeight()) / 2.0;
+			cv.translate(0, centerY); // center the flip
+			cv.scale(1, -1);
+			cv.translate(0, -centerY); // restore
+		}
+		
 		// draw the ball
 		drawTinted(cv, ballImage, 
 			getRenderX(), getRenderY(), 
 			getRenderWidth(), getRenderHeight(),
 		tint);
 		
+		cv.restore();
 		if (!primary) return;
 		// spawn particles after the ball
 		ParticleSystem.Particle trail = new ParticleSystem.Particle(ParticleType.RECTANGLE,

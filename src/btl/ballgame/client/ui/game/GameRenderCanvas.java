@@ -6,6 +6,7 @@ import btl.ballgame.client.ClientArkanoidMatch;
 import btl.ballgame.client.net.systems.CSWorld;
 import btl.ballgame.client.ui.screen.Screen;
 import btl.ballgame.shared.libs.Constants.ParticlePriority;
+import btl.ballgame.shared.libs.Constants.TeamColor;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -50,18 +51,37 @@ public class GameRenderCanvas extends Screen {
      * (NEW) This function is now called by the central game loop
      * in GameCompositeScreen.
      */
-    public void doRender() {
-        if (ctx == null) return;
+	public void doRender() {
+		if (ctx == null) {
+			return;
+		}
+		
+		// fill the background
+		ctx.setFill(Color.GRAY);
+		ctx.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+		
+		world.particles().flushQueue();
 
-        ctx.setFill(Color.BLACK);
-        ctx.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+		// flip the view vertically for blue team players,
+		// so their paddles always appear at the bottom of the screen
+		// regardless of the server's coordinate system 
+		boolean shouldFlip = match.getCurrentTeam() == TeamColor.BLUE;
+		if (shouldFlip) {
+			ctx.save();
+			ctx.translate(0, canvas.getHeight());
+			ctx.scale(1, -1);
+		}
 
-        // (Original render logic)
-        world.particles().flushQueue();
-        world.particles().render(ParticlePriority.BEFORE_ENTITIES, ctx);
-        world.getAllEntities().forEach(e -> e.render(ctx));
-        world.particles().render(ParticlePriority.AFTER_ENTITIES, ctx);
-    }
+		world.particles().render(ParticlePriority.BEFORE_ENTITIES, ctx);
+		world.getAllEntities().forEach(e -> e.render(ctx));
+		world.particles().render(ParticlePriority.AFTER_ENTITIES, ctx);
+
+		if (shouldFlip) ctx.restore();
+		
+		ctx.setGlobalAlpha(1.0);
+		// render particles that are upright REGARDLESS
+		world.particles().render(ParticlePriority.LATEST_IGNORE_FLIP, ctx);
+	}
 
     private void listenToKeys() {
         ArkanoidClientCore core = ArkanoidGame.core();
@@ -72,6 +92,7 @@ public class GameRenderCanvas extends Screen {
             switch (event.getCode()) {
                 case LEFT -> paddle.setMoveLeft(true);
                 case RIGHT -> paddle.setMoveRight(true);
+                case SPACE -> paddle.setShooting(true);
                 default -> {}
             }
         });
@@ -81,6 +102,7 @@ public class GameRenderCanvas extends Screen {
             switch (event.getCode()) {
                 case LEFT -> paddle.setMoveLeft(false);
                 case RIGHT -> paddle.setMoveRight(false);
+                case SPACE -> paddle.setShooting(false);
                 default -> {}
             }
         });

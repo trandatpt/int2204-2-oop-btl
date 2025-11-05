@@ -1,14 +1,15 @@
 package btl.ballgame.server.game;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntityBBSizeUpdate;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntityDestroy;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntityMetadata;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntityPosition;
+import btl.ballgame.server.game.entities.dynamic.EntityPaddle;
 import btl.ballgame.shared.libs.AABB;
 import btl.ballgame.shared.libs.DataWatcher;
 import btl.ballgame.shared.libs.EntityType;
@@ -33,7 +34,7 @@ public abstract class WorldEntity {
 	protected boolean active = false;
 	
 	/** set of chunks this entity currently occupies */
-	private Set<LevelChunk> occupiedChunks = new HashSet<>();
+	private Set<LevelChunk> occupiedChunks = ConcurrentHashMap.newKeySet();
 	
 	/** entity location and size metadata */
 	protected WorldServer world;
@@ -189,11 +190,11 @@ public abstract class WorldEntity {
 		this.y = loc.getY();
 		this.rot = loc.getRotation();
 		
+		this.computeBoundingBox();
 		// the most stupid broadphase check ever
 		if (oldX != x || oldY != y) {
 			this.computeOccupiedChunks();
 		}
-		this.computeBoundingBox();
 		
 		this.shouldUpdate = (oldX != x || oldY != y || oldRot != rot);
 	}
@@ -216,7 +217,7 @@ public abstract class WorldEntity {
 	 * `getNearbyEntities()` always returns correct results.
 	 */
 	protected void computeOccupiedChunks() {
-		Set<LevelChunk> newOccupiedChunks = new HashSet<>();
+		Set<LevelChunk> newOccupiedChunks = ConcurrentHashMap.newKeySet();
 		AABB aabb = getBoundingBox();
 		
 		int minChunkX = aabb.minX >> CHUNK_SHIFT;
@@ -238,7 +239,8 @@ public abstract class WorldEntity {
 			oldChunk.entityLeave(this);
 		}
 		
-		this.occupiedChunks = newOccupiedChunks;
+		occupiedChunks.clear();
+		occupiedChunks.addAll(newOccupiedChunks);
 		this.occupiedChunks.forEach(this::joinChunk);
 	}
 	
@@ -319,11 +321,11 @@ public abstract class WorldEntity {
 	 * world's entity registry.
 	 */
 	public void remove() {
-		if (!active) {
+		if (isDead()) {
 			return;
 		}
 		this.active = false;
-		new HashSet<>(occupiedChunks).forEach(chunk -> {
+		occupiedChunks.forEach(chunk -> {
 			leaveChunk(chunk);
 		});
 		

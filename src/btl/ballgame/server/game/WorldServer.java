@@ -4,13 +4,16 @@ import static btl.ballgame.server.game.LevelChunk.CHUNK_SHIFT;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import btl.ballgame.protocol.packets.out.IPacketPlayOut;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntitySpawn;
@@ -34,7 +37,7 @@ public class WorldServer implements IWorld {
 	
 	/** entity registry, mapped by the entity ID */
 	private LinkedHashMap<Integer, WorldEntity> entities = new LinkedHashMap<>();
-	private List<WorldEntity> entitiesToBeRemoved = new ArrayList<>();
+	private Queue<WorldEntity> entitiesToBeRemoved = new ConcurrentLinkedQueue<>();
 	
 	/** world metadata */
 	private int width, height;
@@ -46,7 +49,7 @@ public class WorldServer implements IWorld {
 	private ArkanoidMatch match;
 	
 	/** tick utilities **/
-	private List<Runnable> toRunNextTick = new ArrayList<>();
+	private Queue<Runnable> toRunNextTick = new ConcurrentLinkedQueue<>();
 	
 	/**
 	 * Constructs a new WorldServer (default random seed) with the specified dimensions. 
@@ -90,7 +93,7 @@ public class WorldServer implements IWorld {
 	
 	/** @return A collection view of all currently loaded entities. */
 	public Collection<WorldEntity> getEntities() {
-		return entities.values();
+		return Collections.unmodifiableCollection(entities.values());
 	}
 	
 	/** @return true if this world has a ceiling (balls wont fly through the upper of the board) */
@@ -117,16 +120,20 @@ public class WorldServer implements IWorld {
 	 */
 	public void tick() {
 		// run queued actions
-		toRunNextTick.forEach(Runnable::run);
-		toRunNextTick.clear();
+		Runnable action;
+		while ((action = toRunNextTick.poll()) != null) {
+			action.run();
+		}
 		// tick entities
 		entities.forEach((id, entity) -> {
 			try { entity.entityTick(); } 
 			catch (Exception e) { e.printStackTrace(); } // prevent this from blowing up
 		});
 		// clear entities that were removed during the tick
-		entitiesToBeRemoved.forEach(entity -> entities.remove(entity.getId()));
-		entitiesToBeRemoved.clear();
+		WorldEntity toRemove;
+		while ((toRemove = entitiesToBeRemoved.poll()) != null) {
+			entities.remove(toRemove.getId());
+		}
 	}
 	
 	/**

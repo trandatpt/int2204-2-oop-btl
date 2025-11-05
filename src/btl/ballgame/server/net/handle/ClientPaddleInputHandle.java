@@ -3,6 +3,7 @@ package btl.ballgame.server.net.handle;
 import btl.ballgame.protocol.packets.PacketHandler;
 import btl.ballgame.protocol.packets.in.PacketPlayInPaddleControl;
 import btl.ballgame.server.ArkaPlayer;
+import btl.ballgame.server.game.entities.dynamic.EntityPaddle;
 import btl.ballgame.server.game.match.ArkanoidMatch;
 import btl.ballgame.server.net.PlayerConnection;
 
@@ -21,6 +22,9 @@ public class ClientPaddleInputHandle implements PacketHandler<PacketPlayInPaddle
 			return;
 		}
 		
-		match.paddleOf(player).enqueueControl(packet);
+		EntityPaddle paddle = match.paddleOf(player);
+		if (paddle != null) {
+			paddle.enqueueControl(packet);
+		}
 	}
 }

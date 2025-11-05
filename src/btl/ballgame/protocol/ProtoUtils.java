@@ -38,7 +38,8 @@ public class ProtoUtils {
 		PLAYOUT_WORLD_INIT         = 0xC0A,
 		PLAYOUT_MATCH_META_UPDATE  = 0xC0B,
 		PLAYOUT_GAME_OVER_SCREEN   = 0xC0C,
-		PLAYOUT_CLIENT_FLAGS       = 0xC0D
+		PLAYOUT_CLIENT_FLAGS       = 0xC0D,
+		PLAYOUT_DISPLAY_TITLE      = 0xC0E
 	;
 	
 	/**
@@ -76,5 +77,6 @@ public class ProtoUtils {
 		registry.registerPacket(PLAYOUT_MATCH_META_UPDATE, PacketPlayOutMatchMetadata.class, PacketPlayOutMatchMetadata::new);
 		registry.registerPacket(PLAYOUT_GAME_OVER_SCREEN, PacketPlayOutGameOver.class, PacketPlayOutGameOver::new);
 		registry.registerPacket(PLAYOUT_CLIENT_FLAGS, PacketPlayOutClientFlags.class, PacketPlayOutClientFlags::new);
+		registry.registerPacket(PLAYOUT_DISPLAY_TITLE, PacketPlayOutTitle.class, PacketPlayOutTitle::new);
 	}
 }

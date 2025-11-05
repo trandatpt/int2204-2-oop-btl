@@ -53,10 +53,13 @@ public class Constants {
 	}
 	
 	public static enum EnumTitle {
-		TITLE, 
+		PRETITLE, 
+		TITLE,
 		SUBTITLE
 	}
-
+	
+	public static record UPlayerEffect(EffectType effect, long endTime) {};
+	
 	public static enum DriftBehavior {
 		NONE(false, false, false), 
 		ROTATING_WHILE_DRIFTING(true, false, false), 
@@ -79,6 +82,7 @@ public class Constants {
 	public static enum ParticlePriority {
 		BEFORE_ENTITIES,
 		AFTER_ENTITIES,
+		LATEST_IGNORE_FLIP,
 	}
 	
 	/**

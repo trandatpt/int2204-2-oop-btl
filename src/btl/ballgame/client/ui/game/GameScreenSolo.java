@@ -39,7 +39,7 @@ public class GameScreenSolo extends Screen {
 
     // --- Image Assets ---
     private static final Image logoTeam_1 = CSAssets.sprites.__get("logo/logoTeam_1.png");
-    private static final Image RIFLE_IMAGE = CSAssets.sprites.__get("item/AK47-Tiles-01.png");
+    private static final Image RIFLE_IMAGE = CSAssets.sprites.__get("item/kalashnikov.png");
     private static final Image heartImage = CSAssets.sprites.__get("item/Heart-Tiles-01.png");
 
     // Map of player UUID to PlayerInfoUI for reuse

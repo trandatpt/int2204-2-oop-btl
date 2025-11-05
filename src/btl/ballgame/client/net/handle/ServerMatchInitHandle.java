@@ -18,7 +18,8 @@ public class ServerMatchInitHandle implements PacketHandler<PacketPlayOutMatchJo
 		}
 		
 		client.setActiveMatch(new ClientArkanoidMatch(
-			packet.getArkanoidMode(), 
+			packet.getArkanoidMode(),
+			packet.getTeamColor(),
 			packet.getNameMap()
 		));
 		client.setControlPaddle(null); // reset state

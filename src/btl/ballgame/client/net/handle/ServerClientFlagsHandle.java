@@ -15,8 +15,6 @@ public class ServerClientFlagsHandle implements PacketHandler<PacketPlayOutClien
 			return; // the server is sending bullshit again
 		}
 		
-		if (!packet.isMovementDisabled()) {
-			paddle.setCanMoveStatus(true);
-		}
+		paddle.setCanMoveStatus(!packet.isMovementDisabled());
 	}
 }

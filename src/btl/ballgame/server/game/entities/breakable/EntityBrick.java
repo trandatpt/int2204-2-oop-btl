@@ -50,9 +50,9 @@ public class EntityBrick extends BreakableEntity {
 	
 	@Override
 	public void onObjectBroken(WorldEntity damager) {
+		this.remove();
 		if (damager instanceof IOwnableEntity ownable) {
 			world.getHandle().onBrickDestroyed(this, ownable.getOwner());
 		}
-		this.remove();
 	}
 }

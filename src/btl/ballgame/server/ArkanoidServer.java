@@ -155,7 +155,6 @@ public class ArkanoidServer {
 				netMan.track(new PlayerConnection(this, client));
 			} catch (IOException e) {
 				e.printStackTrace();
-				break;
 			}
 		}
 	}
@@ -174,9 +173,9 @@ public class ArkanoidServer {
 			playerManager.getPlayer(parts[1]).kick("Kicked");
 			break;
 		case "test": {
-			ArkanoidMatch match = new ArkanoidMatch(new MatchSettings(ArkanoidMode.SOLO_ENDLESS, 2, 180, 3));
+			ArkanoidMatch match = new ArkanoidMatch(new MatchSettings(ArkanoidMode.ONE_VERSUS_ONE, 2, 180, 3));
 			match.assignTeam(TeamColor.RED, Arrays.asList(playerManager.getPlayer(parts[1])));
-			//match.assignTeam(TeamColor.BLUE, Arrays.asList(playerManager.getPlayer(parts[2])));
+			match.assignTeam(TeamColor.BLUE, Arrays.asList(playerManager.getPlayer(parts[2])));
 			match.start();
 			break;
 		}

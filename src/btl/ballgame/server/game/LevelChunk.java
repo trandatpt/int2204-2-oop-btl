@@ -3,6 +3,7 @@ package btl.ballgame.server.game;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Represents a single chunk in the game world.
@@ -24,7 +25,7 @@ public class LevelChunk {
 	private WorldServer world;
 	
 	/** set of entities currently in this chunk */
-	private Set<WorldEntity> entities = new HashSet<>();
+	Set<WorldEntity> entities = ConcurrentHashMap.newKeySet();
 	
 	/**
 	 * Constructs a new LevelChunk at the specified chunk coordinates.

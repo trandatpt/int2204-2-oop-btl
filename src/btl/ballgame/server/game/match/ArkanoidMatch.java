@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.IntConsumer;
 
 import btl.ballgame.protocol.packets.out.PacketPlayOutClientFlags;
 import btl.ballgame.protocol.packets.out.PacketPlayOutGameOver;
@@ -43,7 +44,7 @@ public class ArkanoidMatch {
 	private MatchPhase currentPhase = MatchPhase.MATCH_IDLING;
 	private TeamColor winner = null;
 	
-	private int roundIndex = 1;
+	private int roundIndex = 0;
 
 	private final Map<TeamColor, TeamInfo> teams = new HashMap<>();
 	private final Map<ArkaPlayer, TeamColor> teamMap = new HashMap<>();
@@ -54,6 +55,8 @@ public class ArkanoidMatch {
 	static final int BALL_SPAWN_MARGIN = 80;
 	static final int PADDLE_SPACING = 50;
 	static final int BASE_MARGIN = 50;
+	
+	private boolean paused = false;
 	
 	/**
 	 * Creates a new ArkanoidMatch instance.
@@ -69,7 +72,7 @@ public class ArkanoidMatch {
 		Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
 			try {
 				this.daemonTick();
-				if (matchStarted && currentPhase != MatchPhase.CONCLUDED) {
+				if (!paused && matchStarted && currentPhase != MatchPhase.CONCLUDED) {
 					this.world.tick();
 					this.onMatchTick();
 					this.effectsMap.forEach((p, e) -> {
@@ -89,8 +92,13 @@ public class ArkanoidMatch {
 			nameMatch.put(p.getUniqueId(), p.getName());
 		});
 		
-		// signal to the clients that a match is ready to be joined
-		this.world.broadcastPackets(new PacketPlayOutMatchJoin(matchId, gameMode, nameMatch));
+		// signal to the clients EACH TEAM that a match is ready to be joined
+		this.getPlayers().forEach(p -> {
+			p.playerConnection.sendPacket(new PacketPlayOutMatchJoin(
+				matchId, gameMode, nameMatch, 
+				getTeamOf(p).getTeamColor() // include the team color in the first packet too
+			));
+		});
 		this.syncMatchStateWithClients();
 		this.world.broadcastPackets(new PacketPlayOutWorldInit(world));
 		
@@ -100,11 +108,31 @@ public class ArkanoidMatch {
 	}
 	
 	public void beginCountdownAndStartMatch() {
-		runLater(30 * 5, () -> {
+		int seconds = 5; // countdown from 5
+		countdown(seconds, 30, timeLeft -> {
+			// called every second
+			getPlayers().forEach(p -> {
+				p.sendFormattedTitle(EnumTitle.TITLE, 
+					"<b>" + timeLeft, 
+					0xf0cd0a, 72, 
+					5, 20, 5
+				);
+			});
+		}, () -> {
+			// called when countdown finishes
 			this.matchStarted = true;
 			changePhase(MatchPhase.MATCH_ACTIVE);
-			// allow players to move their paddles
-			this.world.broadcastPackets(new PacketPlayOutClientFlags(false));
+
+			// allow players to move paddles
+			this.togglePaddleControl(true);
+			
+			getPlayers().forEach(p -> {
+				p.sendFormattedTitle(EnumTitle.TITLE, 
+					"<b>GO!", 
+					0xf0cd0a, 70, 
+					10, 30, 0
+				);
+			});
 		});
 	}
 
@@ -247,63 +275,6 @@ public class ArkanoidMatch {
 	}
 
 	/**
-	 * Resets the world and teams for a new round.
-	 */
-	private void resetForNextRound() {
-		for (TeamInfo team : teams.values()) {
-			team.resetForNextRound();
-		}
-		
-		world.getEntities().forEach(WorldEntity::remove);
-		paddlesMap.clear();
-	}
-	
-	/**
-	 * Called when a MULTIPLAYER round ends. Updates FT scores and resets teams for the next
-	 * round.
-	 * 
-	 * @param roundWinner The team that won the round, can be null for tie.
-	 */
-	public void onRoundMultiplayerEnd(TeamColor roundWinner) {
-		if (roundWinner != null) {
-			teams.get(roundWinner).addFTScore(1);
-		}
-		roundIndex++;
-		resetForNextRound();
-		changePhase(MatchPhase.MATCH_IDLING);
-		prepareMatch();
-		syncMatchStateWithClients();
-	}
-	
-	public void onRoundSinglePlayerEnd() {
-		roundIndex++;
-		spawnBricksAndBrushes();
-		respawnBallAndPaddleFor(getTeam(TeamColor.RED));
-		syncMatchStateWithClients();
-	}
-	
-	/**
-	 * Called when a round times out. Determines the winner by Arkanoid score and
-	 * ends the round.
-	 */
-	public void onTimeout() {
-		TeamColor roundWinner = null;
-		// find the team with the highest Arkanoid score
-		TeamInfo red = teams.get(TeamColor.RED);
-		TeamInfo blu = teams.get(TeamColor.BLUE);
-		// co moi hai team thoi nen thang nao bao tao dung for thi tao cho an don
-		if (red.getArkanoidScore() > blu.getArkanoidScore()) {
-			roundWinner = TeamColor.RED;
-		} else if (blu.getArkanoidScore() > red.getArkanoidScore()) {
-			roundWinner = TeamColor.BLUE;
-		} else {
-			// gambling
-			roundWinner = Math.random() < 0.5 ? TeamColor.RED : TeamColor.BLUE;
-		}
-		onRoundMultiplayerEnd(roundWinner);
-	}
-
-	/**
 	 * Assigns a team to a list of players.
 	 * 
 	 * @param team    The team color.
@@ -385,6 +356,7 @@ public class ArkanoidMatch {
 		}
 		map.remove(type);
 		oldEffect.remove();
+		getPlayerInfoOf(player).syncEffect(map);
 	}
 	
 	/**
@@ -400,6 +372,7 @@ public class ArkanoidMatch {
 		this.removeEffect(player, effect.getType()); // remove duplicate effects
 		map.put(effect.getType(), effect);
 		effect.activate();
+		getPlayerInfoOf(player).syncEffect(map);
 	}
 	
 	
@@ -520,14 +493,14 @@ public class ArkanoidMatch {
 			;
 			if (allDead) {
 				team.loseLife();
-				// if that team has no lives left, they lost this round
-				if (team.getLivesRemaining() <= 0) {
-					TeamColor winnerColor = teams.keySet().stream()
-						.filter(c -> c != team.getTeamColor()).findFirst()
-					.orElse(null);
-					this.onRoundMultiplayerEnd(winnerColor);
-					return;
-				}
+			}
+			// if that team has no lives left, they lost this round
+			if (team.getLivesRemaining() <= 0) {
+				TeamColor winnerColor = teams.keySet().stream()
+					.filter(c -> c != team.getTeamColor()).findFirst()
+				.orElse(null);
+				this.onRoundMultiplayerEnd(winnerColor);
+				return;
 			}
 		}
 
@@ -537,25 +510,43 @@ public class ArkanoidMatch {
 		}
 	}
 	
+	/**
+	 * Respawns the team's primary ball and repositions all its paddles to align
+	 * horizontally with the original ball's spawn X coordinate.
+	 *
+	 * @param team the team whose ball and paddles are being reset
+	 */
 	public void respawnBallAndPaddleFor(TeamInfo team) {
 		EntityWreckingBall newBall = new EntityWreckingBall(
 			world.nextEntityId(),
 			initialBallSpawnLocation.get(team.getTeamColor())
 		);
 		newBall.setPrimaryBall(true);
-		world.runNextTick(() -> world.addEntity(newBall));
-			
-		int originalX = newBall.getLocation().getX();
-		// SNAP the team back to their original position
-		team.getPlayers().forEach(p -> {
-			EntityPaddle paddle = paddleOf(p);
-			if (paddle != null) {
-				// how convenience
-				paddle.teleport(paddle.getLocation().clone().setX(
-					originalX
-				));
-			}
+		world.runNextTick(() -> {
+			int originalX = newBall.getLocation().getX();
+			// SNAP the team back to their original position
+			team.getPlayers().forEach(p -> {
+				EntityPaddle paddle = paddleOf(p);
+				if (paddle != null) {
+					// how convenience
+					paddle.teleport(paddle.getLocation().clone().setX(
+						originalX
+					));
+				}
+			});
+			// spawn the ball
+			world.addEntity(newBall);
 		});
+	}
+	
+	public int getPrimaryBallsLeft() {
+		int primaryBallsLeft = 0;
+		for (WorldEntity entity : this.world.getEntities()) {
+			if (entity instanceof EntityWreckingBall wb && wb.isPrimaryBall() && !wb.isDead()) {
+				++primaryBallsLeft;
+			}
+		}
+		return primaryBallsLeft;
 	}
 	
 	/**
@@ -574,16 +565,9 @@ public class ArkanoidMatch {
 		TeamInfo team = getTeam(responsible);
 		team.loseLife();
 		
-		int primaryBallsLeft = 0;
-		for (WorldEntity entity : this.world.getEntities()) {
-			if (entity instanceof EntityWreckingBall wb && wb.isPrimaryBall() && !wb.isDead()) {
-				++primaryBallsLeft;
-			}
-		}
-		
 		// lost both primary balls, bruh
-		// give the ball back to the one who just lost it
-		if (primaryBallsLeft <= 0) {
+		// give the ball back to the one who just lost it, if they have lives left
+		if (getPrimaryBallsLeft() <= 0 && team.getLivesRemaining() > 0) {
 			this.respawnBallAndPaddleFor(team);
 		}
 	}
@@ -595,6 +579,7 @@ public class ArkanoidMatch {
 	 * @param destroyedBy The one who that destroyed it.
 	 */
 	public void onBrickDestroyed(BreakableEntity breakable, ArkaPlayer destroyedBy) {
+		if (destroyedBy == null) return; // edge cases
 		int score = 0;
 		if (breakable instanceof EntityHardBrick) {
 			score = 80 * (breakable.getMaxHealth()) * (roundIndex + 1);
@@ -615,11 +600,135 @@ public class ArkanoidMatch {
 			}
 		}
 		
-		if (allClear) {
-			onRoundSinglePlayerEnd();
+		if (allClear && gameMode.isSinglePlayer()) {
+			onClassicArkanoidBrickClear();
 		}
 		
 		syncMatchStateWithClients();
+	}
+	
+	/**
+	 * Called when a MULTIPLAYER round ends. Updates FT scores and resets teams for the next
+	 * round.
+	 * 
+	 * @param roundWinner The team that won the round, can be null for tie.
+	 */
+	private void onRoundMultiplayerEnd(TeamColor roundWinner) {
+		if (roundWinner != null) {
+			teams.get(roundWinner).addFTScore(1);
+		}
+		roundIndex++;
+		for (TeamInfo team : teams.values()) {
+			team.resetForNextRound();
+		}
+		// remove ALL old world elements, including paddles
+		world.getEntities().forEach(e -> {
+			e.remove();
+		});
+		paddlesMap.clear();
+		
+		// respawn bricks and balls, like a brand new match
+		world.runNextTick(() -> {
+			this.prepareMatch();
+			this.paused = true; // stop the game tick
+		});
+		
+		for (ArkaPlayer player : getPlayers()) {
+		    boolean playerWon = getTeamOf(player).getTeamColor() == roundWinner;
+			player.sendFormattedTitle(
+				EnumTitle.TITLE, 
+				playerWon ? "<b>ROUND WON" : "<b>ROUND LOST",
+				playerWon ? 0xFFD700 : 0x1E90FF, // gold / dodger blue
+				64, 
+				5, 50, 5
+			);
+			player.sendFormattedTitle(
+		        EnumTitle.SUBTITLE,
+		        "RED: " + teams.get(TeamColor.RED).getFTScore() +
+		        " - BLUE: " + teams.get(TeamColor.BLUE).getFTScore(),
+		        0xFFFFFF, 
+		        32,
+		        5, 50, 5
+		    );
+		}
+		
+		runLater(60, () -> {
+			countdown(4, 30, (timeLeft) -> {
+				boolean intro = timeLeft == 4;
+				this.broadcastFormattedTitle(EnumTitle.TITLE, 
+					intro ? "<b>ROUND " + (roundIndex + 1) : "<b>" + timeLeft,
+					intro ? 0x12b5b2 : 0xf0cd0a, 
+					72,
+					5, 30, 5
+				);
+			}, () -> {
+				if (winner != null) return;
+				this.paused = false; // let the game tick runs again
+				this.togglePaddleControl(true);
+			});
+		});
+		
+		syncMatchStateWithClients();
+	}
+	
+	/**
+	 * Called when a SINGLEPLAYER round ends.
+	 * Unlike multiplayer, this only increments the level,
+	 * 
+	 * basically endless classic arkanoid
+	 */
+	private void onClassicArkanoidBrickClear() {
+		roundIndex++; // next level
+		this.togglePaddleControl(false);
+		
+		// remove old world elements, except for the paddles
+		world.getEntities().forEach(e -> {
+			if (!(e instanceof EntityPaddle)) {
+				e.remove();
+			}
+		});
+		// respawn bricks and balls, also teleporting the paddle back to the center
+		world.runNextTick(() -> {
+			this.spawnBricksAndBrushes();
+			this.respawnBallAndPaddleFor(getTeam(TeamColor.RED)); // red is the SP "team"
+			this.paused = true; // stop the game tick
+		});
+		
+		countdown(4, 30, (timeLeft) -> {
+			boolean intro = timeLeft == 4;
+			this.broadcastFormattedTitle(EnumTitle.TITLE, 
+				intro ? "<b>LEVEL " + (roundIndex + 1) : "<b>" + timeLeft,
+				intro ? 0x12b5b2 : 0xf0cd0a, 
+				72,
+				5, 30, 5
+			);
+		}, () -> {
+			this.paused = false; // let the game tick runs again
+			this.togglePaddleControl(true);
+		});
+		
+		syncMatchStateWithClients();
+	}
+	
+	/**
+	 * Called when a round times out. Determines the winner by Arkanoid score and
+	 * ends the round.
+	 */
+	public void onTimeout() {
+		TeamColor roundWinner = null;
+		// find the team with the highest Arkanoid score
+		TeamInfo red = teams.get(TeamColor.RED);
+		TeamInfo blu = teams.get(TeamColor.BLUE);
+		// co moi hai team thoi nen thang nao bao tao dung for thi tao cho an don
+		if (red.getArkanoidScore() > blu.getArkanoidScore()) {
+			roundWinner = TeamColor.RED;
+		} else if (blu.getArkanoidScore() > red.getArkanoidScore()) {
+			roundWinner = TeamColor.BLUE;
+		} else {
+			// gambling
+			roundWinner = Math.random() < 0.5 ? TeamColor.RED : TeamColor.BLUE;
+		}
+		onRoundMultiplayerEnd(roundWinner);
 	}
 
 	/**
@@ -628,7 +737,7 @@ public class ArkanoidMatch {
 	 * @param buff      The buff entity.
 	 * @param collector The player who collected it.
 	 */
-	public void onBuffCollected(EntityFallingItem buff, ArkaPlayer collector) {
+	public void onItemCollected(EntityFallingItem buff, ArkaPlayer collector) {
 		syncMatchStateWithClients();
 	}
 
@@ -757,13 +866,40 @@ public class ArkanoidMatch {
 			teamEntries.toArray(TeamEntry[]::new)
 		));
 	}
-
+	
+	/**
+	 * Allow/disallow players to control their paddles
+	 */
+	public void togglePaddleControl(boolean allow) {
+		this.world.broadcastPackets(new PacketPlayOutClientFlags(!allow));
+	}
+	
+	/**
+	 * Runs a countdown with fixed tick intervals
+	 */
+	public void countdown(
+		int countFrom, int stepTicks, 
+		IntConsumer onTick, Runnable onComplete
+	) {
+	    for (int i = countFrom; i > 0; i--) {
+	        int timeLeft = i;
+	        runLater(stepTicks * (countFrom - timeLeft), () -> onTick.accept(timeLeft));
+	    }
+	    runLater(stepTicks * countFrom, onComplete);
+	}
+	
+	public void broadcastFormattedTitle(EnumTitle title, String msg, int color, int size, int fadeIn, int persistent, int fadeOut) {
+		getPlayers().forEach(p -> p.sendFormattedTitle(EnumTitle.TITLE, 
+			msg, color, size, 
+			fadeIn, persistent, fadeOut
+		));
+	}
+	
 	/**
 	 * Represents a team within the match. Tracks player health, lives, Arkanoid
 	 * score, and FT score.
 	 */
 	public class TeamInfo {
-
 		private final TeamColor teamColor;
 		private final LinkedHashMap<ArkaPlayer, PlayerInfo> playerInfoMap = new LinkedHashMap<>();
 		private final List<ArkaPlayer> players;
@@ -826,6 +962,17 @@ public class ArkanoidMatch {
 			if (livesRemaining > 0) {
 				livesRemaining--;
 			}
+			getPlayers().forEach(p -> {
+				p.sendFormattedTitle(EnumTitle.TITLE,
+					"<b>-1♥", 0xd91a09, 72, 
+					10, 30, 10
+				);
+				p.sendFormattedTitle(EnumTitle.SUBTITLE,
+					"You have " + getLivesRemaining() + "♥ left!", 
+					0xfc9403, 34, 
+					10, 30, 10
+				);
+			});
 			syncMatchStateWithClients();
 		}
 
@@ -863,6 +1010,7 @@ public class ArkanoidMatch {
 	    private final ArkaPlayer player;
 	    private int health;
 	    private RifleMode firingMode;
+	    private List<UPlayerEffect> effects = new ArrayList<>(5);
 	    private int ammo;
 
 	    public PlayerInfo(ArkaPlayer player) {
@@ -880,6 +1028,14 @@ public class ArkanoidMatch {
 			return ammo;
 		}
 	    
+	    public void syncEffect(Map<EffectType, BaseEffect> effectsMap) {
+	    	effects.clear();
+	    	effectsMap.forEach((e, t) -> {
+	    		if (t.getDuration() < 0) return;
+	    		effects.add(new UPlayerEffect(e, t.getDuration()));
+	    	});
+	    }
+ 	    
 	    public void setAmmo(int akRounds) {
 			this.ammo = Math.max(0, Math.min(AK_47_MAG_SIZE, akRounds));
 		}

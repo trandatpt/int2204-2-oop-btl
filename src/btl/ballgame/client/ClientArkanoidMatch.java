@@ -18,6 +18,7 @@ public class ClientArkanoidMatch {
 	private CSWorld gameWorld;
 	
 	private MatchPhase phase = MatchPhase.MATCH_IDLING;
+	private TeamColor currentTeam;
 	private int roundIndex = 0;
 	
 	private Map<TeamColor, CTeamInfo> teams = new HashMap<>();
@@ -27,15 +28,21 @@ public class ClientArkanoidMatch {
 	 * Construct an ArkanoidMatch representation on the client-side.
 	 * 
 	 * @param mode the gamemode
+	 * @param team the team that this client belongs to
 	 * @param uuidToName the map that maps UUID to the player's name
 	 */
-	public ClientArkanoidMatch(ArkanoidMode mode, Map<UUID, String> uuidToName) {
+	public ClientArkanoidMatch(ArkanoidMode mode, TeamColor team, Map<UUID, String> uuidToName) {
 		this.mode = mode;
+		this.currentTeam = team;
 		this.uuidToName = uuidToName;
 	}
 	
 	public CSWorld getGameWorld() {
 		return gameWorld;
+	}
+	
+	public TeamColor getCurrentTeam() {
+		return currentTeam;
 	}
 	
 	public ArkanoidMode getMode() {
