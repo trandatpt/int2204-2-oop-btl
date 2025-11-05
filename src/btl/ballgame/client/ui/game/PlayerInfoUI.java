@@ -21,11 +21,17 @@ public class PlayerInfoUI {
     private final Label firingMode;
     private final Region healthBar;
     // (REMOVED) private final Region shieldBar;
-    private final HBox buffBox;
+    private final HBox buffBox; // (MODIFIED) This HBox now contains VBoxes (Icon + Timer)
     private final Label healthLabel; // (NEW) For "100/100" text
 
+    // (NEW) References to the 3 timer labels below the buff icons
+    private final Label buffTimer1;
+    private final Label buffTimer2;
+    private final Label buffTimer3;
+
     public PlayerInfoUI(VBox rootNode, Label playerName, Label playerTag, ImageView gunImageView, Label ammoCount,
-                        Label firingMode, Region healthBar, HBox buffBox, Label healthLabel) { // (MODIFIED)
+                        Label firingMode, Region healthBar, HBox buffBox, Label healthLabel,
+                        Label buffTimer1, Label buffTimer2, Label buffTimer3) { // (MODIFIED)
         this.rootNode = rootNode;
         this.playerName = playerName;
         this.playerTag = playerTag;
@@ -36,6 +42,11 @@ public class PlayerInfoUI {
         // (REMOVED) this.shieldBar = shieldBar;
         this.buffBox = buffBox;
         this.healthLabel = healthLabel; // (NEW)
+
+        // (NEW) Assign new timers
+        this.buffTimer1 = buffTimer1;
+        this.buffTimer2 = buffTimer2;
+        this.buffTimer3 = buffTimer3;
     }
 
     /**
@@ -86,5 +97,18 @@ public class PlayerInfoUI {
     public Label getHealthLabel() { // (NEW) Getter for healthLabel
         return healthLabel;
     }
-}
 
+    // (NEW) Getters for the timer labels
+
+    public Label getBuffTimer1() {
+        return buffTimer1;
+    }
+
+    public Label getBuffTimer2() {
+        return buffTimer2;
+    }
+
+    public Label getBuffTimer3() {
+        return buffTimer3;
+    }
+}

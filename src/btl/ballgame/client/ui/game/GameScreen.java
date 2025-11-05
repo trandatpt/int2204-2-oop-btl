@@ -134,7 +134,7 @@ public class GameScreen extends Screen {
         infoPaneRight.setPrefWidth(400);
         infoPaneRight.setMaxHeight(600);
         infoPaneRight.setPadding(new Insets(40, 15, 15, 15));
-        infoPaneRight.setStyle("-fx-background-color: rgba(59, 130, 246, 0.5); -fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;");
+        infoPaneRight.setStyle("-fx-background-color: rgba(34, 34, 34, 0.7); -fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;");
         infoPaneRight.setAlignment(Pos.TOP_CENTER);
 
         HBox teamBoxRight = new HBox(8);
@@ -149,7 +149,7 @@ public class GameScreen extends Screen {
         StackPane colorBoxRight = new StackPane(logoViewRight);
         colorBoxRight.setPrefSize(40, 40);
         Label teamLabelRight = new Label("BLUE");
-        teamLabelRight.setTextFill(Color.BLUE);
+        teamLabelRight.setTextFill(Color.LIGHTBLUE);
         teamLabelRight.setStyle("-fx-font-size: 30px; -fx-font-weight: bold;");
         teamBoxRight.getChildren().addAll(colorBoxRight, teamLabelRight);
 
@@ -195,7 +195,7 @@ public class GameScreen extends Screen {
         infoPaneLeft.setPrefWidth(400);
         infoPaneLeft.setMaxHeight(600);
         infoPaneLeft.setPadding(new Insets(40, 15, 15, 15));
-        infoPaneLeft.setStyle("-fx-background-color: rgba(220, 38, 38, 0.5); -fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;");
+        infoPaneLeft.setStyle("-fx-background-color: rgba(34, 34, 34, 0.7); -fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;");
         infoPaneLeft.setAlignment(Pos.TOP_CENTER);
 
         HBox teamBoxLeft = new HBox(8);
@@ -307,7 +307,7 @@ public class GameScreen extends Screen {
                 PlayerInfoUI ui = playerUIMap.computeIfAbsent(
                         player.uuid.toString(),
                         k -> PlayerInfoBuilder.createPlayerInfoBox(
-                                player.getName(), teamColor == Color.RED ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT
+                                "P", teamColor == Color.RED ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT
                         )
                 );
                 updatePlayerUI(ui, player);
@@ -331,7 +331,7 @@ public class GameScreen extends Screen {
             playerUI.getGunImageView().setImage(currentGunImage);
         }
 
-        String ammoText = String.format("%d / %d", playerData.bulletsLeft, Constants.AK_47_MAG_SIZE);
+        String ammoText = String.format("%d / %d", playerData.bulletsLeft, 30);
         if (!playerUI.getAmmoCount().getText().equals(ammoText)) {
             playerUI.getAmmoCount().setText(ammoText);
         }
