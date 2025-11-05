@@ -1,17 +1,22 @@
 package btl.ballgame.client;
 
+import btl.ballgame.client.ui.audio.SoundManager;
 import javafx.scene.image.Image;
 
 import java.io.File;
-
-import btl.ballgame.client.ui.audio.SoundManager;
 
 public class CSAssets {
 	public static TextureAtlas sprites;
 	
 	public static final Image
 		LOGO = image("arkgo.png"),
-		VS_BACKGROUND = image("vs-bkg.jpg")
+		VS_BACKGROUND = image("vs-bkg.jpg"),
+        VS_BACKGROUND2 = image("background.gif"),
+        VS_BACKGROUND3 = image("background2.gif"),
+        BORDER_BG = image("BorderBackground.png"),
+        BORDER_RED = image("redBorder.png"),
+        BORDER_BLUE = image("blueBorder.png"),
+        BORDER_GAME = image("GameBorder.png");
 	;
 	
 	public static void init() {
