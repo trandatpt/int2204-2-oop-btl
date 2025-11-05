@@ -56,6 +56,14 @@ public class MenuUtils {
 		ArkanoidGame.manager().setScreen(loginScreen);
 	}
 	
+	public static void displayTwoVsTwo() {
+
+	}
+
+	public static void displayOneVsOne() {
+
+	}
+	
 	public static void displayServerSelector() {
 		ServerSelector selector = new ServerSelector(
 			new PredefinedServer("Arkanoid Network", "arkanoid.skysim.sbs"),
@@ -63,7 +71,7 @@ public class MenuUtils {
 		);
 		ArkanoidGame.manager().setScreen(selector);
 	}
-	
+
 	public static void styleButton(Button btn, String baseColor, String hoverColor) {
 		btn.setFont(Font.font(null, FontWeight.BOLD, 14));
 		btn.setStyle("-fx-background-color: " + baseColor + "; -fx-text-fill: white;");

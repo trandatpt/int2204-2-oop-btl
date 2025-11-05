@@ -69,9 +69,9 @@ public class LobbyScreen extends Screen {
 
         // button
         Button joinByCodeBtn = new Button("Vào bằng mã phòng");
-        Button createRoomBtn = new Button("Tạo phòng mới");
+        Button createRoomBtn = new Button("Create new room");
         Button leaderboardBtn = new Button("Leaderboard");
-        Button exitBtn = new Button("Rời máy chủ");
+        Button exitBtn = new Button("Exit server");
 
         HBox footer = new HBox(10, joinByCodeBtn, createRoomBtn, leaderboardBtn, exitBtn);
         footer.setAlignment(Pos.CENTER);
@@ -82,12 +82,10 @@ public class LobbyScreen extends Screen {
         this.addElement("lobbyRoot", root);
 
         // actions
+        joinByCodeBtn.setOnAction(e -> joinByCode());
         createRoomBtn.setOnAction(e -> createRoomDialog());
-        exitBtn.setOnAction(e -> {
-            SoundManager.clickSoundConfirm();
-            core.disconnect();
-            MenuUtils.displayServerSelector();
-        });
+        leaderboardBtn.setOnAction(e -> leaderBoard());
+        exitBtn.setOnAction(e -> exit());
 
         // auto refresh (mock)
         autoRefreshExec = Executors.newSingleThreadScheduledExecutor();
@@ -107,7 +105,7 @@ public class LobbyScreen extends Screen {
             List<RoomInfo> mock = List.of(
                     new RoomInfo(1, "Phòng chiến 1v1", "1/2", "Chờ người chơi"),
                     new RoomInfo(2, "Tổ đội 2v2", "2/4", "Đang tuyển"),
-                    new RoomInfo(3, "UET tryhard", "4/4", "Đầy"),
+                    new RoomInfo(3, "UET tryhard", "4/4", "Full"),
                     new RoomInfo(4, "Không Lag", "1/4", "Chờ")
             );
 
@@ -137,9 +135,7 @@ public class LobbyScreen extends Screen {
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         Button joinBtn = new Button("Tham gia");
-        joinBtn.setOnAction(e -> {
-            MenuUtils.toast("Tham gia phòng: " + room.name);
-        });
+        joinBtn.setOnAction(e -> joinRoom(room));
 
         // click to select room
         card.setOnMouseClicked(e -> {
@@ -182,6 +178,35 @@ public class LobbyScreen extends Screen {
         });
     }
 
+    // Join by Code
+    private void joinByCode() {
+        // + code
+    }
+
+    // Leader Board
+    private void leaderBoard() {
+        // + code
+    }
+
+    // Back
+    private void exit() {
+        SoundManager.clickSoundConfirm();
+        core.disconnect();
+        MenuUtils.displayServerSelector();
+    }
+
+    // Join Room
+    private void joinRoom(RoomInfo room) {
+        if (room.getNumberOfRoom() == room.getMaxNumberOfRoom()) {
+            SoundManager.clickFalse();
+            MenuUtils.toast("False to join: " + room.name + "/n" + "Status: " + room.status);
+        } else {
+            SoundManager.clickSoundConfirm();
+            MenuUtils.toast("Tham gia phòng: " + room.name);
+            // + new Screen
+        }
+    }
+
     // Simple room data
     private static class RoomInfo {
         int id;
@@ -194,6 +219,39 @@ public class LobbyScreen extends Screen {
             this.name = name;
             this.players = players;
             this.status = status;
+        }
+
+        void setPlayers(String players) {
+            this.players = players;
+        }
+
+        void setStatus(String status) {
+            this.status = status;
+        }
+
+        // rename
+        void setName(String name) {
+            this.name = name;
+        }
+
+        // take number of room
+        int getNumberOfRoom() {
+            return Character.getNumericValue(players.charAt(0));
+        }
+
+        // take max number of room
+        int getMaxNumberOfRoom() {
+            return Character.getNumericValue(players.charAt(2));
+        }
+
+        // change number player
+        void setNumberOfRoom(int number) {
+            if (number == this.getMaxNumberOfRoom()) {
+                this.setStatus("Full");
+                System.out.println("Room " + this.name + " " + this.status);
+            }
+            players = players.substring(1);
+            players = number + players;
         }
     }
 }
