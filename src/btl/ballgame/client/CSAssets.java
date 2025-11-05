@@ -12,7 +12,10 @@ public class CSAssets {
 		LOGO = image("arkgo.png"),
 		VS_BACKGROUND = image("vs-bkg.jpg"),
         VS_BACKGROUND2 = image("background.gif"),
-        BORDER_BG = image("BorderBackground.png")
+        VS_BACKGROUND3 = image("background2.gif"),
+        BORDER_BG = image("BorderBackground.png"),
+        BORDER_RED = image("redBorder.png"),
+        BORDER_BLUE = image("blueBorder.png")
 	;
 	
 	public static void init() {

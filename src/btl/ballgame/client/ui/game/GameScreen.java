@@ -69,7 +69,7 @@ public class GameScreen extends Screen {
 
         BackgroundSize borderBgSize = new BackgroundSize(100, 100, true, true, false, true);
         BackgroundImage mainBg = new BackgroundImage(
-                CSAssets.VS_BACKGROUND2, // Using GIF background
+                CSAssets.VS_BACKGROUND3,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundPosition.CENTER,
@@ -77,11 +77,11 @@ public class GameScreen extends Screen {
         );
 
         BackgroundImage borderBg = new BackgroundImage(
-                CSAssets.BORDER_BG, // Your new border image
+                CSAssets.BORDER_BG,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundPosition.CENTER,
-                borderBgSize // Also stretch to fit
+                borderBgSize
         );
         root.setBackground(new Background(mainBg, borderBg));
 
@@ -93,7 +93,7 @@ public class GameScreen extends Screen {
 
         // --- TOP-CENTER SCOREBOARD ---
         VBox topCenterBox = new VBox(-5);
-        topCenterBox.setPrefWidth(600);
+        topCenterBox.setPrefWidth(400);
         topCenterBox.setAlignment(Pos.CENTER);
         topCenterBox.setPadding(new Insets(10, 0, 0, 0));
 
@@ -108,25 +108,39 @@ public class GameScreen extends Screen {
         timeLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-font-family: 'Monospaced';");
 
         topCenterBox.getChildren().addAll(roundScoreLabel, timeLabel);
-        root.setTop(topCenterBox);
-        BorderPane.setAlignment(topCenterBox, Pos.CENTER);
+
+        StackPane scoreboardContainer = new StackPane(topCenterBox);
+        scoreboardContainer.setStyle(
+                "-fx-background-color: linear-gradient(to right, rgba(220, 38, 38, 0.3) 50%, rgba(59, 130, 246, 0.3) 50%); " +
+                        "-fx-border-color: white; " +
+                        "-fx-border-radius: 10; " +
+                        "-fx-background-radius: 10;"
+        );
+        scoreboardContainer.setMaxWidth(Region.USE_PREF_SIZE);
+
+        // (NEW) Create an alignment pane for the top
+        StackPane topPane = new StackPane(scoreboardContainer);
+        topPane.setPadding(new Insets(10, 0, 0, 0));
+        topPane.setAlignment(Pos.CENTER);
+
+        root.setTop(topPane);
 
         if (this.gameRenderCanvas != null) {
-            BorderPane.setMargin(this.gameRenderCanvas, new Insets(10, 0, 0, 0));
+            BorderPane.setMargin(this.gameRenderCanvas, new Insets(10, 0, 50, 0));
         }
 
         // --- BLUE TEAM (RIGHT) ---
         VBox infoPaneRight = new VBox(10);
         infoPaneRight.setPrefWidth(400);
         infoPaneRight.setMaxHeight(600);
-        infoPaneRight.setPadding(new Insets(15));
-        infoPaneRight.setStyle("-fx-background-color: rgba(34,34,34,0.4); -fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;");
+        infoPaneRight.setPadding(new Insets(40, 15, 15, 15));
+        infoPaneRight.setStyle("-fx-background-color: rgba(59, 130, 246, 0.7); -fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;");
         infoPaneRight.setAlignment(Pos.TOP_CENTER);
 
         HBox teamBoxRight = new HBox(8);
         teamBoxRight.setAlignment(Pos.TOP_CENTER);
         teamBoxRight.setPadding(new Insets(5));
-        teamBoxRight.setStyle("-fx-background-color: rgba(34,34,34,0.6); -fx-border-color: white; -fx-border-radius: 10;");
+        teamBoxRight.setStyle("-fx-background-color: rgba(34,34,34,0.6); -fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;");
 
         // Team Logo and Label for BLUE Team
         ImageView logoViewRight = new ImageView(logoTeam_1);
@@ -165,22 +179,29 @@ public class GameScreen extends Screen {
         infoPaneRight.getChildren().addAll(teamBoxRight, teamLivesLabelRight, heartsRight, scoreBoxRight, playerBoxRight);
         VBox.setMargin(playerBoxRight, new Insets(15, 0, 0, 0));
 
-        StackPane rightContainer = new StackPane(infoPaneRight);
-        rightContainer.setPadding(new Insets(0, 100, 0, 100));
+        ImageView borderViewRight = new ImageView(CSAssets.BORDER_BLUE);
+        borderViewRight.setFitWidth(400);
+        borderViewRight.setFitHeight(600);
+        borderViewRight.setPreserveRatio(false);
+        borderViewRight.setMouseTransparent(true);
+
+        // (MODIFIED) Add both info pane AND border to the StackPane
+        StackPane rightContainer = new StackPane(infoPaneRight, borderViewRight);
+        rightContainer.setPadding(new Insets(0, 100, 30, 100));
         BorderPane.setAlignment(rightContainer, Pos.CENTER);
 
         // --- RED TEAM (LEFT) ---
         VBox infoPaneLeft = new VBox(10);
         infoPaneLeft.setPrefWidth(400);
         infoPaneLeft.setMaxHeight(600);
-        infoPaneLeft.setPadding(new Insets(15));
-        infoPaneLeft.setStyle("-fx-background-color: rgba(34,34,34,0.4); -fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;");
+        infoPaneLeft.setPadding(new Insets(40, 15, 15, 15));
+        infoPaneLeft.setStyle("-fx-background-color: rgba(220, 38, 38, 0.7); -fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;");
         infoPaneLeft.setAlignment(Pos.TOP_CENTER);
 
         HBox teamBoxLeft = new HBox(8);
         teamBoxLeft.setAlignment(Pos.TOP_CENTER);
         teamBoxLeft.setPadding(new Insets(5));
-        teamBoxLeft.setStyle("-fx-background-color: rgba(34,34,34,0.6); -fx-border-color: white; -fx-border-radius: 10;");
+        teamBoxLeft.setStyle("-fx-background-color: rgba(34,34,34,0.6); -fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;");
 
         // Team Logo and Label for RED Team
         ImageView logoViewLeft = new ImageView(logoTeam_2);
@@ -219,8 +240,14 @@ public class GameScreen extends Screen {
         infoPaneLeft.getChildren().addAll(teamBoxLeft, teamLivesLabelLeft, heartsLeft, scoreBoxLeft, playerBoxLeft);
         VBox.setMargin(playerBoxLeft, new Insets(15, 0, 0, 0));
 
-        StackPane leftContainer = new StackPane(infoPaneLeft);
-        leftContainer.setPadding(new Insets(0, 100, 0, 100));
+        ImageView borderViewLeft = new ImageView(CSAssets.BORDER_RED);
+        borderViewLeft.setFitWidth(400);
+        borderViewLeft.setFitHeight(600);
+        borderViewLeft.setPreserveRatio(false);
+        borderViewLeft.setMouseTransparent(true);
+
+        StackPane leftContainer = new StackPane(infoPaneLeft, borderViewLeft);
+        leftContainer.setPadding(new Insets(0, 100, 30, 100));
         BorderPane.setAlignment(leftContainer, Pos.CENTER);
 
         root.setRight(rightContainer);
