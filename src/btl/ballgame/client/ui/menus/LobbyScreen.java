@@ -369,6 +369,7 @@ public class LobbyScreen extends Screen {
 	}
 	
 	private void leaderBoard() {
+		MenuUtils.toast(AlertType.INFORMATION, "This feature is not yet available!");
 		// open leaderboard screen
 		Platform.runLater(() -> {
 			LeaderboardScreen lb = new LeaderboardScreen();
