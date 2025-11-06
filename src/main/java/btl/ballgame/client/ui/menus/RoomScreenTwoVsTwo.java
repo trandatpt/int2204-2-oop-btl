@@ -52,11 +52,18 @@ public class RoomScreenTwoVsTwo extends Screen {
         // id + title header
         Label roomId = new Label("ID: ");
         roomId.setTextFill(Color.WHITE);
-        roomId.setStyle("-fx-font-size: 12px; -fx-font-weight: normal;");
+        roomId.setStyle("-fx-font-size: 20px; -fx-font-weight: normal;");
 
         Label labelHeader = new Label("2 vs 2 Battle Room");
         labelHeader.setTextFill(Color.WHITE);
         labelHeader.setStyle("-fx-font-size: 22px; -fx-font-weight: bold;");
+
+        HBox labelHeaderBox = new HBox(8);
+        labelHeaderBox.setStyle("-fx-background-color: rgba(34, 34, 34, 0.6); " +
+                "-fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;"
+        );
+        labelHeaderBox.setPadding(new Insets(5));
+        labelHeaderBox.getChildren().addAll(labelHeader);
 
         VBox headerBox = new VBox(5);
         headerBox.setPadding(new Insets(10));
@@ -67,7 +74,7 @@ public class RoomScreenTwoVsTwo extends Screen {
 
         HBox titleBox = new HBox();
         titleBox.setAlignment(Pos.CENTER);
-        titleBox.getChildren().add(labelHeader);
+        titleBox.getChildren().add(labelHeaderBox);
 
         headerBox.getChildren().addAll(idBox, titleBox);
 
@@ -113,23 +120,15 @@ public class RoomScreenTwoVsTwo extends Screen {
         VBox teamBoxFull = new VBox(10);
         teamBoxFull.setAlignment(Pos.CENTER);
         teamBoxFull.setPadding(new Insets(15));
-        teamBoxFull.setMaxSize(800, 800);
-
+        teamBoxFull.setMaxSize(800, 700);
 
         HBox teamBox = new HBox(20);
         teamBox.setAlignment(Pos.CENTER);
         teamBox.setPrefSize(600, 800);
 
-        String color = null;
-        if (c.equals(Color.RED)) {
-            color = "red";
-        } else {
-            color = "blue";
-        }
-
         teamBoxFull.setStyle(
             "-fx-background-color: #2b2b2b;" +
-            "-fx-border-color: " + color + ";" +
+            "-fx-border-color: white;" +
             "-fx-border-width: 2px;" +
             "-fx-background-radius: 10;" +
             "-fx-border-radius: 10;"
@@ -157,6 +156,11 @@ public class RoomScreenTwoVsTwo extends Screen {
 
         HBox nameBox = new HBox(8);
         nameBox.setAlignment(Pos.CENTER);
+        nameBox.setStyle("-fx-background-color: rgba(34, 34, 34, 0.6); " +
+                "-fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10;"
+        );
+        nameBox.setPadding(new Insets(5));
+        nameBox.setMaxWidth(200);
         nameBox.getChildren().addAll(logoView, teamLabel);
 
         for (int i = 0; i < 2; i++) {
@@ -165,7 +169,6 @@ public class RoomScreenTwoVsTwo extends Screen {
             teamBox.getChildren().add(playerBox);
         }
         teamBoxFull.getChildren().addAll(nameBox, teamBox);
-        teamBoxFull.setAlignment(Pos.CENTER);
 
         return teamBoxFull;
     }
