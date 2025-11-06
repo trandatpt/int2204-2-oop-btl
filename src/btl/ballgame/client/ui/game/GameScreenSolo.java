@@ -5,6 +5,7 @@ import btl.ballgame.client.CSAssets;
 import btl.ballgame.client.ClientArkanoidMatch;
 import btl.ballgame.client.ClientArkanoidMatch.CPlayerInfo;
 import btl.ballgame.client.ClientArkanoidMatch.CTeamInfo;
+import btl.ballgame.client.ui.audio.SoundManager;
 import btl.ballgame.client.ui.menus.InformationalScreen;
 import btl.ballgame.client.ui.menus.MenuUtils;
 import btl.ballgame.client.ui.screen.Screen;
@@ -291,16 +292,19 @@ public class GameScreenSolo extends Screen {
 	private static final long PAUSE_COOLDOWN_MS = 500; // prevent the server from shitting itself
 
 	public void createPauseScreen() {
+        SoundManager.pause();
 		InformationalScreen pauseScreen = new InformationalScreen("PAUSED", 
 			"Game Menu", null,
 		false);
 
 		// Example buttons
 		pauseScreen.addButton("Back To Game", () -> {
+            SoundManager.clickSoundConfirm();
 			pauseOverlay.setVisible(false);
 			updatePause();
 		});
 		pauseScreen.addButton("Quit to Title", () -> {
+            SoundManager.clickSoundConfirm();
 			ArkanoidGame.core().disconnect();
 			MenuUtils.displayServerSelector();
 		});
@@ -316,6 +320,7 @@ public class GameScreenSolo extends Screen {
 
 		setOnKeyPressed(event -> {
 			if (event.getCode() == KeyCode.ESCAPE) {
+                SoundManager.pause();
 				long now = System.currentTimeMillis();
 				if (now - lastPauseToggle >= PAUSE_COOLDOWN_MS) {
 					lastPauseToggle = now;
