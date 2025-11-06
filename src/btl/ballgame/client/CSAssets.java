@@ -20,12 +20,6 @@ public class CSAssets {
         BORDER_RED = image("redBorder.png"),
         BORDER_BLUE = image("blueBorder.png"),
         BORDER_GAME = image("GameBorder.png"),
-		CHARACTER1_IMAGE = image("Character1.png"),
-		CHARACTER2_IMAGE = image("Character2.png"),
-		CHARACTER3_IMAGE = image("Character3.png"),
-		CHARACTER4_IMAGE = image("Character4.png"),
-		CHARACTER5_IMAGE = image("Character5.png"),
-		CHARACTER6_IMAGE = image("Character6.png"),
 		LOBBY_BACKGROUND = image("lobby.png")
 	;
 
@@ -71,19 +65,6 @@ public class CSAssets {
 			throw new RuntimeException("Required gif: " + path + " is missing!");
 		}
 		return new Image(file.toURI().toString());
-	}
-
-	public static Image randomImage() {
-		List<Image> list = List.of(
-			CHARACTER1_IMAGE,
-			CHARACTER2_IMAGE,
-			CHARACTER3_IMAGE,
-			CHARACTER4_IMAGE,
-			CHARACTER5_IMAGE,
-			CHARACTER6_IMAGE
-		);
-		int index = (int) (Math.random() * list.size());
-		return list.get(index);
 	}
 
 	public static MediaPlayer randomGif() {
