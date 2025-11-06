@@ -16,7 +16,7 @@ import btl.ballgame.shared.libs.Constants.TeamColor;
 public class ArkanoidWaitRoom {
 	private final String roomId;
 	private final String roomName;
-	private final ArkaPlayer owner;
+	private ArkaPlayer owner;
 	private final boolean isPrivate;
 	private final MatchSettings settings;
 	private boolean started = false;
@@ -97,8 +97,12 @@ public class ArkanoidWaitRoom {
 	/** Remove player from room */
 	public boolean removePlayer(ArkaPlayer player) {
 		if (teams.get(TeamColor.RED).remove(player) || teams.get(TeamColor.BLUE).remove(player)) {
+			if (owner == player) {
+				this.owner = null;
+			}
 			player.leaveWaitingRoom();
 			readyStatus.remove(player);
+			this.broadcastRoomUpdate();
 			return true;
 		}
 		return false;
@@ -186,7 +190,7 @@ public class ArkanoidWaitRoom {
 	}
 
 	/** Broadcast update packet to all players in this room */
-	private void broadcastRoomUpdate() {
+	public void broadcastRoomUpdate() {
 	    // build the packet from current room state
 	    var teamsData = new RoomTeamEntry[TeamColor.values().length];
 	    for (TeamColor color : TeamColor.values()) {

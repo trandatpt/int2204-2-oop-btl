@@ -7,9 +7,8 @@ public class PacketPlayInJoinRoom extends NetworkPacket implements IPacketPlayIn
 	private String roomId;
 	public PacketPlayInJoinRoom() {}
 
-	// nullable
-	public PacketPlayInJoinRoom(String secretCode) {
-		this.roomId = secretCode;
+	public PacketPlayInJoinRoom(String roomId) {
+		this.roomId = roomId;
 	}
 
 	public String getRoomID() {

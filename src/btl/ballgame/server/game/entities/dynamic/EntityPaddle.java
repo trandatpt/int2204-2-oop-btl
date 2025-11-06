@@ -21,7 +21,6 @@ public class EntityPaddle extends ControllableEntity {
 	
 	// attrib
 	private boolean lowerPaddle;
-	private ArkaPlayer player;
 	private TeamColor team;
 	
 	// the queue!
@@ -40,8 +39,8 @@ public class EntityPaddle extends ControllableEntity {
 		ArkaPlayer p, TeamColor team // extras
 	) {
 		super(id, location);
-		this.player = p;
 		this.team = team;
+		setController(p);
 		setBoundingBox(PADDLE_WIDTH, PADDLE_HEIGHT);
 	}
 	
@@ -50,7 +49,7 @@ public class EntityPaddle extends ControllableEntity {
 	}
 	
 	public ArkaPlayer getPlayer() {
-		return player;
+		return controller;
 	}
 	
 	/**
@@ -106,7 +105,7 @@ public class EntityPaddle extends ControllableEntity {
 	private long lastMoved = 0;
 
 	public void shootBullet() {
-		PlayerInfo p = player.getCurrentGame().getPlayerInfoOf(player);
+		PlayerInfo p = controller.getCurrentGame().getPlayerInfoOf(controller);
 		
 		// khoa an toan dang dong or ran out of ammo
 		if (p.getFiringMode() == RifleMode.SAFE || p.getRifleAmmo() <= 0) {
@@ -146,7 +145,7 @@ public class EntityPaddle extends ControllableEntity {
 		EntityAKBullet bullet = new EntityAKBullet(
 			world.nextEntityId(), initial
 		);
-		bullet.setOwner(player);
+		bullet.setOwner(controller);
 		world.runNextTick(() -> world.addEntity(bullet));
 		
 		// for penalty/spray calculation
@@ -156,10 +155,10 @@ public class EntityPaddle extends ControllableEntity {
 	
 	@Override
 	public void onSpawn() {
-		if (player == null) return;
+		if (controller == null) return;
 		// assign the player UUID LSB to this entity (to save some BITS!)
 		this.dataWatcher.watch(PADDLE_OWNER_META,
-			player.getUniqueId().getLeastSignificantBits()
+			controller.getUniqueId().getLeastSignificantBits()
 		);
 		this.dataWatcher.watch(PADDLE_EXPANDED_META, false);
 		this.dataWatcher.watch(RENDER_UPSIDEDOWN_META, !lowerPaddle); // upper paddle = render upside down

@@ -11,12 +11,6 @@ public class ServerMatchInitHandle implements PacketHandler<PacketPlayOutMatchJo
 	@Override
 	public void handle(PacketPlayOutMatchJoin packet, CServerConnection context) {
 		ArkanoidClientCore client = context.client;
-		if (client.getActiveMatch() != null) {
-			// the server sent bullshit
-			context.closeWithNotify("Invalid client-server synchronization state!");
-			return;
-		}
-		
 		client.setActiveMatch(new ClientArkanoidMatch(
 			packet.getArkanoidMode(),
 			packet.getTeamColor(),

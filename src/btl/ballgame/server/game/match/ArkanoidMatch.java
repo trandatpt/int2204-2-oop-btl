@@ -432,18 +432,29 @@ public class ArkanoidMatch {
 	private void concludeMatch() {
 		this.changePhase(MatchPhase.CONCLUDED);
 		if (gameMode.isSinglePlayer()) {
+			TeamInfo solo = getTeam(TeamColor.RED);
+			ArkaPlayer player = solo.getPlayers().get(0);
+			int roundScore = solo.getArkanoidScore();
+			
+			// save high score
+			if (player.getData().getSoloHighScore() < roundScore) {
+				player.getData().setHighScore(roundScore);
+			}
+			
 			var gameOver = new PacketPlayOutGameOver(
-				getTeam(TeamColor.RED).getArkanoidScore(), 
+				roundScore,
 				roundIndex + 1, // level
-				getTeam(TeamColor.RED).getArkanoidScore() // TODO, HIGH SCORE
+				player.getData().getSoloHighScore()
 			);
 			world.broadcastPackets(gameOver);
+			this.cleanup();
 			return;
 		}
 		
 		getPlayers().forEach(p -> {
 			PacketPlayOutGameOver gameOver;
 			if (getTeamOf(p).getTeamColor() == winner) {
+				p.getData().addTotalWins(1);
 				gameOver = new PacketPlayOutGameOver(
 					GameOverType.VERSUS_VICTORY, 
 					getTeam(TeamColor.RED).getFTScore(),
@@ -460,12 +471,11 @@ public class ArkanoidMatch {
 			}
 			p.playerConnection.sendPacket(gameOver);
 		});
-		return;
+		this.cleanup();
 	}
 	
 	public void cleanup() {
 		this.mainTask.cancel(true);
-		getPlayers().forEach(ArkaPlayer::leaveGame);
 	}
 	
 	// queued tasks
@@ -495,20 +505,11 @@ public class ArkanoidMatch {
 	public void onMatchTick() {
 		if (gameMode.isSinglePlayer()) {
 			TeamInfo single = getTeam(TeamColor.RED); // red is the default team for SP
-			if (single.getLivesRemaining() <= 0) {
+			if (single.getPlayers().size() == 0 || single.getLivesRemaining() <= 0) {
 				this.concludeMatch();
 				return;
 			}
 			return;
-		}
-		
-		// check win (OVERALL) condition by FT score
-		for (TeamInfo team : teams.values()) {
-			if (team.getFTScore() >= settings.getFirstToScore()) {
-				this.winner = team.getTeamColor();
-				this.concludeMatch();
-				return;
-			}
 		}
 		
 		// automatically conclude match if ONLY ONE team is ONLINE
@@ -549,6 +550,15 @@ public class ArkanoidMatch {
 		// check for round timeout
 		if (System.currentTimeMillis() - matchStartTime >= settings.getTimePerRound() * 1000L) {
 			onTimeout();
+		}
+		
+		// check win (OVERALL) condition by FT score
+		for (TeamInfo team : teams.values()) {
+			if (team.getFTScore() >= settings.getFirstToScore()) {
+				this.winner = team.getTeamColor();
+				this.concludeMatch();
+				return;
+			}
 		}
 	}
 	
@@ -624,13 +634,13 @@ public class ArkanoidMatch {
 		if (destroyedBy == null) return; // edge cases
 		int score = 0;
 		if (breakable instanceof EntityHardBrick) {
-			score = 80 * (breakable.getMaxHealth()) * (roundIndex + 1);
+			score = 800 * (breakable.getMaxHealth()) * (roundIndex + 1);
 		} else if (breakable instanceof EntityExplosiveBrick) {
-			score = 200; // by itself, it WILL cause cascade
+			score = 2100; // by itself, it WILL cause cascade
 		} else if (breakable instanceof EntityItemBrick) {
-			score = 500 * (roundIndex + 1);
+			score = 4230 * (roundIndex + 1);
 		} else {
-			score = 100 * (roundIndex + 1);
+			score = 500 * (roundIndex + 1);
 		}
 		
 		getTeamOf(destroyedBy).addArkanoidScore(score);
@@ -742,6 +752,11 @@ public class ArkanoidMatch {
 			0x03fc56, 72,
 			5, 20, 5
 		);
+		
+		// for every level advanced +5 bonus bullets
+		getPlayers().forEach(t -> getPlayerInfoOf(t).pickupAmmo(
+			(5 * roundIndex)
+		));
 		
 		runLater(30, () -> {
 			countdown(5, 30, (timeLeft) -> {
@@ -1126,7 +1141,7 @@ public class ArkanoidMatch {
 	        this.player = player;
 	        this.health = PADDLE_MAX_HEALTH;
 	        this.firingMode = RifleMode.SAFE;
-	        this.ammo = 5;
+	        this.ammo = 10;
 	    }
 
 	    public ArkaPlayer getPlayer() {
@@ -1176,6 +1191,11 @@ public class ArkanoidMatch {
 
 	    public void setHealth(int health) {
 	        this.health = Math.max(0, Math.min(PADDLE_MAX_HEALTH, health));
+	        
+	        var paddle = paddleOf(player);
+	        if (this.health <= 0 && paddle != null && !paddle.isDead()) {
+	        	paddle.remove();
+	        }
 	    }
 
 	    public void damage(int amount) {
@@ -1185,10 +1205,11 @@ public class ArkanoidMatch {
 	    		true
 	    	));
 	        setHealth(health - amount);
+	        syncMatchStateWithClients();
 	    }
 
 	    public void resetValues() {
-	    	this.ammo = 5;
+	    	this.ammo = 10;
 	        this.health = PADDLE_MAX_HEALTH;
 	    }
 	    

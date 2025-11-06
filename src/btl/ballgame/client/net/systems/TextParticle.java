@@ -104,6 +104,7 @@ public class TextParticle extends ParticleSystem.Particle {
 		gc.strokeText(text, centerX, baselineY);
 		
 		gc.restore();
+		gc.setGlobalAlpha(1.0);
 	}
 	
 	public int getyOffset() {

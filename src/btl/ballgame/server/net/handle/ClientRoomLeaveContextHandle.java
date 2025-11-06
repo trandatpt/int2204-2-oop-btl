@@ -15,7 +15,6 @@ public class ClientRoomLeaveContextHandle implements PacketHandler<PacketPlayInL
 		
 		ArkaPlayer player = context.getPlayer();
 		if (!player.isBusy()) {
-			context.closeForViolation();
 			return;
 		}
 		

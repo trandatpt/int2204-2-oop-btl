@@ -1,5 +1,5 @@
 package btl.ballgame.server.game.entities.breakable;
-import btl.ballgame.server.game.WorldEntity;
+
 import btl.ballgame.shared.libs.Location;
 
 public class EntityHardBrick extends EntityBrick {
@@ -7,13 +7,13 @@ public class EntityHardBrick extends EntityBrick {
 	
 	public EntityHardBrick(int id, Location location) {
 		super(id, location);
-		setTint(0x3d3d3d);
+		setTint(0x575757);
 	}
 	
 	@Override
 	public int getMaxHealth() {
 		if (this.maxHealth <= 0) {
-			this.maxHealth = 2 + (int) (Math.random() * 2); // 2-4 HP
+			this.maxHealth = 3 + (int) (Math.random() * 3); // 3-6 HP
 		}
 		return this.maxHealth;
 	}

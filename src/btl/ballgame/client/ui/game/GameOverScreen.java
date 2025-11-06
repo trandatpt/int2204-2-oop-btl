@@ -2,6 +2,7 @@ package btl.ballgame.client.ui.game;
 
 import btl.ballgame.client.ArkanoidGame;
 import btl.ballgame.client.CSAssets;
+import btl.ballgame.client.ui.audio.SoundManager;
 import btl.ballgame.client.ui.menus.MenuUtils;
 import btl.ballgame.client.ui.screen.Screen;
 import btl.ballgame.protocol.packets.out.PacketPlayOutGameOver;
@@ -25,13 +26,14 @@ public class GameOverScreen extends Screen {
     private final PacketPlayOutGameOver packet;
 
     public GameOverScreen(PacketPlayOutGameOver packet) {
-        super("GameOverScreen");
+        super("Game Over (3rd-party Server)");
         this.packet = packet;
         this.setStyle("-fx-background-color: rgba(0, 0, 0, 0.75);");
     }
 
     @Override
     public void onInit() {
+    	SoundManager.stopAllSounds();
         StackPane root = new StackPane();
         root.setPadding(new Insets(40));
 
@@ -76,59 +78,39 @@ public class GameOverScreen extends Screen {
             Label scoreLabel = makeMonoLabel("Score: " + String.format("%016d", packet.getScore()), Color.LIGHTCYAN, 32);
             Label levelLabel = makeMonoLabel("Level: " + packet.getLevel(), Color.WHITE, 26);
             Label highScoreLabel = makeMonoLabel("High Score: " + String.format("%016d", packet.getHighScore()), Color.GOLD, 26);
-
             content.getChildren().addAll(scoreLabel, levelLabel, highScoreLabel);
-
-            // --- QUIT BUTTON ---
-            Button quitButton = new Button("Quit to Menu");
-            MenuUtils.styleButton(quitButton, "#4d476e", "#353147");
-            quitButton.setFont(Font.font("Orbitron", FontWeight.SEMI_BOLD, 20));
-            quitButton.setTextFill(Color.WHITE);
-            quitButton.setEffect(new DropShadow(10, Color.color(0.2, 0.2, 0.6, 0.8)));
-            quitButton.setPrefWidth(250);
-            quitButton.setPrefHeight(60);
-
-            quitButton.setOnAction(e -> {
-                ArkanoidGame.core().disconnect();
-                MenuUtils.displayServerSelector();
-            });
-
-            VBox.setMargin(quitButton, new Insets(40, 0, 0, 0));
-            content.getChildren().add(quitButton);
         } else {
             // --- PVP MODE ---
             boolean didWin = packet.getType() == GameOverType.VERSUS_VICTORY;
 
             Label resultLabel = new Label(didWin ? "VICTORY" : "DEFEAT");
             resultLabel.setFont(Font.font("Orbitron", FontWeight.BOLD, 70));
-            resultLabel.setTextFill(didWin ? Color.LIGHTGOLDENRODYELLOW : Color.INDIANRED);
+            resultLabel.setTextFill(didWin ? Color.LIGHTGOLDENRODYELLOW : Color.CADETBLUE);
             resultLabel.setEffect(new DropShadow(30, didWin ? Color.GOLD : Color.CORNFLOWERBLUE));
-
             Label scoreLabel = makeMonoLabel(
-                    String.format("Final Score: %02d : %02d", packet.getRedScore(), packet.getBlueScore()),
+                    String.format("RED: %02d   |   BLUE: %02d", packet.getRedScore(), packet.getBlueScore()),
                     Color.LIGHTCYAN,
                     30
             );
-
             content.getChildren().addAll(resultLabel, scoreLabel);
-
-            // --- QUIT BUTTON ---
-            Button quitButton = new Button("Quit to Lobby");
-            MenuUtils.styleButton(quitButton, "#4d476e", "#353147");
-            quitButton.setFont(Font.font("Orbitron", FontWeight.SEMI_BOLD, 20));
-            quitButton.setTextFill(Color.WHITE);
-            quitButton.setEffect(new DropShadow(10, Color.color(0.2, 0.2, 0.6, 0.8)));
-            quitButton.setPrefWidth(250);
-            quitButton.setPrefHeight(60);
-
-            quitButton.setOnAction(e -> {
-                ArkanoidGame.core().leaveContext();
-                MenuUtils.displayLobbyScreen();
-            });
-
-            VBox.setMargin(quitButton, new Insets(40, 0, 0, 0));
-            content.getChildren().add(quitButton);
         }
+
+        // --- QUIT BUTTON ---
+        Button quitButton = new Button("Quit to Lobby");
+        MenuUtils.styleButton(quitButton, "#4d476e", "#353147");
+        quitButton.setFont(Font.font("Orbitron", FontWeight.SEMI_BOLD, 20));
+        quitButton.setTextFill(Color.WHITE);
+        quitButton.setEffect(new DropShadow(10, Color.color(0.2, 0.2, 0.6, 0.8)));
+        quitButton.setPrefWidth(250);
+        quitButton.setPrefHeight(60);
+
+        quitButton.setOnAction(e -> {
+            ArkanoidGame.core().leaveContext();
+            MenuUtils.displayLobbyScreen();
+        });
+
+        VBox.setMargin(quitButton, new Insets(40, 0, 0, 0));
+        content.getChildren().add(quitButton);
 
         root.getChildren().add(content);
         this.addElement("root", root);

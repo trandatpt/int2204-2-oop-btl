@@ -21,7 +21,7 @@ import btl.ballgame.shared.libs.Vector2f;
  */
 public class EntityWreckingBall extends WorldEntity implements IOwnableEntity {
 	/** Default movement speed (units per sec). */
-	public static final float DEFAULT_SPEED = 320.0f;
+	public static final float DEFAULT_SPEED = 395.0f;
 
 	/** Default ball radius (in pixels/units). */
 	public static final int DEFAULT_BALL_RADIUS = 25;
@@ -161,6 +161,7 @@ public class EntityWreckingBall extends WorldEntity implements IOwnableEntity {
 			setLocation(currentLoc.clone().add(pushWorld));
 			bounce(worldNormal);
 			currentLoc = getLocation();
+			return;
 		}
 		
 		// check collisions with other entities

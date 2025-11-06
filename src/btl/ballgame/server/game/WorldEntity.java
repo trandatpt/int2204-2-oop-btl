@@ -102,10 +102,10 @@ public abstract class WorldEntity {
 	}
 	
 	/** Tracks whether a location update should be broadcasted. */
-	private boolean shouldUpdate = false;
+	protected boolean shouldUpdate = false;
 	
 	/** Sends a position update packet if the entity moved/rotated this tick. */
-	private void dispatchLocationUpdate() {
+	protected void dispatchLocationUpdate() {
 		if (!this.shouldUpdate) return;
 		this.getWorld().broadcastPackets(
 			new PacketPlayOutEntityPosition(getId(), this.getLocation())

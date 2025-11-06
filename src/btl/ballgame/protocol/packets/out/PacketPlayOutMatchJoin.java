@@ -18,7 +18,7 @@ public class PacketPlayOutMatchJoin extends NetworkPacket implements IPacketPlay
 	private TeamColor teamColor;
 	
 	public PacketPlayOutMatchJoin(
-		UUID matchId, ArkanoidMode mode, 
+		UUID matchId, ArkanoidMode mode,
 		Map<UUID, String> nameMap,
 		TeamColor teamColor
 	) {

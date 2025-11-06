@@ -10,7 +10,8 @@ import btl.ballgame.shared.libs.Utils;
 import btl.ballgame.shared.libs.external.Json;
 
 public class PlayerData {
-	public static final String PASSWORD_HASH = "password-sha256", NAME = "display-name";
+	public static final String PASSWORD_HASH = "password-sha256", NAME = "display-name",
+	HIGHSCORE_SOLO = "solo-hiscore", TOTAL_WINS = "total-wins";
 	
 	private UUID uuid;
 	private Json data;
@@ -29,6 +30,24 @@ public class PlayerData {
 	 
 	public String getPasswordHash() {
 		return !data.has(PASSWORD_HASH) ? null : data.at(PASSWORD_HASH).asString();
+	}
+	
+	public int getSoloHighScore() {
+		return !data.has(HIGHSCORE_SOLO) ? 0 : data.at(HIGHSCORE_SOLO).asInteger();
+	}
+	
+	public void setHighScore(int score) {
+		data.set(HIGHSCORE_SOLO, score);
+		save();
+	}
+	
+	public int getTotalWins() {
+		return !data.has(TOTAL_WINS) ? 0 : data.at(TOTAL_WINS).asInteger();
+	}
+	
+	public void addTotalWins(int moreWins) {
+		data.set(TOTAL_WINS, getTotalWins() + 1);
+		save();
 	}
 	
 	public void setPasswordHash(String hash) {

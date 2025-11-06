@@ -17,7 +17,6 @@ public class ClientPauseGameHandle implements PacketHandler<PacketPlayInPauseGam
 		ArkaPlayer player = context.getPlayer();
 		ArkanoidMatch match = player.getCurrentGame();
 		if (match == null) {
-			context.closeForViolation();
 			return;
 		}
 		

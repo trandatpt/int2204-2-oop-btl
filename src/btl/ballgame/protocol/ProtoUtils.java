@@ -30,6 +30,8 @@ public class ProtoUtils {
 		PLAYIN_FIRING_MODE_CHANGE  = 0x00B,
 		PLAYIN_PAUSE_MATCH         = 0x00C,
 		PLAYIN_REQUEST_LIST_PR     = 0x00D,
+		PLAYIN_PLAY_CLASSIC        = 0x00E,
+		PLAYIN_LIST_ALL_PLAYERS    = 0x00F,
 		// outbound packets (server -> client)
 		PLAYOUT_CLIENT_HELLO_ACK   = 0xC00,
 		PLAYOUT_LOGIN_ACK 		   = 0xC01,
@@ -50,7 +52,8 @@ public class ProtoUtils {
 		PLAYOUT_GAME_OVER_SCREEN   = 0xC10,
 		PLAYOUT_CLIENT_FLAGS       = 0xC11,
 		PLAYOUT_DISPLAY_TITLE      = 0xC12,
-		PLAYOUT_LIST_PUB_ROOMS     = 0xC14
+		PLAYOUT_LIST_PUB_ROOMS     = 0xC14,
+		PLAYOUT_LIST_ALL_PLAYERS   = 0xC15
 	;
 	
 	/**
@@ -79,6 +82,8 @@ public class ProtoUtils {
 		registry.registerPacket(PLAYIN_FIRING_MODE_CHANGE, PacketPlayInChangeFireMode.class, PacketPlayInChangeFireMode::new);
 		registry.registerPacket(PLAYIN_PAUSE_MATCH, PacketPlayInPauseGame.class, PacketPlayInPauseGame::new);
 		registry.registerPacket(PLAYIN_REQUEST_LIST_PR, PacketPlayInRequestRoomList.class, PacketPlayInRequestRoomList::new);
+		registry.registerPacket(PLAYIN_PLAY_CLASSIC, PacketPlayInPlayClassicArkanoid.class, PacketPlayInPlayClassicArkanoid::new);
+		registry.registerPacket(PLAYIN_LIST_ALL_PLAYERS, PacketPlayInRequestAllPlayersList.class, PacketPlayInRequestAllPlayersList::new);
 		
 		// PLAYOUT (Server -> Client)
 		registry.registerPacket(PLAYOUT_CLIENT_HELLO_ACK, PacketPlayOutHelloAck.class, PacketPlayOutHelloAck::new);
@@ -88,6 +93,7 @@ public class ProtoUtils {
 		registry.registerPacket(PLAYOUT_WAIT_ROOM_UPDATE, PacketPlayOutRoomUpdate.class, PacketPlayOutRoomUpdate::new);
 		registry.registerPacket(PLAYOUT_WAIT_ROOM_DISBAND, PacketPlayOutRoomDisband.class, PacketPlayOutRoomDisband::new);
 		registry.registerPacket(PLAYOUT_LIST_PUB_ROOMS, PacketPlayOutListPublicRooms.class, PacketPlayOutListPublicRooms::new);
+		registry.registerPacket(PLAYOUT_LIST_ALL_PLAYERS, PacketPlayOutGetAllPlayers.class, PacketPlayOutGetAllPlayers::new);
 		registry.registerPacket(PLAYOUT_ROOM_JOIN_ERROR, PacketPlayOutRoomJoinError.class, PacketPlayOutRoomJoinError::new);
 
 		registry.registerPacket(PLAYOUT_ENTITY_SPAWN, PacketPlayOutEntitySpawn.class, PacketPlayOutEntitySpawn::new);

@@ -7,6 +7,7 @@ import btl.ballgame.client.ui.audio.SoundManager;
 import btl.ballgame.client.ui.screen.Screen;
 import btl.ballgame.protocol.packets.in.PacketPlayInCreateRoom;
 import btl.ballgame.protocol.packets.in.PacketPlayInJoinRoom;
+import btl.ballgame.protocol.packets.in.PacketPlayInPlayClassicArkanoid;
 import btl.ballgame.protocol.packets.in.PacketPlayInRequestRoomList;
 import btl.ballgame.protocol.packets.out.PacketPlayOutListPublicRooms;
 import btl.ballgame.protocol.packets.out.PacketPlayOutListPublicRooms.RoomInfo;
@@ -42,6 +43,7 @@ public class LobbyScreen extends Screen {
 
 	@Override
 	public void onInit() {
+		SoundManager.stopAllSounds();
 		// root
 		BorderPane root = new BorderPane();
 		BackgroundSize backgroundSize = new BackgroundSize(100, 100, true, true, false, true);
@@ -98,15 +100,17 @@ public class LobbyScreen extends Screen {
 		// FUT BUTTONS
 		Button joinByCodeBtn = new Button("🔑 Join by Code");
 		Button createRoomBtn = new Button("➕ Create Room");
+		Button classicArkanoidBtn = new Button("🕹 Play Classic");
 		Button leaderboardBtn = new Button("🏆 Leaderboard");
 		Button exitBtn = new Button("🚪 Disconnect from Server");
 
 		MenuUtils.styleButton(joinByCodeBtn, "#3b8a7c", "#2d695e");
 		MenuUtils.styleButton(createRoomBtn, "#4d476e", "#353147");
+		MenuUtils.styleButton(classicArkanoidBtn, "#3d660c", "#314f0d");
 		MenuUtils.styleButton(leaderboardBtn, "#365b8c", "#274167");
 		MenuUtils.styleButton(exitBtn, "#b22222", "#8b1a1a");
 
-		HBox footer = new HBox(20, joinByCodeBtn, createRoomBtn, leaderboardBtn, exitBtn);
+		HBox footer = new HBox(20, joinByCodeBtn, createRoomBtn, classicArkanoidBtn, leaderboardBtn, exitBtn);
 		footer.setAlignment(Pos.CENTER);
 		footer.setPadding(new Insets(20, 0, 20, 0));
 		root.setBottom(footer);
@@ -116,6 +120,9 @@ public class LobbyScreen extends Screen {
 		// DISPATCHER
 		joinByCodeBtn.setOnAction(e -> joinByCode());
 		createRoomBtn.setOnAction(e -> createRoomDialog());
+		classicArkanoidBtn.setOnAction(e -> {
+			ArkanoidGame.core().getConnection().sendPacket(new PacketPlayInPlayClassicArkanoid());
+		});
 		leaderboardBtn.setOnAction(e -> leaderBoard());
 		exitBtn.setOnAction(e -> disconnect());
 
@@ -148,7 +155,6 @@ public class LobbyScreen extends Screen {
 		}
 		List<DisplayRoomInfo> updatedRooms = new ArrayList<>();
 		for (RoomInfo info : packet.getRooms()) {
-			System.out.println(info);
 			updatedRooms.add(DisplayRoomInfo.from(info));
 		}
 		synchronized (rooms) {
@@ -328,7 +334,7 @@ public class LobbyScreen extends Screen {
 				firstToScore, timePerRound, teamLives
 			);
 			core.getConnection().sendPacket(packet);
-			//MenuUtils.showLoadingScreen("Creating Arkanoid Room...");
+			MenuUtils.showLoadingScreen("Creating Arkanoid Room...");
 		}
 	}
 
@@ -364,6 +370,10 @@ public class LobbyScreen extends Screen {
 	
 	private void leaderBoard() {
 		// open leaderboard screen
+		Platform.runLater(() -> {
+			LeaderboardScreen lb = new LeaderboardScreen();
+			ArkanoidGame.manager().setScreen(lb);
+		});
 	}
 
 	private void disconnect() {

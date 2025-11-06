@@ -31,8 +31,6 @@ public class CEntityWreckingBall extends CSInterpolatedEntity {
 	@Override
 	public void render(GraphicsContext cv) {
 		super.render(cv); // interpolation
-		int tint = !primary ? 0xFFFFFF : 0xe00707; // red if the ball is unimportant
-		
 		cv.save();
 		if (renderUpsideDown) { // if the item falls up (blue), flip it
 			// flip vertically around the item's center
@@ -43,10 +41,10 @@ public class CEntityWreckingBall extends CSInterpolatedEntity {
 		}
 		
 		// draw the ball
-		drawTinted(cv, ballImage, 
+		cv.drawImage(ballImage, 
 			getRenderX(), getRenderY(), 
-			getRenderWidth(), getRenderHeight(),
-		tint);
+			getRenderWidth(), getRenderHeight()
+		);
 		
 		cv.restore();
 		if (!primary) return;
@@ -62,7 +60,9 @@ public class CEntityWreckingBall extends CSInterpolatedEntity {
 			Color.rgb(250, 196, 0, 0.5), // firey orange
 			null
 		);
-		getWorld().particles().spawn(ParticlePriority.BEFORE_ENTITIES, trail);
+		for (int i = 0; i < 2; i++) {
+			getWorld().particles().spawn(ParticlePriority.BEFORE_ENTITIES, trail);
+		}
 	}
 	
 	public boolean isPrimaryBall() {

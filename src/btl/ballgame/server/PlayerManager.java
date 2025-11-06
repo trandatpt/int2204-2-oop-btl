@@ -34,6 +34,9 @@ public class PlayerManager {
 		if (player.getCurrentGame() != null) {
 			player.getCurrentGame().onPlayerLeft(player);
 		}
+		if (player.getCurrentWaitingRoom() != null) {
+			player.getCurrentWaitingRoom().removePlayer(player);
+		}
 		System.out.println("[PLAYERMAN] Player " + player.getName() + " (" + player.getUniqueId() + ") left the server.");
 	}
 	

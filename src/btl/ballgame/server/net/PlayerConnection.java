@@ -213,13 +213,36 @@ public class PlayerConnection implements ConnectionCtx {
 	 *                                  {@link NetworkPacket}
 	 */
 	public void sendPacket(IPacketPlayOut packet) {
-		if (!(packet instanceof NetworkPacket)) {
+		this.sendPacket(packet, false);
+	}
+	
+	/**
+	 * Send a packet to the client either by queueing it or
+	 * dispatches it immediately
+	 * 
+	 * @param packet the packet to send
+	 * @param immediate if the packet should be dispatched immediately
+	 * @throws IllegalArgumentException if the packet is not an instance of
+	 *                                  {@link NetworkPacket}
+	 */
+	public void sendPacket(IPacketPlayOut packet, boolean immediate) {
+		if (!(packet instanceof NetworkPacket np)) {
 			throw new IllegalArgumentException("Cannot dispatch " + packet.getClass().getName() + "! Malformed blueprint.");
 		}
-		dispatchQueue.add((NetworkPacket) packet);
+		if (immediate) {
+			synchronized (sendStream) {
+				try {
+					server.codec().writePacket(sendStream, np);
+					sendStream.flush();
+				} catch (Exception e) {}
+			}			
+			return;
+		}
+		dispatchQueue.add(np);
 	}
 	
 	public void closeForViolation() {
+		new Exception().printStackTrace();
 		this.closeWithNotify("Invalid packet order!");
 	}
 	
@@ -241,12 +264,7 @@ public class PlayerConnection implements ConnectionCtx {
 	public void dispatchLastPacketAndClose(IPacketPlayOut lastPacket) {
 		if (closed) return;
 		// dispatch the last packet immediately, this bypasses the queue
-		synchronized (sendStream) {
-			try {
-				server.codec().writePacket(sendStream, (NetworkPacket) lastPacket);
-				sendStream.flush();
-			} catch (IOException e) {}
-		}
+		this.sendPacket(lastPacket, true);
 		closeConnection();
 	}
 	

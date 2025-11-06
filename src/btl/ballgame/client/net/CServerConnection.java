@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Semaphore;
 
@@ -142,17 +140,40 @@ public class CServerConnection implements ConnectionCtx {
 		}
 	}
 	
-    /**
-     * Queues a packet to be sent to the server.
-     *
-     * @param packet the outgoing packet to send
-     * @throws IllegalArgumentException if the packet is not an instance of {@link NetworkPacket}
-     */
+	/**
+	 * Queues a packet for sending to the server.
+	 * 
+	 * @param packet the packet to send
+	 * @throws IllegalArgumentException if the packet is not an instance of
+	 *                                  {@link NetworkPacket}
+	 */
 	public void sendPacket(IPacketPlayIn packet) {
-		if (!(packet instanceof NetworkPacket)) {
+		this.sendPacket(packet, false);
+	}
+	
+	/**
+	 * Send a packet to the server either by queueing it or
+	 * dispatches it immediately
+	 * 
+	 * @param packet the packet to send
+	 * @param immediate if the packet should be dispatched immediately
+	 * @throws IllegalArgumentException if the packet is not an instance of
+	 *                                  {@link NetworkPacket}
+	 */
+	public void sendPacket(IPacketPlayIn packet, boolean immediate) {
+		if (!(packet instanceof NetworkPacket np)) {
 			throw new IllegalArgumentException("Cannot dispatch " + packet.getClass().getName() + "! Malformed blueprint.");
 		}
-		dispatchQueue.add((NetworkPacket) packet);
+		if (immediate) {
+			synchronized (sendStream) {
+				try {
+					client.codec().writePacket(sendStream, np);
+					sendStream.flush();
+				} catch (Exception e) {}
+			}			
+			return;
+		}
+		dispatchQueue.add(np);
 	}
 	
     /**
@@ -163,12 +184,7 @@ public class CServerConnection implements ConnectionCtx {
 	public void closeWithNotify(String reason) {
 		if (closed) return;
 		// dispatch a disconnect immediately, this bypasses the queue
-		synchronized (sendStream) {
-			try {
-				client.codec().writePacket(sendStream, new PacketPlayInDisconnect());
-				sendStream.flush();
-			} catch (IOException e) {}
-		}
+		sendPacket(new PacketPlayInDisconnect());
 		closeConnection();
 		// tell the user that the connection is lost
 		MenuUtils.connectionLostScreen(reason);

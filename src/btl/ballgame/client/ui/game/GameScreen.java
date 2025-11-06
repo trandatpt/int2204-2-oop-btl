@@ -5,6 +5,7 @@ import btl.ballgame.client.CSAssets;
 import btl.ballgame.client.ClientArkanoidMatch;
 import btl.ballgame.client.ClientArkanoidMatch.CPlayerInfo;
 import btl.ballgame.client.ClientArkanoidMatch.CTeamInfo;
+import btl.ballgame.client.ui.audio.SoundManager;
 import btl.ballgame.client.ui.menus.InformationalScreen;
 import btl.ballgame.client.ui.menus.MenuUtils;
 import btl.ballgame.client.ui.screen.Screen;
@@ -63,6 +64,9 @@ public class GameScreen extends Screen {
 
     @Override
     public void onInit() {
+    	SoundManager.playloop("BattleTheme");
+    	long startTime = System.nanoTime();
+    	ArkanoidGame.maximizeWindow();
         BorderPane root = new BorderPane();
 
         // --- Set Background ---
@@ -312,6 +316,13 @@ public class GameScreen extends Screen {
                 if (gameRenderCanvas != null) {
                     gameRenderCanvas.doRender();
                 }
+                
+                // timer
+				long elapsedNanos = now - startTime;
+				long elapsedSeconds = elapsedNanos / 1_000_000_000L;
+				long minutes = elapsedSeconds / 60;
+				long seconds = elapsedSeconds % 60;
+				timeLabel.setText(String.format("%02d:%02d", minutes, seconds));
             }
         };
         gameLoop.start();
@@ -405,6 +416,7 @@ public class GameScreen extends Screen {
 				long now = System.currentTimeMillis();
 				if (now - lastPauseToggle >= PAUSE_COOLDOWN_MS) {
 					lastPauseToggle = now;
+					SoundManager.pauseSound();
 					pauseOverlay.setVisible(!pauseOverlay.isVisible());
 				}
 			}

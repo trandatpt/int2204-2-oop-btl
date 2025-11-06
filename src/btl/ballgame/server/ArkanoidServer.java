@@ -202,6 +202,8 @@ public class ArkanoidServer {
 		this.registry.registerHandler(PacketPlayInRoomSwapTeam.class, new ClientRoomSwapTeamHandle());
 		this.registry.registerHandler(PacketPlayInRoomSetReady.class, new ClientRoomReadyHandle());
 		this.registry.registerHandler(PacketPlayInJoinRoom.class, new ClientRoomJoinHandle());
+		this.registry.registerHandler(PacketPlayInPlayClassicArkanoid.class, new ClientPlayClassicArkanoidHandle());
+		this.registry.registerHandler(PacketPlayInRequestAllPlayersList.class, new ClientPlayersListRequestHandle());
 	}
 	
 	public EntityRegistry getEntityRegistry() {

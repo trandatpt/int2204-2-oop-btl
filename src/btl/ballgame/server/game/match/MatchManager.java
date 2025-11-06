@@ -71,9 +71,12 @@ public class MatchManager {
     	try {
 	        for (ArkanoidWaitRoom room : new ArrayList<>(waitingRooms.values())) {
 	        	// cleanup empty/headless rooms
-	        	if (!room.getOwner().isOnline() || room.getAllPlayers().size() == 0) {
+	        	if (room.getOwner() == null 
+	        		|| !room.getOwner().isOnline() 
+	        		|| room.getAllPlayers().size() == 0
+	        	) {
 	        		removeRoom(room.getRoomId());
-	        		return;
+	        		continue;
 	        	}
 	            if (room.canStart()) {
 	                room.startMatch();

@@ -2,8 +2,10 @@ package btl.ballgame.client;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.List;
 
 import btl.ballgame.client.ui.audio.SoundManager;
+import btl.ballgame.client.ui.menus.LeaderboardScreen;
 import btl.ballgame.client.ui.menus.MenuUtils;
 import btl.ballgame.client.ui.screen.ScreenManager;
 import btl.ballgame.protocol.ProtoUtils;
@@ -13,18 +15,18 @@ import javafx.stage.Stage;
 
 public class ArkanoidGame extends Application {
 	private static ArkanoidClientCore core = null;
+	private static Stage rootStage = null;
 	private static ScreenManager manager;
 
 	@Override
 	public void start(Stage root) throws Exception {
+		rootStage = root;
 		// initialize sound
 		CSAssets.init();
+		// start
 		manager = new ScreenManager(root);
-
+		maximizeWindow();
 		MenuUtils.displayServerSelector();
-//		LoginScreen login = new LoginScreen();
-//		manager.setScreen(login);
-
 		root.show();
 	}
 	
@@ -40,6 +42,10 @@ public class ArkanoidGame extends Application {
 			// kill the jvm anyway
 			System.exit(0);
 		}
+	}
+	
+	public static void maximizeWindow() {
+		rootStage.setMaximized(true);
 	}
 
 	public static ScreenManager manager() {

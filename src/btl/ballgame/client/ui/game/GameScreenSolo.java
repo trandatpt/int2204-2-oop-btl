@@ -63,6 +63,8 @@ public class GameScreenSolo extends Screen {
 
     @Override
     public void onInit() {
+    	SoundManager.playloop("ClassicTheme");
+    	ArkanoidGame.maximizeWindow();
         BorderPane root = new BorderPane();
 
         // --- Set Background Images ---
@@ -302,6 +304,10 @@ public class GameScreenSolo extends Screen {
 			pauseOverlay.setVisible(false);
 			updatePause();
 		});
+		pauseScreen.addButton("Give Up and Return to Lobby", () -> {
+			ArkanoidGame.core().leaveContext();
+			MenuUtils.displayLobbyScreen();
+		});
 		pauseScreen.addButton("Quit to Title", () -> {
             SoundManager.clickSoundConfirm();
 			ArkanoidGame.core().disconnect();
@@ -319,10 +325,10 @@ public class GameScreenSolo extends Screen {
 
 		setOnKeyPressed(event -> {
 			if (event.getCode() == KeyCode.ESCAPE) {
-                SoundManager.pause();
 				long now = System.currentTimeMillis();
 				if (now - lastPauseToggle >= PAUSE_COOLDOWN_MS) {
 					lastPauseToggle = now;
+					SoundManager.pauseSound();
 					pauseOverlay.setVisible(!pauseOverlay.isVisible());
 					updatePause();
 				}

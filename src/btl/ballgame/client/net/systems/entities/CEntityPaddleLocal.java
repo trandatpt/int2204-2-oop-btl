@@ -99,7 +99,8 @@ public class CEntityPaddleLocal extends CEntityPaddle implements ITickableCEntit
 		if (newMode == currentMode) return;
 		SoundManager.changeMode();
 		ArkanoidGame.core().getConnection().sendPacket(
-			new PacketPlayInChangeFireMode(this.currentMode = newMode)
+			new PacketPlayInChangeFireMode(this.currentMode = newMode), 
+			true // immediate dispatch, dont wait
 		);
 	}
 	

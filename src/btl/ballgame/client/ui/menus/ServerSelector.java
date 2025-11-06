@@ -3,6 +3,7 @@ package btl.ballgame.client.ui.menus;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -152,8 +153,7 @@ public class ServerSelector extends Screen {
 	}
 
 	private void goOffline() {
-		// SoundManager.ClickFalse();  false
-		// SoundManager.ClickBottonMenu(); click successful
+		MenuUtils.toast(AlertType.ERROR, "Offline mode using the Internal dedicated server isn't available yet. We didn't have time to implement it.");
 	}
 
 	private void goSettings() {

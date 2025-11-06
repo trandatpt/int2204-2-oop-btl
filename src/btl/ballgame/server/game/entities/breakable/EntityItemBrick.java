@@ -30,7 +30,7 @@ public class EntityItemBrick extends EntityBrick {
 				world.nextEntityId(),
 				new Location(world, loc.getX(), loc.getY(), 0),
 				match.getTeamOf(owner).getTeamColor(),
-				ItemType.values()[world.random.nextInt(2)]
+				ItemType.values()[world.random.nextInt(3)]
 			);
 			buff.onPickup(e -> {
 				match.onItemCollected(buff, owner);

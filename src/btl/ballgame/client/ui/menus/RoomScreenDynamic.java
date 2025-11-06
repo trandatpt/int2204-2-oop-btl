@@ -35,7 +35,7 @@ public class RoomScreenDynamic extends Screen {
 	private Map<UUID, VBox> playerCards = new HashMap<>();
 
 	public RoomScreenDynamic() {
-		super("Room Lobby");
+		super("Room Lobby (3rd-party Server)");
 		if ((this.core = ArkanoidGame.core()) == null) {
 			throw new IllegalStateException("Core is null!");
 		}
@@ -43,6 +43,7 @@ public class RoomScreenDynamic extends Screen {
 
 	@Override
 	public void onInit() {
+		ArkanoidGame.maximizeWindow();
 		root = new BorderPane();
 		BackgroundSize bgSize = new BackgroundSize(100, 100, true, true, false, true);
 		root.setBackground(new Background(

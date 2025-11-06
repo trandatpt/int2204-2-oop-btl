@@ -128,6 +128,8 @@ public class SoundManager {
         loadSound("Lose", "assets/lose.wav");
         loadSound("MusicMenu", "assets/music.mp3");
         loadSound("MusicInGame", "assets/musicinpick.wav");
+        loadSound("BattleTheme", "assets/battle.m4a");
+        loadSound("ClassicTheme", "assets/moscow.mp3");
         loadSound("NoSelect", "assets/no-select.wav");
         loadSound("PaddleHit", "assets/paddle_hit.wav");
         loadSound("Pause", "assets/pause.wav");
@@ -147,7 +149,7 @@ public class SoundManager {
         setVolume(volume);
     }
 
-	public static void pause() {
+	public static void pauseSound() {
 		play("Confirm");
 	}
 }
