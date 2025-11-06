@@ -3,6 +3,7 @@ package btl.ballgame.client.ui.menus;
 import btl.ballgame.client.ArkanoidGame;
 import btl.ballgame.client.ui.menus.ServerSelector.PredefinedServer;
 import javafx.application.Platform;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -72,5 +73,18 @@ public class MenuUtils {
 		btn.setOnMouseExited(e -> { 
 			btn.setStyle("-fx-background-color: " + baseColor + "; -fx-text-fill: white;");
 		});
+	}
+
+	public static void toast(String msg) {
+    	Alert alert = new Alert(Alert.AlertType.INFORMATION);
+    	alert.setHeaderText(null);
+    	alert.setContentText(msg);
+    	alert.show();
+
+    	// auto close sau 1.5s cho giống "toast"
+    	new Thread(() -> {
+        	try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
+        	Platform.runLater(alert::close);
+    	}).start();
 	}
 }
