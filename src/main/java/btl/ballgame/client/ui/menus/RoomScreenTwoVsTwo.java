@@ -61,15 +61,8 @@ public class RoomScreenTwoVsTwo extends Screen {
         VBox headerBox = new VBox(5);
         headerBox.setPadding(new Insets(10));
 
-        HBox idBox = new HBox();
-        idBox.setAlignment(Pos.CENTER_LEFT);
-        idBox.getChildren().add(roomId);
-
-        HBox titleBox = new HBox();
-        titleBox.setAlignment(Pos.CENTER);
-        titleBox.getChildren().add(labelHeader);
-
-        headerBox.getChildren().addAll(idBox, titleBox);
+        headerBox.getChildren().addAll(roomId, labelHeader);
+        headerBox.setAlignment(Pos.CENTER);
 
         BorderPane.setAlignment(headerBox, Pos.CENTER);
         BorderPane.setMargin(headerBox, new Insets(10));
@@ -88,19 +81,16 @@ public class RoomScreenTwoVsTwo extends Screen {
 
         // Footer buttons
         Button startBtn = new Button("Start");
-        Button switchModeBtn = new Button("Switch to 1vs1");
         Button exitBtn = new Button("Exit");
 
         MenuUtils.styleButton(startBtn, "#b22222", "#8b1a1a");
-        MenuUtils.styleButton(switchModeBtn, "#476e49ff", "#374731ff");
         MenuUtils.styleButton(exitBtn, "#4d476e", "#353147");
 
         // Actions
         startBtn.setOnAction(e -> startGame());
-        switchModeBtn.setOnAction(e -> switchTo1vs1());
         exitBtn.setOnAction(e -> exitRoom());
 
-        HBox footer = new HBox(20, startBtn, switchModeBtn, exitBtn);
+        HBox footer = new HBox(40, startBtn, exitBtn);
         footer.setAlignment(Pos.CENTER);
         footer.setPadding(new Insets(15));
 
@@ -228,13 +218,6 @@ public class RoomScreenTwoVsTwo extends Screen {
         }
         SoundManager.clickBottonLogin();
         // add code
-    }
-
-    private void switchTo1vs1() {
-        //MenuUtils.displayOneVsOne();
-        //temporarily
-        RoomScreenOneVsOne one = new RoomScreenOneVsOne();
-        ArkanoidGame.manager().setScreen(one);
     }
 
     private void exitRoom() {
