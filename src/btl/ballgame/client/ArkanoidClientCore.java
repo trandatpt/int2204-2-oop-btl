@@ -1,14 +1,7 @@
 package btl.ballgame.client;
 
-import java.io.IOException;
-import java.net.Socket;
-import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
 import btl.ballgame.client.net.CServerConnection;
+import btl.ballgame.client.net.handle.*;
 import btl.ballgame.client.net.handle.ServerClientFlagsHandle;
 import btl.ballgame.client.net.handle.ServerDisplayTitleHandle;
 import btl.ballgame.client.net.handle.ServerEntityBBSizeUpdateHandle;
@@ -29,14 +22,7 @@ import btl.ballgame.client.net.handle.ServerWaitingRoomUpdateHandle;
 import btl.ballgame.client.net.systems.CSEntity;
 import btl.ballgame.client.net.systems.CSEntityRegistry;
 import btl.ballgame.client.net.systems.CSWorld;
-import btl.ballgame.client.net.systems.entities.CEntityAKBullet;
-import btl.ballgame.client.net.systems.entities.CEntityBrickNormal;
-import btl.ballgame.client.net.systems.entities.CEntityExplosiveBrick;
-import btl.ballgame.client.net.systems.entities.CEntityFallingItem;
-import btl.ballgame.client.net.systems.entities.CEntityItemBrick;
-import btl.ballgame.client.net.systems.entities.CEntityPaddle;
-import btl.ballgame.client.net.systems.entities.CEntityPaddleLocal;
-import btl.ballgame.client.net.systems.entities.CEntityWreckingBall;
+import btl.ballgame.client.net.systems.entities.*;
 import btl.ballgame.protocol.PacketCodec;
 import btl.ballgame.protocol.PacketRegistry;
 import btl.ballgame.protocol.ProtoUtils;
@@ -61,6 +47,13 @@ import btl.ballgame.protocol.packets.out.PacketPlayOutRoomUpdate;
 import btl.ballgame.protocol.packets.out.PacketPlayOutTitle;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.EntityType;
+
+import java.io.IOException;
+import java.net.Socket;
+import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class ArkanoidClientCore {
 	private CServerConnection connection;
@@ -124,6 +117,7 @@ public class ArkanoidClientCore {
 		this.registry.registerHandler(PacketPlayOutClientFlags.class, new ServerClientFlagsHandle());
 		this.registry.registerHandler(PacketPlayOutTitle.class, new ServerDisplayTitleHandle());
 		this.registry.registerHandler(PacketPlayOutEntityEffects.class, new ServerEntityEffectsHandle());
+        this.registry.registerHandler(PacketPlayOutGameOver.class, new ServerGameOverHandle());
 	}
 	
 	/**

@@ -20,6 +20,7 @@ public class CSAssets {
         BORDER_RED = image("redBorder.png"),
         BORDER_BLUE = image("blueBorder.png"),
         BORDER_GAME = image("GameBorder.png"),
+        OVERSCREEN = image("overScreen.gif")
 		LOBBY_BACKGROUND = image("lobby.png")
 	;
 

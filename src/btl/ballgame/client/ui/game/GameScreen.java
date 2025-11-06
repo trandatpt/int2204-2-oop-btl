@@ -321,6 +321,7 @@ public class GameScreen extends Screen {
 
     public void onUpdate(float tpf) {
         if (match == null || match.getTeams() == null) return;
+        if (gameLoop == null) return;
 
         // Get Team Info
         CTeamInfo redTeam = match.getTeams().get(TeamColor.RED);

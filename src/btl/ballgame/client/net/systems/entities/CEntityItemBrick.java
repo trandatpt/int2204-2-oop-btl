@@ -5,6 +5,7 @@ import java.util.Random;
 import btl.ballgame.client.TextureAtlas;
 import btl.ballgame.client.net.systems.CSEntity;
 import btl.ballgame.client.net.systems.ParticleSystem.Particle;
+import btl.ballgame.client.ui.audio.SoundManager;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.Constants.DriftBehavior;
 import btl.ballgame.shared.libs.Constants.ParticlePriority;
@@ -31,6 +32,7 @@ public class CEntityItemBrick extends CSEntity {
 	
 	@Override
 	public void onEntityDespawn() {
+		SoundManager.play("BrickHit3");
 		spawnDamageParticles(getMaxHealth());
 	}
 	
