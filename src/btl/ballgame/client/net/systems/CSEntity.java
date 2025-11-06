@@ -28,7 +28,7 @@ public abstract class CSEntity implements IRenderable {
 	private AABB boundingBox;
 	/** The dimensions of the entity */
 	private int width, height;
-	
+		
 	/**
 	 * Recalculates the bounding box based on 
 	 * the entity's current position and size.

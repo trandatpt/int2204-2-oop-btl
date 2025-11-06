@@ -3,6 +3,7 @@ package btl.ballgame.client.net.systems.entities;
 import btl.ballgame.client.ArkanoidGame;
 import btl.ballgame.client.ClientPlayer;
 import btl.ballgame.client.net.systems.ITickableCEntity;
+import btl.ballgame.client.ui.audio.SoundManager;
 import btl.ballgame.protocol.packets.in.PacketPlayInChangeFireMode;
 import btl.ballgame.protocol.packets.in.PacketPlayInPaddleControl;
 import btl.ballgame.shared.libs.AABB;
@@ -96,6 +97,7 @@ public class CEntityPaddleLocal extends CEntityPaddle implements ITickableCEntit
 	private RifleMode currentMode = RifleMode.SAFE;
 	public void switchRifleMode(RifleMode newMode) {
 		if (newMode == currentMode) return;
+		SoundManager.changeMode();
 		ArkanoidGame.core().getConnection().sendPacket(
 			new PacketPlayInChangeFireMode(this.currentMode = newMode)
 		);

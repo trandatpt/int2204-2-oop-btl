@@ -5,6 +5,7 @@ import java.util.Random;
 import btl.ballgame.client.TextureAtlas;
 import btl.ballgame.client.net.systems.CSEntity;
 import btl.ballgame.client.net.systems.ParticleSystem.Particle;
+import btl.ballgame.client.ui.audio.SoundManager;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.Constants.DriftBehavior;
 import btl.ballgame.shared.libs.Constants.ParticlePriority;
@@ -15,6 +16,7 @@ import javafx.scene.paint.Color;
 
 public class CEntityExplosiveBrick extends CSEntity {
 	private final Image tnt;
+	private long lastBeepTime = 0;
 
 	public CEntityExplosiveBrick() {
 		tnt = atlas().getAsImage("explosive_brick", "intact");
@@ -27,17 +29,22 @@ public class CEntityExplosiveBrick extends CSEntity {
 		// draw the base texture
 		cv.drawImage(tnt, x, y, w, h);
 		if (isPrimed()) {
-			// flash every ~150ms
+			// flash every ~250ms
 			long time = System.currentTimeMillis();
-			if (((time / 150L) % 2) == 0) {
+			if (((time / 250L) % 2) == 0) {
 				cv.setFill(Color.rgb(255, 255, 255, 0.6)); // translucent white overlay
 				cv.fillRect(x, y, w, h);
+			}
+			if (time - lastBeepTime > 350) {
+				SoundManager.play("TimeBomb");
+				lastBeepTime = time;
 			}
 		}
 	}
 
 	@Override
 	public void onEntityDespawn() {
+		SoundManager.bomb();
 		Random rand = new Random();
 		double centerX = getRenderX() + getRenderWidth() / 2.0;
 		double centerY = getRenderY() + getRenderHeight() / 2.0;
