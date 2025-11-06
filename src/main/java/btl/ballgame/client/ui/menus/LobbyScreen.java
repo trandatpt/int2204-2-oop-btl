@@ -259,7 +259,7 @@ public class LobbyScreen extends Screen {
         }
     }
 
-    private void DeleteRoom() {
+    private void deleteRoom() {
 
     }
 
