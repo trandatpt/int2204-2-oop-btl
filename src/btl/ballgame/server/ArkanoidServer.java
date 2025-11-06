@@ -23,6 +23,7 @@ import btl.ballgame.server.game.match.ArkanoidMatch;
 import btl.ballgame.server.game.match.MatchSettings;
 import btl.ballgame.server.net.NetworkManager;
 import btl.ballgame.server.net.PlayerConnection;
+import btl.ballgame.server.net.handle.ClientChangeRifleModeHandle;
 import btl.ballgame.server.net.handle.ClientDisconnectHandle;
 import btl.ballgame.server.net.handle.ClientHelloHandle;
 import btl.ballgame.server.net.handle.ClientLoginHandle;
@@ -38,6 +39,7 @@ import btl.ballgame.shared.libs.Constants.TeamColor;
 import btl.ballgame.protocol.PacketCodec;
 import btl.ballgame.protocol.PacketRegistry;
 import btl.ballgame.protocol.ProtoUtils;
+import btl.ballgame.protocol.packets.in.PacketPlayInChangeFireMode;
 import btl.ballgame.protocol.packets.in.PacketPlayInClientHello;
 import btl.ballgame.protocol.packets.in.PacketPlayInClientLogin;
 import btl.ballgame.protocol.packets.in.PacketPlayInClientUserCreation;
@@ -206,6 +208,7 @@ public class ArkanoidServer {
 		this.registry.registerHandler(PacketPlayInDisconnect.class, new ClientDisconnectHandle());
 		this.registry.registerHandler(PacketPlayInPong.class, new ClientPongHandle());
 		this.registry.registerHandler(PacketPlayInPaddleControl.class, new ClientPaddleInputHandle());
+		this.registry.registerHandler(PacketPlayInChangeFireMode.class, new ClientChangeRifleModeHandle());
 	}
 	
 	public EntityRegistry getEntityRegistry() {

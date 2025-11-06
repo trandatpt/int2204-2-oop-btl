@@ -185,6 +185,9 @@ public abstract class CSEntity implements IRenderable {
 	/** Called when the entity is removed or despawned from the world. */
 	public void onEntityDespawn() {};
 	
+	/** Called when the server sends damaged effect. */
+	public void onEntityEffectDamaged() {};
+	
 	// --- HIER ---
 	/**
 	 * Renders this entity onto the given {@link GraphicsContext}, runs

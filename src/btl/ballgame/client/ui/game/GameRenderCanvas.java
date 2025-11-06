@@ -1,5 +1,7 @@
 package btl.ballgame.client.ui.game;
 
+import java.util.Arrays;
+
 import btl.ballgame.client.ArkanoidClientCore;
 import btl.ballgame.client.ArkanoidGame;
 import btl.ballgame.client.CSAssets;
@@ -7,6 +9,7 @@ import btl.ballgame.client.ClientArkanoidMatch;
 import btl.ballgame.client.net.systems.CSWorld;
 import btl.ballgame.client.ui.screen.Screen;
 import btl.ballgame.shared.libs.Constants.ParticlePriority;
+import btl.ballgame.shared.libs.Constants.RifleMode;
 import btl.ballgame.shared.libs.Constants.TeamColor;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
@@ -87,7 +90,6 @@ public class GameRenderCanvas extends Screen {
 
 		if (shouldFlip) ctx.restore();
 		
-		ctx.setGlobalAlpha(1.0);
 		// render particles that are upright REGARDLESS
 		world.particles().render(ParticlePriority.LATEST_IGNORE_FLIP, ctx);
 	}
@@ -102,6 +104,9 @@ public class GameRenderCanvas extends Screen {
                 case LEFT -> paddle.setMoveLeft(true);
                 case RIGHT -> paddle.setMoveRight(true);
                 case SPACE -> paddle.setShooting(true);
+                case DIGIT1 -> paddle.switchRifleMode(RifleMode.SAFE);
+                case DIGIT2 -> paddle.switchRifleMode(RifleMode.SEMI_AUTO);
+                case DIGIT3 -> paddle.switchRifleMode(RifleMode.FULL_AUTO);
                 default -> {}
             }
         });

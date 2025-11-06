@@ -17,7 +17,6 @@ public class ServerDisplayTitleHandle implements PacketHandler<PacketPlayOutTitl
 		}
 		var particles = world.particles().get(ParticlePriority.LATEST_IGNORE_FLIP);
 		if (particles != null) particles.forEach(p -> {
-			System.out.println(((TextParticle)p).getyOffset() + " p:" + packet.getYOffset());
 			if (p instanceof TextParticle tp && tp.getyOffset() == packet.getYOffset()) { 
 				tp.remove();
 			}

@@ -22,14 +22,16 @@
         "multi_ball": { "x": 67, "y": 0, "w": 50, "h": 50 },
         "paddle_expand": { "x": 117, "y": 0, "w": 50, "h": 50 }
       },
-      "item": {
+      "ui_component": {
         "kalashnikov": { "x": 623, "y": 0, "w": 200, "h": 108 },
-        "Bullet-Tiles-01": { "x": 0, "y": 0, "w": 17, "h": 100 },
-        "Heart-Tiles-01": { "x": 495, "y": 0, "w": 128, "h": 116 }
+        "heart": { "x": 495, "y": 0, "w": 128, "h": 116 }
+      },
+      "other_entities": {
+        "bullet": { "x": 0, "y": 0, "w": 17, "h": 100 }
       },
       "logo": {
-        "logoTeam_1": { "x": 167, "y": 0, "w": 100, "h": 100 },
-        "logoTeam_2": { "x": 267, "y": 0, "w": 100, "h": 100 }
+        "team_blue": { "x": 167, "y": 0, "w": 100, "h": 100 },
+        "team_red": { "x": 267, "y": 0, "w": 100, "h": 100 }
       },
       "falling_item": {
         "ammo_box": { "x": 0, "y": 517, "w": 71, "h": 98 },

@@ -6,7 +6,9 @@ import btl.ballgame.server.ArkaPlayer;
 import btl.ballgame.server.game.WorldEntity;
 import btl.ballgame.server.game.entities.BreakableEntity;
 import btl.ballgame.server.game.entities.IOwnableEntity;
+import btl.ballgame.shared.libs.AABB;
 import btl.ballgame.shared.libs.Location;
+import btl.ballgame.shared.libs.Utils;
 import btl.ballgame.shared.libs.Vector2f;
 
 /**
@@ -19,7 +21,7 @@ public class EntityAKBullet extends WorldEntity implements IOwnableEntity {
 	private static final float AIR_RESISTANCE = 0.01f; // luc can khong khi (1%)
     private static final float ENERGY_LOSS = 0.8f;	  // mat nang luong khi va cham
     private static final float MIN_SPEED = 2.5f;		  // vmin
-    private static final int MAX_BRICK_PIERCE = 2;   // so gach toi da xuyen qua duoc
+    private static final int MAX_BRICK_PIERCE = 1;   // so gach toi da xuyen qua duoc
     private static final int DAMAGE = 1;			  // -1hp cua gach
 
     private Vector2f velocity;
@@ -76,6 +78,22 @@ public class EntityAKBullet extends WorldEntity implements IOwnableEntity {
                     this.remove();
                     return;
                 }
+                continue;
+            }
+            
+            if (entity instanceof EntityPaddle paddle) {
+				AABB paddleBox = paddle.getBoundingBox();
+				float paddleCenter = paddleBox.getCenterX();
+				
+				// offset from center, range [-1, 1]
+				// the more titled the bullet is to the sides (upon contact), the less
+				// damage it deals
+				double relative = (x - paddleCenter) / (paddleBox.getWidth() / 2f);
+				relative = Utils.clamp(relative, -1.d, 1.d); // clamp
+				
+            	world.getHandle().onBulletHit(this, paddle, relative);
+            	this.remove();
+            	continue;
             }
         }
 

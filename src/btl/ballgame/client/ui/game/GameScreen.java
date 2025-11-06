@@ -12,13 +12,14 @@ import javafx.animation.AnimationTimer;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static btl.ballgame.client.ui.game.GameUtils.*; 
 
 public class GameScreen extends Screen {
     private ClientArkanoidMatch match;
@@ -41,12 +42,7 @@ public class GameScreen extends Screen {
     // --- UI Node References for Top-Center Scoreboard ---
     private Label roundScoreLabel;
     private Label timeLabel;
-
-    private static final Image logoTeam_1 = CSAssets.sprites.__get("logo/logoTeam_1.png");
-    private static final Image logoTeam_2 = CSAssets.sprites.__get("logo/logoTeam_2.png");
-    private static final Image RIFLE_IMAGE = CSAssets.sprites.__get("item/kalashnikov.png");
-    private static final Image heartImage = CSAssets.sprites.__get("item/Heart-Tiles-01.png");
-
+    
     // Map of player UUID to PlayerInfoUI for reuse
     private final Map<String, PlayerInfoUI> playerUIMap = new HashMap<>();
 
@@ -108,7 +104,7 @@ public class GameScreen extends Screen {
         );
 
         // Time Label
-        timeLabel = new Label("TIME 00:00");
+        timeLabel = new Label("00:00");
         timeLabel.setTextFill(Color.WHITE);
         timeLabel.setStyle("-fx-font-size: 18px; " +
                 "-fx-font-weight: bold; " +
@@ -160,7 +156,7 @@ public class GameScreen extends Screen {
         );
 
         // Team Logo and Label for BLUE Team
-        ImageView logoViewRight = new ImageView(logoTeam_1);
+        ImageView logoViewRight = new ImageView(BLUE_TEAM_ICON);
         logoViewRight.setFitWidth(40);
         logoViewRight.setFitHeight(40);
         StackPane colorBoxRight = new StackPane(logoViewRight);
@@ -234,7 +230,7 @@ public class GameScreen extends Screen {
         );
 
         // Team Logo and Label for RED Team
-        ImageView logoViewLeft = new ImageView(logoTeam_2);
+        ImageView logoViewLeft = new ImageView(RED_TEAM_ICON);
         logoViewLeft.setFitWidth(40);
         logoViewLeft.setFitHeight(40);
         StackPane colorBoxLeft = new StackPane(logoViewLeft);
@@ -329,7 +325,7 @@ public class GameScreen extends Screen {
         if (blueTeam != null) updateTeamUI(blueTeam, scoreValueRight, heartsRight, playerBoxRight, Color.BLUE);
 
         if (redTeam != null && blueTeam != null) {
-            String text = String.format("%02d : %02d", redTeam.ftScore, blueTeam.ftScore);
+            String text = String.format("%02d   %02d", redTeam.ftScore, blueTeam.ftScore);
             if (!roundScoreLabel.getText().equals(text)) roundScoreLabel.setText(text);
         }
     }
@@ -343,7 +339,7 @@ public class GameScreen extends Screen {
         if (heartsBox.getChildren().size() != teamData.livesRemaining) {
             heartsBox.getChildren().clear();
             for (int i = 0; i < teamData.livesRemaining; i++) {
-                ImageView heartView = new ImageView(heartImage);
+                ImageView heartView = new ImageView(HEART_ICON);
                 heartView.setFitWidth(24);
                 heartView.setFitHeight(24);
                 heartView.setPreserveRatio(true);
@@ -365,39 +361,7 @@ public class GameScreen extends Screen {
             }
         }
     }
-
-    private void updatePlayerUI(PlayerInfoUI playerUI, CPlayerInfo playerData) {
-        if (playerUI == null || playerData == null) return;
-
-        // Update Player Name
-        if (playerData.getName() != null && !playerUI.getPlayerName().getText().equals(playerData.getName())) {
-            playerUI.getPlayerName().setText(playerData.getName());
-        }
-
-        // Update Health Bar
-        double healthPercent = (double) playerData.health / (double) Constants.PADDLE_MAX_HEALTH;
-        playerUI.getHealthBar().setPrefWidth(PlayerInfoBuilder.PLAYER_INFO_WIDTH * healthPercent);
-
-        Image currentGunImage = RIFLE_IMAGE;
-        if (playerUI.getGunImageView().getImage() != currentGunImage) {
-            playerUI.getGunImageView().setImage(currentGunImage);
-        }
-
-        // Update Ammo Count
-        String ammoText = String.format("%d / %d", playerData.bulletsLeft, 30);
-        if (!playerUI.getAmmoCount().getText().equals(ammoText)) {
-            playerUI.getAmmoCount().setText(ammoText);
-        }
-
-        // Update Firing Mode
-        if (playerData.firingMode != null) {
-            String fireModeText = playerData.firingMode.name();
-            if (!playerUI.getFiringMode().getText().equals(fireModeText)) {
-                playerUI.getFiringMode().setText(fireModeText);
-            }
-        }
-    }
-
+    
     @Override
     public void onRemove() {
         if (gameLoop != null) gameLoop.stop();

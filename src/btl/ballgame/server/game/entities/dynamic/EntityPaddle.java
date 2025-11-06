@@ -109,9 +109,9 @@ public class EntityPaddle extends ControllableEntity {
 		PlayerInfo p = player.getCurrentGame().getPlayerInfoOf(player);
 		
 		// khoa an toan dang dong or ran out of ammo
-//		if (p.getFiringMode() == RifleMode.SAFE || p.getRifleAmmo() <= 0) {
-//			return;
-//		}
+		if (p.getFiringMode() == RifleMode.SAFE || p.getRifleAmmo() <= 0) {
+			return;
+		}
 		
 		Location initial = getLocation();
 		// if the player is the lower paddle, the bullet flies up

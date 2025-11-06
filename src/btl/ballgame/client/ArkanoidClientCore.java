@@ -13,6 +13,7 @@ import btl.ballgame.client.net.handle.ServerClientFlagsHandle;
 import btl.ballgame.client.net.handle.ServerDisplayTitleHandle;
 import btl.ballgame.client.net.handle.ServerEntityBBSizeUpdateHandle;
 import btl.ballgame.client.net.handle.ServerEntityDestroyHandle;
+import btl.ballgame.client.net.handle.ServerEntityEffectsHandle;
 import btl.ballgame.client.net.handle.ServerEntityMetadataUpdateHandle;
 import btl.ballgame.client.net.handle.ServerEntityPositionUpdateHandle;
 import btl.ballgame.client.net.handle.ServerEntitySpawnHandle;
@@ -43,6 +44,7 @@ import btl.ballgame.protocol.packets.out.PacketPlayOutClientFlags;
 import btl.ballgame.protocol.packets.out.PacketPlayOutCloseSocket;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntityBBSizeUpdate;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntityDestroy;
+import btl.ballgame.protocol.packets.out.PacketPlayOutEntityEffects;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntityMetadata;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntityPosition;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntitySpawn;
@@ -115,6 +117,7 @@ public class ArkanoidClientCore {
 		this.registry.registerHandler(PacketPlayOutEntityDestroy.class, new ServerEntityDestroyHandle());
 		this.registry.registerHandler(PacketPlayOutClientFlags.class, new ServerClientFlagsHandle());
 		this.registry.registerHandler(PacketPlayOutTitle.class, new ServerDisplayTitleHandle());
+		this.registry.registerHandler(PacketPlayOutEntityEffects.class, new ServerEntityEffectsHandle());
 	}
 	
 	/**

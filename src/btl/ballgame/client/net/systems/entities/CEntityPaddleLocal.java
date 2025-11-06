@@ -3,9 +3,11 @@ package btl.ballgame.client.net.systems.entities;
 import btl.ballgame.client.ArkanoidGame;
 import btl.ballgame.client.ClientPlayer;
 import btl.ballgame.client.net.systems.ITickableCEntity;
+import btl.ballgame.protocol.packets.in.PacketPlayInChangeFireMode;
 import btl.ballgame.protocol.packets.in.PacketPlayInPaddleControl;
 import btl.ballgame.shared.libs.AABB;
 import btl.ballgame.shared.libs.Constants;
+import btl.ballgame.shared.libs.Constants.RifleMode;
 import btl.ballgame.shared.libs.DataWatcher;
 
 import static btl.ballgame.shared.libs.Utils.*;
@@ -88,6 +90,20 @@ public class CEntityPaddleLocal extends CEntityPaddle implements ITickableCEntit
 	public void setCanMoveStatus(boolean canMove) {
 		this.canMove = canMove;
 		// sync the position immediately
+		this.clientX = getServerLocation().getX();
+	}
+	
+	private RifleMode currentMode = RifleMode.SAFE;
+	public void switchRifleMode(RifleMode newMode) {
+		if (newMode == currentMode) return;
+		ArkanoidGame.core().getConnection().sendPacket(
+			new PacketPlayInChangeFireMode(this.currentMode = newMode)
+		);
+	}
+	
+	@Override
+	public void onAfterBBSizeUpdate() {
+		// this means the paddle size has been altered, sync location
 		this.clientX = getServerLocation().getX();
 	}
 	

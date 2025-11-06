@@ -23,14 +23,8 @@ public class PlayerInfoUI {
     private final HBox buffBox;
     private final Label healthLabel;
 
-    // References to the 3 timer labels below the buff icons
-    private final Label buffTimer1;
-    private final Label buffTimer2;
-    private final Label buffTimer3;
-
     public PlayerInfoUI(VBox rootNode, Label playerName, Label playerTag, ImageView gunImageView, Label ammoCount,
-                        Label firingMode, Region healthBar, HBox buffBox, Label healthLabel,
-                        Label buffTimer1, Label buffTimer2, Label buffTimer3) {
+                        Label firingMode, Region healthBar, HBox buffBox, Label healthLabel) {
         this.rootNode = rootNode;
         this.playerName = playerName;
         this.playerTag = playerTag;
@@ -40,11 +34,6 @@ public class PlayerInfoUI {
         this.healthBar = healthBar;
         this.buffBox = buffBox;
         this.healthLabel = healthLabel;
-
-        // Assign new timers
-        this.buffTimer1 = buffTimer1;
-        this.buffTimer2 = buffTimer2;
-        this.buffTimer3 = buffTimer3;
     }
 
     /**
@@ -87,17 +76,5 @@ public class PlayerInfoUI {
 
     public Label getHealthLabel() {
         return healthLabel;
-    }
-
-    public Label getBuffTimer1() {
-        return buffTimer1;
-    }
-
-    public Label getBuffTimer2() {
-        return buffTimer2;
-    }
-
-    public Label getBuffTimer3() {
-        return buffTimer3;
     }
 }

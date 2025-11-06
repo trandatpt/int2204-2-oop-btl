@@ -224,7 +224,7 @@ public class EntityWreckingBall extends WorldEntity implements IOwnableEntity {
 		// apply damage to breakable entities
 		for (WorldEntity collider : collided) {
 			if (collider instanceof BreakableEntity ib) {
-				ib.damage(this, 1);
+				ib.damage(this, 2);
 			}
 		}
 	}

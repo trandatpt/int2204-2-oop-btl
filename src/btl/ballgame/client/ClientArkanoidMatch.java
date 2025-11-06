@@ -8,6 +8,7 @@ import btl.ballgame.shared.libs.Constants.ArkanoidMode;
 import btl.ballgame.shared.libs.Constants.MatchPhase;
 import btl.ballgame.shared.libs.Constants.RifleMode;
 import btl.ballgame.shared.libs.Constants.TeamColor;
+import btl.ballgame.shared.libs.Constants.UPlayerEffect;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -100,6 +101,7 @@ public class ClientArkanoidMatch {
 				cpi.health = pe.health;
 				cpi.firingMode = RifleMode.of(pe.rifleState);
 				cpi.bulletsLeft = pe.rifleAmmo;
+				cpi.effects = pe.effects;
 				
 				playerInfos[i] = cpi;
 			}
@@ -125,6 +127,7 @@ public class ClientArkanoidMatch {
 		public byte health;
 		public byte bulletsLeft;
 		public RifleMode firingMode;
+		public UPlayerEffect[] effects;
 		
 		/**
 		 * goofy ahh function name
@@ -132,6 +135,10 @@ public class ClientArkanoidMatch {
 		 */
 		public boolean isMe() {
 			return ArkanoidGame.core().getPlayer().getUniqueId().equals(uuid);
+		}
+		
+		public UPlayerEffect[] getEffects() {
+			return this.effects;
 		}
 		
 		public String getName() {

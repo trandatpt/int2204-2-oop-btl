@@ -4,6 +4,7 @@ import btl.ballgame.client.ArkanoidClientCore;
 import btl.ballgame.client.ArkanoidGame;
 import btl.ballgame.client.net.CServerConnection;
 import btl.ballgame.client.ui.game.GameRenderCanvas;
+import btl.ballgame.client.ui.game.GameScreen;
 import btl.ballgame.client.ui.game.GameScreenSolo;
 import btl.ballgame.protocol.packets.PacketHandler;
 import btl.ballgame.protocol.packets.out.PacketPlayOutWorldInit;
@@ -26,10 +27,18 @@ public class ServerWorldInitHandle implements PacketHandler<PacketPlayOutWorldIn
 		
 		Platform.runLater(() -> {
             try {
+            	// the canvas that will be used to render actual world data
                 GameRenderCanvas grc = new GameRenderCanvas();
-                GameScreenSolo ui = new GameScreenSolo(grc);
-                ArkanoidGame.manager().setScreen(ui);
-                ui.requestGameFocus();
+                // for single player
+                if (client.getActiveMatch().getMode().isSinglePlayer()) {
+                    GameScreenSolo soloScreen = new GameScreenSolo(grc);
+                    ArkanoidGame.manager().setScreen(soloScreen);
+                    soloScreen.requestGameFocus();
+                } else {
+                    GameScreen multiScreen = new GameScreen(grc);
+                    ArkanoidGame.manager().setScreen(multiScreen);
+                    multiScreen.requestGameFocus();
+                }
             }
             catch (Exception e) {
                 e.printStackTrace();

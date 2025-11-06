@@ -29,10 +29,19 @@ public class Constants {
 	
 	// enumerates
 	public static enum RifleMode {
-		SAFE, // khóa an toàn đóng
-		SEMI_AUTO, // phát một
-		FULL_AUTO; // liên thanh
+		SAFE("Safe"), // khóa an toàn đóng
+		SEMI_AUTO("Semi-Auto"), // phát một
+		FULL_AUTO("Full-Auto"); // liên thanh
 		// GDQP&AN
+		
+		private String friendlyName;
+		private RifleMode(String name) {
+			this.friendlyName = name;
+		}
+		
+		public String getFriendlyName() {
+			return friendlyName;
+		}
 		
 	    private static final RifleMode[] values = values();
 	    public static RifleMode of(int ordinal) {
@@ -111,15 +120,20 @@ public class Constants {
 	}
 	
 	public static enum EffectType {
-		REGENERATION,
         PADDLE_EXPAND,
         ENLARGED_BALL,
-        MULTI_BALL
+        MULTI_BALL;
+        
+	    private static final EffectType[] values = values();
+	    public static EffectType of(int ordinal) {
+	        return values[ordinal];
+	    }
 	}
 	
 	public static enum ItemType {
 		AK47_AMMO,
-		RANDOM_EFFECT;
+		RANDOM_EFFECT,
+		HEART;
 		
 	    private static final ItemType[] values = values();
 	    public static ItemType of(int ordinal) {

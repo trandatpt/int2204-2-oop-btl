@@ -1,25 +1,22 @@
 package btl.ballgame.client.ui.game;
 
-import btl.ballgame.client.CSAssets;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
+
+import static btl.ballgame.client.ui.game.GameUtils.*;
+
+import btl.ballgame.shared.libs.Constants.UPlayerEffect; 
 
 /**
  * A utility class to build the player information UI box.
  * (MODIFIED) Gun is now an ImageView with a background.
  */
 public class PlayerInfoBuilder {
-    // (MODIFIED) Load both images
-    static Image bulletImage = CSAssets.sprites.__get("item/Bullet-Tiles-01.png");
-    static Image ak47Image = CSAssets.sprites.__get("item/kalashnikov.png");
-
-    //Health bar width
     public static final double PLAYER_INFO_WIDTH = 400.0;
 
     /**
@@ -72,15 +69,10 @@ public class PlayerInfoBuilder {
         StackPane.setAlignment(healthLabel, Pos.CENTER);
 
         // --- Buffs ---
-        // Buff timers (placeholders)
-        Label buffTimer1 = createBuffTimerLabel();
-        Label buffTimer2 = createBuffTimerLabel();
-        Label buffTimer3 = createBuffTimerLabel();
-
         // Buff slots (VBox containing icon + timer)
-        VBox buffSlot1 = createBuffSlot(buffTimer1);
-        VBox buffSlot2 = createBuffSlot(buffTimer2);
-        VBox buffSlot3 = createBuffSlot(buffTimer3);
+        VBox buffSlot1 = createBuffSlot();
+        VBox buffSlot2 = createBuffSlot();
+        VBox buffSlot3 = createBuffSlot();
 
         // HBox for buffs
         HBox buffBox = new HBox(5);
@@ -89,7 +81,7 @@ public class PlayerInfoBuilder {
         buffBox.setMaxHeight(Region.USE_PREF_SIZE);
 
         // --- Gun ---
-        ImageView gunImageView = new ImageView(ak47Image);
+        ImageView gunImageView = new ImageView(RIFLE_ICON);
         gunImageView.setFitHeight(40);
         gunImageView.setPreserveRatio(true);
 
@@ -129,7 +121,7 @@ public class PlayerInfoBuilder {
         ammoLabel.setTextFill(Color.WHITE);
         ammoLabel.setStyle("-fx-font-size: 14px;");
 
-        ImageView bulletIcon = new ImageView(bulletImage);
+        ImageView bulletIcon = new ImageView(BULLET_ICON);
         bulletIcon.setFitHeight(20);
         bulletIcon.setPreserveRatio(true);
 
@@ -180,45 +172,45 @@ public class PlayerInfoBuilder {
 
         // --- Create and return the wrapper ---
         return new PlayerInfoUI(playerBox, nameLabel, tagLabel, gunImageView, ammoLabel,
-                fireModeLabel, healthBar, buffBox, healthLabel,
-                buffTimer1, buffTimer2, buffTimer3);
+                fireModeLabel, healthBar, buffBox, healthLabel);
     }
 
     /**
      * (REMOVED) The old createBuffBox method is gone.
      */
     // private static HBox createBuffBox() { ... }
+    
+	public static final Background DEFAULT_BACKGROUND = new Background(
+		new BackgroundFill(Color.rgb(0, 0, 0, 0.3), new CornerRadii(3), null)
+	);
 
     /**
      * (NEW) Helper method to create a single buff slot (Icon + Timer).
      * @param timerLabel The label to place under the icon.
      * @return A VBox layout for one buff slot.
      */
-    private static VBox createBuffSlot(Label timerLabel) {
+    private static VBox createBuffSlot() {
         VBox slotVBox = new VBox(2); // spacing between icon and timer
         slotVBox.setAlignment(Pos.CENTER);
 
-        // This is the buff icon slot
         StackPane buffIcon = new StackPane();
-        buffIcon.setPrefSize(32, 32);
-        buffIcon.setStyle("-fx-background-color: rgba(0, 0, 0, 0.3); " +
-                "-fx-border-color: gray; -fx-border-radius: 3; -fx-background-radius: 3;");
-
+        buffIcon.setPrefSize(45, 45);
+        
+        buffIcon.setBackground(DEFAULT_BACKGROUND);
+		buffIcon.setBorder(new Border(new BorderStroke(
+			Color.GRAY, BorderStrokeStyle.SOLID, 
+			new CornerRadii(3),
+			BorderWidths.DEFAULT)
+		));
+		
+        Label timerLabel = new Label("");
+        timerLabel.setTextFill(Color.WHITE);
+        timerLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold;");
+        
         slotVBox.getChildren().addAll(buffIcon, timerLabel);
         return slotVBox;
     }
-
-    /**
-     * (NEW) Helper method to create and style a buff timer label.
-     */
-    private static Label createBuffTimerLabel() {
-        Label timerLabel = new Label("3s"); // Placeholder
-        timerLabel.setTextFill(Color.WHITE);
-        timerLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold;");
-        timerLabel.setVisible(true); // Hide by default, show when buff is active
-        return timerLabel;
-    }
-
+    
     /**
      * Creates a styled label for the player tag (P1/P2).
      */

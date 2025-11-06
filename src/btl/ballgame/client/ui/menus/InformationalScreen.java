@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import btl.ballgame.client.ArkanoidGame;
 import btl.ballgame.client.CSAssets;
 import btl.ballgame.client.ui.screen.Screen;
 import javafx.geometry.Insets;
@@ -25,15 +24,21 @@ public class InformationalScreen extends Screen {
 	private List<Node> screenButtons = new ArrayList<>();
 	private String content;
 	private String miniTitle;
+	private boolean usesBackground;
 		
 	public InformationalScreen(String title, String content) {
 		this(title, null, content);
 	}
 	
 	public InformationalScreen(String title, String miniTitle, String content) {
+		this(title, miniTitle, content, true);
+	}
+	
+	public InformationalScreen(String title, String miniTitle, String content, boolean usesBackground) {
 		super(title); // base Screen constructor
 		this.content = content;
 		this.miniTitle = miniTitle;
+		this.usesBackground = usesBackground;
 	}
 	
 	public void setText(String content) {
@@ -57,7 +62,9 @@ public class InformationalScreen extends Screen {
 	@Override
 	public void onInit() {
 		// background shit
-		setStyle("-fx-background-color: linear-gradient(to bottom, #1e1e1e, #2a2a2a);");
+		if (usesBackground) {
+			setStyle("-fx-background-color: linear-gradient(to bottom, #1e1e1e, #2a2a2a);");
+		}
 
 		// ARKANOID LOGO
 		ImageView logo = this.createElement("logo", new ImageView(

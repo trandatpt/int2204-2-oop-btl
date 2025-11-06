@@ -12,13 +12,14 @@ import javafx.animation.AnimationTimer;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static btl.ballgame.client.ui.game.GameUtils.*; 
 
 /**
  * Creates a Solo Game Screen layout with info on the right
@@ -37,11 +38,6 @@ public class GameScreenSolo extends Screen {
     private HBox heartsSolo;
     private VBox playerBoxSolo;
     private Label levelLabel; // (NEW) For "LEVEL X" text
-
-    // --- Image Assets ---
-    private static final Image logoTeam_1 = CSAssets.sprites.__get("logo/logoTeam_1.png");
-    private static final Image RIFLE_IMAGE = CSAssets.sprites.__get("item/kalashnikov.png");
-    private static final Image heartImage = CSAssets.sprites.__get("item/Heart-Tiles-01.png");
 
     // Map of player UUID to PlayerInfoUI for reuse
     private final Map<String, PlayerInfoUI> playerUIMap = new HashMap<>();
@@ -139,7 +135,7 @@ public class GameScreenSolo extends Screen {
         );
 
         // Team Logo and Label
-        ImageView logoViewSolo = new ImageView(logoTeam_1);
+        ImageView logoViewSolo = new ImageView(BLUE_TEAM_ICON);
         logoViewSolo.setFitWidth(40);
         logoViewSolo.setFitHeight(40);
         StackPane colorBoxSolo = new StackPane(logoViewSolo);
@@ -229,8 +225,8 @@ public class GameScreenSolo extends Screen {
     public void onUpdate(float tpf) {
         if (match == null) return;
 
-        // Level Counter
-        String levelText = String.format("LEVEL %d", match.getRoundIndex());
+        // Level, bruh
+        String levelText = String.format("LEVEL %d", match.getRoundIndex() + 1);
         if (levelLabel != null && !levelLabel.getText().equals(levelText)) {
             levelLabel.setText(levelText);
         }
@@ -258,7 +254,7 @@ public class GameScreenSolo extends Screen {
         if (heartsBox.getChildren().size() != teamData.livesRemaining) {
             heartsBox.getChildren().clear();
             for (int i = 0; i < teamData.livesRemaining; i++) {
-                ImageView heartView = new ImageView(heartImage);
+                ImageView heartView = new ImageView(HEART_ICON);
                 heartView.setFitWidth(24);
                 heartView.setFitHeight(24);
                 heartView.setPreserveRatio(true);
@@ -275,43 +271,6 @@ public class GameScreenSolo extends Screen {
                 );
                 updatePlayerUI(ui, player);
                 playerBox.getChildren().add(ui.getRootNode());
-            }
-        }
-    }
-
-    /**
-     * (Copied from GameScreen)
-     * Helper method to update a single player's UI panel.
-     */
-    private void updatePlayerUI(PlayerInfoUI playerUI, CPlayerInfo playerData) {
-        if (playerUI == null || playerData == null) return;
-
-        if (playerData.getName() != null && !playerUI.getPlayerName().getText().equals(playerData.getName())) {
-            playerUI.getPlayerName().setText(playerData.getName());
-        }
-
-        double healthPercent = (double) playerData.health / (double) Constants.PADDLE_MAX_HEALTH;
-        playerUI.getHealthBar().setPrefWidth(PlayerInfoBuilder.PLAYER_INFO_WIDTH * healthPercent);
-
-        String healthText = String.format("%d / %d", playerData.health, Constants.PADDLE_MAX_HEALTH);
-        if (!playerUI.getHealthLabel().getText().equals(healthText)) {
-            playerUI.getHealthLabel().setText(healthText);
-        }
-
-        Image currentGunImage = RIFLE_IMAGE;
-        if (playerUI.getGunImageView().getImage() != currentGunImage) {
-            playerUI.getGunImageView().setImage(currentGunImage);
-        }
-
-        String ammoText = String.format("%d / %d", playerData.bulletsLeft, Constants.AK_47_MAG_SIZE);
-        if (!playerUI.getAmmoCount().getText().equals(ammoText)) {
-            playerUI.getAmmoCount().setText(ammoText);
-        }
-
-        if (playerData.firingMode != null) {
-            String fireModeText = playerData.firingMode.name();
-            if (!playerUI.getFiringMode().getText().equals(fireModeText)) {
-                playerUI.getFiringMode().setText(fireModeText);
             }
         }
     }

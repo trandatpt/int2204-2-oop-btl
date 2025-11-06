@@ -72,26 +72,5 @@ public class MenuUtils {
 		btn.setOnMouseExited(e -> { 
 			btn.setStyle("-fx-background-color: " + baseColor + "; -fx-text-fill: white;");
 		});
-
-		// Click effect
-		btn.setOnMousePressed(e -> btn.setStyle(
-				"-fx-background-color: " + baseColor + ";"
-			+ "-fx-text-fill: white;"
-			+ "-fx-font-size: 16px;"
-			+ "-fx-background-radius: 8;"
-			+ "-fx-effect: dropshadow(gaussian, " + hoverColor + ", 15, 0.5, 0, 0);" // glow viền
-			+ "-fx-scale-x: 0.95;"
-			+ "-fx-scale-y: 0.95;"
-		));
-
-    	btn.setOnMouseReleased(e -> btn.setStyle(
-				"-fx-background-color: " + baseColor + ";"
-			+ "-fx-text-fill: white;"
-			+ "-fx-font-size: 16px;"
-			+ "-fx-background-radius: 8;"
-			+ "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 6, 0.2, 0, 1);"
-			+ "-fx-scale-x: 1;"
-			+ "-fx-scale-y: 1;"
-		));
 	}
 }

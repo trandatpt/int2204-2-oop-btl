@@ -18,15 +18,19 @@ public class MultiBall extends BaseEffect {
 	private EntityWreckingBall root;
 	private List<EntityWreckingBall> spawnedBalls = new ArrayList<>();
 	
-	public MultiBall(ArkaPlayer target, EntityWreckingBall root) {
+	public MultiBall(ArkaPlayer target) {
 		super(target);
-		this.root = root;
+		target.getCurrentGame().getWorld().getEntities().forEach(e -> {
+			if (e instanceof EntityWreckingBall wb && wb.isPrimaryBall() && wb.getOwner() == target) {
+				this.root = wb;
+			}
+		});
 	}
 
 	@Override
 	public void onEffectActivate() {
 		var match = getTarget().getCurrentGame();
-		if (root.isDead()) return;
+		if (root == null || root.isDead()) return;
 		WorldServer world = match.getWorld();
 		Random rand = world.random;
 		Location rootLoc = root.getLocation();
@@ -53,14 +57,19 @@ public class MultiBall extends BaseEffect {
 	public void onEffectDeactivate() {
 		spawnedBalls.forEach(WorldEntity::remove);
 	}
-	
+
 	@Override
 	public int getDuration() {
-		return 7000; // instant
+		return 12_000;
 	}
 	
 	@Override
 	public EffectType getType() {
 		return EffectType.MULTI_BALL;
+	}
+
+	@Override
+	public String getName() {
+		return "Multi Balls";
 	}
 }

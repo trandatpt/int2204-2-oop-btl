@@ -14,7 +14,7 @@ public class CEntityAKBullet extends CSInterpolatedEntity {
 	private Image bullet;
 	
 	public CEntityAKBullet() {
-		this.bullet = atlas().getAsImage("item", "Bullet-Tiles-01");
+		this.bullet = atlas().getAsImage("other_entities", "bullet");
 	}
 	
 	@Override

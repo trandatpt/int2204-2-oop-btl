@@ -23,7 +23,7 @@ public class ProtoUtils {
 		PLAYIN_PONG                = 0x004,
 		PLAYIN_PADDLE_INPUT        = 0x005,
 		PLAYIN_FIRING_MODE_CHANGE  = 0x006,
-		PLAYIN_CHANGE_RUN_POSITION = 0x007,
+		PLAYIN_PAUSE_MATCH         = 0x007,
 		// outbound packets (server -> client)
 		PLAYOUT_CLIENT_HELLO_ACK   = 0xC00,
 		PLAYOUT_LOGIN_ACK 		   = 0xC01,
@@ -32,14 +32,15 @@ public class ProtoUtils {
 		PLAYOUT_ENTITY_SPAWN       = 0xC04,
 		PLAYOUT_ENTITY_POSITION    = 0xC05,
 		PLAYOUT_ENTITY_METADATA    = 0xC06,
-		PLAYOUT_ENTITY_BB_SIZE     = 0xC07,
-		PLAYOUT_ENTITY_DESTROY     = 0xC08,
-		PLAYOUT_MATCH_JOIN         = 0xC09,
-		PLAYOUT_WORLD_INIT         = 0xC0A,
-		PLAYOUT_MATCH_META_UPDATE  = 0xC0B,
-		PLAYOUT_GAME_OVER_SCREEN   = 0xC0C,
-		PLAYOUT_CLIENT_FLAGS       = 0xC0D,
-		PLAYOUT_DISPLAY_TITLE      = 0xC0E
+		PLAYOUT_ENTITY_EFFECTS     = 0xC07,
+		PLAYOUT_ENTITY_BB_SIZE     = 0xC08,
+		PLAYOUT_ENTITY_DESTROY     = 0xC09,
+		PLAYOUT_MATCH_JOIN         = 0xC0A,
+		PLAYOUT_WORLD_INIT         = 0xC0B,
+		PLAYOUT_MATCH_META_UPDATE  = 0xC0C,
+		PLAYOUT_GAME_OVER_SCREEN   = 0xC0D,
+		PLAYOUT_CLIENT_FLAGS       = 0xC0E,
+		PLAYOUT_DISPLAY_TITLE      = 0xC0F
 	;
 	
 	/**
@@ -59,8 +60,8 @@ public class ProtoUtils {
 		registry.registerPacket(PLAYIN_PONG, PacketPlayInPong.class, PacketPlayInPong::new);
 		registry.registerPacket(PLAYIN_PADDLE_INPUT, PacketPlayInPaddleControl.class, PacketPlayInPaddleControl::new);
 		registry.registerPacket(PLAYIN_FIRING_MODE_CHANGE, PacketPlayInChangeFireMode.class, PacketPlayInChangeFireMode::new);
-		registry.registerPacket(PLAYIN_CHANGE_RUN_POSITION, PacketPlayInChangeGunPosition.class, PacketPlayInChangeGunPosition::new);
-		
+		registry.registerPacket(PLAYIN_PAUSE_MATCH, PacketPlayInPauseGame.class, PacketPlayInPauseGame::new);
+
 		// PLAYOUT (Server -> Client)
 		registry.registerPacket(PLAYOUT_CLIENT_HELLO_ACK, PacketPlayOutHelloAck.class, PacketPlayOutHelloAck::new);
 		registry.registerPacket(PLAYOUT_CLOSE_SOCKET, PacketPlayOutCloseSocket.class, PacketPlayOutCloseSocket::new);
@@ -70,6 +71,7 @@ public class ProtoUtils {
 		registry.registerPacket(PLAYOUT_ENTITY_SPAWN, PacketPlayOutEntitySpawn.class, PacketPlayOutEntitySpawn::new);
 		registry.registerPacket(PLAYOUT_ENTITY_POSITION, PacketPlayOutEntityPosition.class, PacketPlayOutEntityPosition::new);
 		registry.registerPacket(PLAYOUT_ENTITY_METADATA, PacketPlayOutEntityMetadata.class, PacketPlayOutEntityMetadata::new);
+		registry.registerPacket(PLAYOUT_ENTITY_EFFECTS, PacketPlayOutEntityEffects.class, PacketPlayOutEntityEffects::new);
 		registry.registerPacket(PLAYOUT_ENTITY_BB_SIZE, PacketPlayOutEntityBBSizeUpdate.class, PacketPlayOutEntityBBSizeUpdate::new);
 		registry.registerPacket(PLAYOUT_ENTITY_DESTROY, PacketPlayOutEntityDestroy.class, PacketPlayOutEntityDestroy::new);
 		registry.registerPacket(PLAYOUT_WORLD_INIT, PacketPlayOutWorldInit.class, PacketPlayOutWorldInit::new);

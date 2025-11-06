@@ -3,7 +3,9 @@ package btl.ballgame.protocol.packets.out;
 import java.util.UUID;
 import btl.ballgame.protocol.PacketByteBuf;
 import btl.ballgame.protocol.packets.NetworkPacket;
+import btl.ballgame.shared.libs.Constants.EffectType;
 import btl.ballgame.shared.libs.Constants.MatchPhase;
+import btl.ballgame.shared.libs.Constants.UPlayerEffect;
 
 public class PacketPlayOutMatchMetadata extends NetworkPacket implements IPacketPlayOut {
 	private byte phase;
@@ -40,7 +42,7 @@ public class PacketPlayOutMatchMetadata extends NetworkPacket implements IPacket
 		for (TeamEntry team : teams) {
 			buf.writeInt8(team.teamColor);
 			buf.writeInt8(team.ftScore);
-			buf.writeInt32(team.arkScore);
+			buf.writeVarUInt(team.arkScore);
 			buf.writeInt8(team.livesRemaining);
 			buf.writeInt8((byte) team.players.length); // len
 			for (PlayerEntry p : team.players) {
@@ -50,9 +52,16 @@ public class PacketPlayOutMatchMetadata extends NetworkPacket implements IPacket
 				buf.writeInt8(p.health);
 				buf.writeInt8(p.rifleState);
 				buf.writeInt8(p.rifleAmmo);
+				// write effect list
+				buf.writeInt8((byte) p.effects.length);
+				for (UPlayerEffect effect : p.effects) {
+					// yes
+					buf.writeInt8((byte) effect.effect().ordinal());
+					buf.writeInt64(effect.endTime());
+				}
 			}
 		}
-		// about 99 bytes per packet
+		// about 99 - 110 bytes per packet
 	}
 
 	@Override
@@ -65,7 +74,7 @@ public class PacketPlayOutMatchMetadata extends NetworkPacket implements IPacket
 			TeamEntry team = new TeamEntry();
 			team.teamColor = buf.readInt8();
 			team.ftScore = buf.readInt8();
-			team.arkScore = buf.readInt32();
+			team.arkScore = buf.readVarUInt();
 			team.livesRemaining = buf.readInt8();
 			team.players = new PlayerEntry[buf.readInt8()];
 			for (int j = 0; j < team.players.length; j++) {
@@ -76,6 +85,15 @@ public class PacketPlayOutMatchMetadata extends NetworkPacket implements IPacket
 				pe.health = buf.readInt8();
 				pe.rifleState = buf.readInt8();
 				pe.rifleAmmo = buf.readInt8();
+				// read the effect list
+				pe.effects = new UPlayerEffect[buf.readInt8()];
+				for (int k = 0; k < pe.effects.length; k++) {
+					// rebuild piece by piece
+					pe.effects[k] = new UPlayerEffect(
+						EffectType.of(buf.readInt8()), 
+						buf.readInt64()
+					);
+				}
 				team.players[j] = pe;
 			}
 			this.teams[i] = team;
@@ -87,7 +105,7 @@ public class PacketPlayOutMatchMetadata extends NetworkPacket implements IPacket
 		public byte ftScore;
 		public int arkScore;
 		public byte livesRemaining;
-		public PlayerEntry[] players;
+		public PlayerEntry players[];
 	}
 	
 	public static class PlayerEntry {
@@ -95,5 +113,6 @@ public class PacketPlayOutMatchMetadata extends NetworkPacket implements IPacket
 		public byte health;
 		public byte rifleAmmo;
 		public byte rifleState;
+		public UPlayerEffect effects[];
 	}
 }

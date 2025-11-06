@@ -48,6 +48,18 @@ public class DataWatcher {
 	 * Retrieves the value associated with a watched key.
 	 *
 	 * @param keyId the identifier of the key
+	 * @param defaultValue the fallback value
+	 * @return the value of the key, or defaultValue if the key is not watched
+	 */
+	public Object getOrDefault(short keyId, Object defaultValue) {
+		DataWatcherEntry entry = entries.get(keyId);
+		return entry != null ? entry.value : defaultValue;
+	}
+	
+	/**
+	 * Retrieves the value associated with a watched key.
+	 *
+	 * @param keyId the identifier of the key
 	 * @return the value of the key, or null if the key is not watched
 	 */
 	public Object get(short keyId) {

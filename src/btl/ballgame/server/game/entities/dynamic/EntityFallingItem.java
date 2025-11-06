@@ -77,4 +77,8 @@ public class EntityFallingItem extends WorldEntity {
 	public int getWidth() {
 		return 24;
 	}
+	
+	public ItemType getItemType() {
+		return itemType;
+	}
 }

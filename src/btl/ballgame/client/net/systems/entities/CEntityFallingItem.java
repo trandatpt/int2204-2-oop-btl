@@ -32,6 +32,9 @@ public class CEntityFallingItem extends CSInterpolatedEntity {
 		Image image = null;
 		if (getItemType() == ItemType.AK47_AMMO) {
 			image = atlas().getAsImage("falling_item", "ammo_box");
+		} else if (getItemType() == ItemType.HEART) {
+			// really?
+			image = atlas().getAsImage("ui_component", "heart");
 		} else {
 			image = atlas().getAsImage("falling_item", "other_anim_" + currentAnimStage);
 		}

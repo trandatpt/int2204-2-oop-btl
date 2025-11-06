@@ -90,4 +90,5 @@ public abstract class BaseEffect {
 	
 	public abstract int getDuration();
 	public abstract EffectType getType();
+	public abstract String getName();
 }

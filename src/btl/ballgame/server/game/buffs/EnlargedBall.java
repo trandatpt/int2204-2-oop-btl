@@ -7,12 +7,16 @@ import btl.ballgame.server.game.entities.dynamic.EntityWreckingBall;
 import btl.ballgame.shared.libs.Constants.EffectType;
 
 public class EnlargedBall extends BaseEffect {
-	private static final int EXPANDED_TIME = 4000;
+	private static final int EXPANDED_TIME = 8000;
 	
 	private EntityWreckingBall ball;
-	public EnlargedBall(ArkaPlayer target, EntityWreckingBall root) {
+	public EnlargedBall(ArkaPlayer target) {
 		super(target);
-		this.ball = root;
+		target.getCurrentGame().getWorld().getEntities().forEach(e -> {
+			if (e instanceof EntityWreckingBall wb && wb.isPrimaryBall() && wb.getOwner() == target) {
+				this.ball = wb;
+			}
+		});
 	}
 	
 	@Override
@@ -39,5 +43,10 @@ public class EnlargedBall extends BaseEffect {
 	@Override
 	public EffectType getType() {
 		return EffectType.ENLARGED_BALL;
+	}
+
+	@Override
+	public String getName() {
+		return "Enlarged Ball";
 	}
 }

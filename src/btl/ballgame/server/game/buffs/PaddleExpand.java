@@ -5,7 +5,7 @@ import btl.ballgame.server.game.entities.dynamic.EntityPaddle;
 import static btl.ballgame.shared.libs.Constants.*;
 
 public class PaddleExpand extends BaseEffect {
-	private static final int EXPANDED_TIME = 7000;
+	private static final int EXPANDED_TIME = 15_000;
 	private static final int EXPANDED_WIDTH = 15;
 	
 	private EntityPaddle paddle;
@@ -38,5 +38,10 @@ public class PaddleExpand extends BaseEffect {
 	@Override
 	public EffectType getType() {
 		return EffectType.PADDLE_EXPAND;
+	}
+	
+	@Override
+	public String getName() {
+		return "Expand Paddle";
 	}
 }

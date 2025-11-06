@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.IntConsumer;
 
 import btl.ballgame.protocol.packets.out.PacketPlayOutClientFlags;
+import btl.ballgame.protocol.packets.out.PacketPlayOutEntityEffects;
 import btl.ballgame.protocol.packets.out.PacketPlayOutGameOver;
 import btl.ballgame.protocol.packets.out.PacketPlayOutMatchJoin;
 import btl.ballgame.protocol.packets.out.PacketPlayOutMatchMetadata;
@@ -20,6 +21,9 @@ import btl.ballgame.server.ArkanoidServer;
 import btl.ballgame.server.game.WorldEntity;
 import btl.ballgame.server.game.WorldServer;
 import btl.ballgame.server.game.buffs.BaseEffect;
+import btl.ballgame.server.game.buffs.EnlargedBall;
+import btl.ballgame.server.game.buffs.MultiBall;
+import btl.ballgame.server.game.buffs.PaddleExpand;
 import btl.ballgame.server.game.entities.BreakableEntity;
 import btl.ballgame.server.game.entities.breakable.EntityBrick;
 import btl.ballgame.server.game.entities.breakable.EntityExplosiveBrick;
@@ -342,6 +346,10 @@ public class ArkanoidMatch {
 		return effectsMapOf(player).containsKey(type);
 	}
 	
+	public BaseEffect getEffect(ArkaPlayer player, EffectType type) {
+		return effectsMapOf(player).get(type);
+	}
+	
 	/**
 	 * Removes an active effect of a specific type from a player, if present.
 	 *
@@ -637,7 +645,7 @@ public class ArkanoidMatch {
 		    boolean playerWon = getTeamOf(player).getTeamColor() == roundWinner;
 			player.sendFormattedTitle(
 				EnumTitle.TITLE, 
-				playerWon ? "<b>ROUND WON" : "<b>ROUND LOST",
+				playerWon ? "<b>ROUND WON!" : "<b>ROUND LOST",
 				playerWon ? 0xFFD700 : 0x1E90FF, // gold / dodger blue
 				64, 
 				5, 50, 5
@@ -694,20 +702,27 @@ public class ArkanoidMatch {
 			this.paused = true; // stop the game tick
 		});
 		
-		countdown(4, 30, (timeLeft) -> {
-			boolean intro = timeLeft == 4;
-			this.broadcastFormattedTitle(EnumTitle.TITLE, 
-				intro ? "<b>LEVEL " + (roundIndex + 1) : "<b>" + timeLeft,
-				intro ? 0x12b5b2 : 0xf0cd0a, 
-				72,
-				5, 30, 5
-			);
-		}, () -> {
-			this.paused = false; // let the game tick runs again
-			this.togglePaddleControl(true);
-		});
+		this.broadcastFormattedTitle(EnumTitle.TITLE, 
+			"<b>NICE!",
+			0x03fc56, 72,
+			5, 20, 5
+		);
 		
-		syncMatchStateWithClients();
+		runLater(30, () -> {
+			countdown(4, 30, (timeLeft) -> {
+				boolean intro = timeLeft == 4;
+				this.broadcastFormattedTitle(EnumTitle.TITLE, 
+					intro ? "<b>LEVEL " + (roundIndex + 1) : "<b>" + timeLeft,
+					intro ? 0x12b5b2 : 0xf0cd0a, 
+					72,
+					5, 30, 5
+				);
+			}, () -> {
+				this.paused = false; // let the game tick runs again
+				this.togglePaddleControl(true);
+			});
+			syncMatchStateWithClients();
+		});
 	}
 	
 	/**
@@ -738,6 +753,54 @@ public class ArkanoidMatch {
 	 * @param collector The player who collected it.
 	 */
 	public void onItemCollected(EntityFallingItem buff, ArkaPlayer collector) {
+		switch (buff.getItemType()) {
+			case AK47_AMMO: {
+				int ammoToPickup = world.random.nextInt(5, 16);
+				collector.sendFormattedTitle(EnumTitle.SUBTITLE,
+					"+" + ammoToPickup + "▮ Bullets", 
+					0xffea00, 34, 
+					5, 30, 5
+				);
+				getPlayerInfoOf(collector).pickupAmmo(ammoToPickup);
+				break;
+			}
+			case HEART: {
+				collector.sendFormattedTitle(EnumTitle.SUBTITLE,
+					"+1♥ Life", 
+					0xff1100, 34, 
+					5, 30, 5
+				);
+				getTeamOf(collector).livesRemaining = Math.min(
+					settings.getTeamLives(), 
+					getTeamOf(collector).livesRemaining + 1
+				);
+				break;
+			}
+			case RANDOM_EFFECT: {
+				int eIndex = world.random.nextInt(0, 3);
+				BaseEffect effect = switch (eIndex) {
+					case 0 -> new PaddleExpand(collector);
+					case 1 -> new EnlargedBall(collector);
+					case 2 -> new MultiBall(collector);
+					default -> null;
+				};
+				if (effect != null) {
+					addEffect(collector, effect);
+					collector.sendFormattedTitle(EnumTitle.TITLE,
+						"<b>BUFF!", 
+						0x00fcce, 54, 
+						5, 40, 5
+					);
+					collector.sendFormattedTitle(EnumTitle.SUBTITLE,
+						effect.getName() + " (For " + (effect.getDuration() / 1000) + "s)", 
+						0xd60be0, 34, 
+						5, 40, 5
+					);
+				}
+				break;
+			}
+			default: break;
+		}
 		syncMatchStateWithClients();
 	}
 
@@ -746,9 +809,14 @@ public class ArkanoidMatch {
 	 * 
 	 * @param bullet The bullet entity.
 	 * @param target The paddle hit.
+	 * @param relative the relative position that the bullet hits [-1, 1]
 	 */
-	public void onBulletHit(EntityAKBullet bullet, EntityPaddle target) {
-		syncMatchStateWithClients();
+	public void onBulletHit(EntityAKBullet bullet, EntityPaddle target, double relative) {
+		var pinfo = getPlayerInfoOf(target.getPlayer());
+		if (pinfo == null) return;
+		double multiplier = 1.0 - Math.abs(relative); 
+	    double damage = 50.0 * multiplier; // max damage 50, headshot
+	    pinfo.damage((int) damage);
 	}
 
 	/**
@@ -853,6 +921,7 @@ public class ArkanoidMatch {
 				pe.health = (byte) pi.getHealth(); // paddle HP
 				pe.rifleState = (byte) pi.getFiringMode().ordinal(); // rifle mode
 				pe.rifleAmmo = (byte) pi.getRifleAmmo();
+				pe.effects = pi.effects.toArray(UPlayerEffect[]::new);
 				players.add(pe);
 			}
 
@@ -895,6 +964,10 @@ public class ArkanoidMatch {
 		));
 	}
 	
+	public void setPaused(boolean paused) {
+		this.paused = paused;
+	}
+	
 	/**
 	 * Represents a team within the match. Tracks player health, lives, Arkanoid
 	 * score, and FT score.
@@ -926,7 +999,7 @@ public class ArkanoidMatch {
 		 * Resets the team state for a new round.
 		 */
 		public void resetForNextRound() {
-			playerInfoMap.values().forEach(PlayerInfo::resetHealth);
+			playerInfoMap.values().forEach(PlayerInfo::resetValues);
 			this.arkanoidScore = 0;
 			this.livesRemaining = settings.getTeamLives();
 			this.eliminated = false;
@@ -1017,7 +1090,7 @@ public class ArkanoidMatch {
 	        this.player = player;
 	        this.health = PADDLE_MAX_HEALTH;
 	        this.firingMode = RifleMode.SAFE;
-	        this.ammo = 0;
+	        this.ammo = 5;
 	    }
 
 	    public ArkaPlayer getPlayer() {
@@ -1032,7 +1105,7 @@ public class ArkanoidMatch {
 	    	effects.clear();
 	    	effectsMap.forEach((e, t) -> {
 	    		if (t.getDuration() < 0) return;
-	    		effects.add(new UPlayerEffect(e, t.getDuration()));
+	    		effects.add(new UPlayerEffect(e, System.currentTimeMillis() + t.getDuration()));
 	    	});
 	    }
  	    
@@ -1049,11 +1122,16 @@ public class ArkanoidMatch {
 	    public boolean fireRounds(int amount) {
 	    	if (this.ammo <= 0 || getRifleAmmo() - amount < 0) return false;
 	    	setAmmo(getRifleAmmo() - amount);
+	    	syncMatchStateWithClients();
 	    	return true;
 	    }
 	    
 	    public RifleMode getFiringMode() {
 			return firingMode;
+		}
+	    
+	    public void setFiringMode(RifleMode firingMode) {
+			this.firingMode = firingMode;
 		}
 
 	    public int getHealth() {
@@ -1065,10 +1143,16 @@ public class ArkanoidMatch {
 	    }
 
 	    public void damage(int amount) {
+	    	if (paddleOf(player) == null) return;
+	    	world.broadcastPackets(new PacketPlayOutEntityEffects(
+	    		paddleOf(player).getId(),
+	    		true
+	    	));
 	        setHealth(health - amount);
 	    }
 
-	    public void resetHealth() {
+	    public void resetValues() {
+	    	this.ammo = 5;
 	        this.health = PADDLE_MAX_HEALTH;
 	    }
 	    
