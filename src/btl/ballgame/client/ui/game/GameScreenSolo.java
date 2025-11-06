@@ -1,6 +1,5 @@
 package btl.ballgame.client.ui.game;
 
-import btl.ballgame.client.ArkanoidClientCore;
 import btl.ballgame.client.ArkanoidGame;
 import btl.ballgame.client.CSAssets;
 import btl.ballgame.client.ClientArkanoidMatch;
@@ -234,6 +233,8 @@ public class GameScreenSolo extends Screen {
     public void onUpdate(float tpf) {
         if (match == null) return;
 
+        if (gameLoop == null) return;
+
         // Level, bruh
         String levelText = String.format("LEVEL %d", match.getRoundIndex() + 1);
         if (levelLabel != null && !levelLabel.getText().equals(levelText)) {
@@ -246,6 +247,16 @@ public class GameScreenSolo extends Screen {
         CTeamInfo soloTeam = match.getTeams().get(TeamColor.RED);
         if (soloTeam != null) {
             updateTeamUI(soloTeam, scoreValueSolo, heartsSolo, playerBoxSolo, Color.RED);
+            checkGameOver(soloTeam);
+        }
+    }
+
+    private void checkGameOver(CTeamInfo soloTeam) {
+        if (soloTeam.livesRemaining == 0) {
+            gameLoop.stop();
+            gameLoop = null;
+            GameOverScreen gameOverScreen = new GameOverScreen(false, soloTeam.arkScore);
+            ArkanoidGame.manager().setScreen(gameOverScreen);
         }
     }
 
