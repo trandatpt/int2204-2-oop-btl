@@ -4,6 +4,7 @@ import btl.ballgame.client.ArkanoidClientCore;
 import btl.ballgame.client.ArkanoidGame;
 import btl.ballgame.client.net.CServerConnection;
 import btl.ballgame.client.ui.menus.InformationalScreen;
+import btl.ballgame.client.ui.menus.LobbyScreen;
 import btl.ballgame.client.ui.menus.MenuUtils;
 import btl.ballgame.protocol.packets.PacketHandler;
 import btl.ballgame.protocol.packets.out.PacketPlayOutLoginAck;
@@ -28,8 +29,8 @@ public class ServerLoginAckHandle implements PacketHandler<PacketPlayOutLoginAck
 		}
 		client.setUser(packet.getUserName(), packet.getServerSideUUID());
 		Platform.runLater(() -> {
-			InformationalScreen test = new InformationalScreen("test", "logged in as " + packet.getUserName());
-			ArkanoidGame.manager().setScreen(test);
+			LobbyScreen lobbyScreen = new LobbyScreen();
+			ArkanoidGame.manager().setScreen(lobbyScreen);
 		});
 	}
 }
