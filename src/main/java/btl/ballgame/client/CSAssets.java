@@ -20,8 +20,8 @@ public class CSAssets {
 		CHARACTER3_IMAGE = image("Character3.png"),
 		CHARACTER4_IMAGE = image("Character4.png"),
 		CHARACTER5_IMAGE = image("Character5.png"),
-		CHARACTER6_IMAGE = image("Character6.png")
-		
+		CHARACTER6_IMAGE = image("Character6.png"),
+		LOBBY_BACKGROUND = image("lobby.png")
 	;
 	
 	public static final MediaPlayer
