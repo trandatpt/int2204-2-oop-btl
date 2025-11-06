@@ -5,6 +5,7 @@ import java.util.Random;
 import btl.ballgame.client.TextureAtlas;
 import btl.ballgame.client.net.systems.CSEntity;
 import btl.ballgame.client.net.systems.ParticleSystem.Particle;
+import btl.ballgame.client.ui.audio.SoundManager;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.Constants.DriftBehavior;
 import btl.ballgame.shared.libs.Constants.ParticlePriority;
@@ -44,6 +45,9 @@ public class CEntityBrickNormal extends CSEntity {
 		// keep track of server-sent data
 		int currentHealth = getHealth();
 		if (currentHealth < this.lastHealth) {
+			if (currentHealth > 0) {
+				SoundManager.play("BrickHit2");
+			}
 			spawnDamageParticles(this.lastHealth - currentHealth);
 		}
 		this.lastHealth = currentHealth;
@@ -51,6 +55,7 @@ public class CEntityBrickNormal extends CSEntity {
 	
 	@Override
 	public void onEntityDespawn() {
+		SoundManager.play("BrickHit1");
 		spawnDamageParticles(getMaxHealth());
 	}
 	

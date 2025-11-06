@@ -3,6 +3,7 @@ package btl.ballgame.client.net.systems.entities;
 import btl.ballgame.client.TextureAtlas;
 import btl.ballgame.client.net.systems.CSInterpolatedEntity;
 import btl.ballgame.client.net.systems.ParticleSystem;
+import btl.ballgame.client.ui.audio.SoundManager;
 import btl.ballgame.shared.libs.Constants.DriftBehavior;
 import btl.ballgame.shared.libs.Constants.ParticlePriority;
 import btl.ballgame.shared.libs.Constants.ParticleType;
@@ -23,6 +24,7 @@ public class CEntityAKBullet extends CSInterpolatedEntity {
 		int x = l.getX(), y = l.getY();
 		float w = getBoundingBox().getWidth(), h = getBoundingBox().getHeight();
 		
+		SoundManager.play("Bullet");
 	    // Create a quick muzzle flash particle at bullet origin
 	    ParticleSystem.Particle flash = new ParticleSystem.Particle(
 	        ParticleType.OVAL, // bright circular flash

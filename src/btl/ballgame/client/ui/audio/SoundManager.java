@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class SoundManager {
     private static final Map<String, MediaPlayer> sounds = new HashMap<>();
-    private static double volume = 0.5;
+    private static double volume = 0.1;
 
     public static void loadSound(String id, String path) {
         try {
@@ -102,20 +102,30 @@ public class SoundManager {
         play("Confirm");
     }
     
+    public static void changeMode() {
+        play("Mode");
+    }
+
+    public static void bomb() {
+        stop("TimeBomb");
+        play("Bomb");
+    }
+
     public static double getVolume() {
         return volume;
     }
+
     public static void onInit() {
         loadSound("Blip", "assets/blip.wav");
         loadSound("BrickHit1", "assets/brick-hit-1.wav");
         loadSound("BrickHit2", "assets/brick-hit-2.wav");
+        loadSound("BrickHit3", "assets/brick-hit-3.wav");
         loadSound("Buzz", "assets/buzz.wav");
         loadSound("ClickTiny", "assets/click_tiny.wav");
         loadSound("Confirm", "assets/confirm.wav");
         loadSound("Electric", "assets/electric.wav");
         loadSound("HighScore", "assets/high_score.wav");
         loadSound("Hurt", "assets/hurt.wav");
-        loadSound("KeyOpen", "assets/key_open.wav");
         loadSound("Lose", "assets/lose.wav");
         loadSound("MusicMenu", "assets/music.wav");
         loadSound("MusicInGame", "assets/musicinpick.wav");
@@ -131,6 +141,10 @@ public class SoundManager {
         loadSound("Victory", "assets/victory.wav");
         loadSound("WallHit", "assets/wall_hit.wav");
         loadSound("Win3", "assets/win3.wav");
+        loadSound("Mode", "assets/changeMode.wav");
+        loadSound("Bullet", "assets/bullet.wav");
+        loadSound("TimeBomb", "assets/timebomb.wav");
+        loadSound("Bomb", "assets/bomb.wav");
         setVolume(volume);
     }
 }
