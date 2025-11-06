@@ -2,6 +2,7 @@ package btl.ballgame.client.ui.menus;
 
 import btl.ballgame.client.ArkanoidClientCore;
 import btl.ballgame.client.ArkanoidGame;
+import btl.ballgame.client.CSAssets;
 import btl.ballgame.client.ui.audio.SoundManager;
 import btl.ballgame.client.ui.screen.Screen;
 import javafx.application.Platform;
@@ -40,7 +41,15 @@ public class LobbyScreen extends Screen {
 
         // Root layout
         BorderPane root = new BorderPane();
-        root.setStyle("-fx-background-color: #1e1e1e;");
+        BackgroundSize backgroundSize = new BackgroundSize(100, 100, true, true, false, true);
+        BackgroundImage backgroundImage = new BackgroundImage(
+                CSAssets.LOBBY_BACKGROUND,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.CENTER,
+                backgroundSize
+        );
+        root.setBackground(new Background(backgroundImage));
 
         // header
         Label header = new Label("List Room");
@@ -57,9 +66,9 @@ public class LobbyScreen extends Screen {
         // room list
         roomListContainer = new VBox(8);
         roomListContainer.setPadding(new Insets(8));
-
         ScrollPane scroll = new ScrollPane(roomListContainer);
         scroll.setFitToWidth(true);
+        scroll.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
 
         // room detail
         roomDetailBox = new VBox(10);
@@ -68,11 +77,14 @@ public class LobbyScreen extends Screen {
         Label noSelectLbl = new Label("Choose one room to view details");
         noSelectLbl.setTextFill(Color.WHITE);
         roomDetailBox.getChildren().add(noSelectLbl);
+        roomListContainer.setStyle("-fx-background-color: transparent;");
 
+        // center box
         HBox centerBox = new HBox(10, scroll, roomDetailBox);
         HBox.setHgrow(scroll, Priority.ALWAYS);
         centerBox.setPrefHeight(450);
         root.setCenter(centerBox);
+        centerBox.setStyle("-fx-background-color: transparent;");
 
         // button
         Button joinByCodeBtn = new Button("Join by Code");

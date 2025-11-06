@@ -26,7 +26,17 @@ public class CreateAccountScreen extends Screen {
     public void onInit() {
         SoundManager.playloop("MusicInGame");
 
-        setStyle("-fx-background-color: linear-gradient(to bottom, #1e1e1e, #2a2a2a);");
+        		// Root layout
+        BorderPane root = new BorderPane();
+        BackgroundSize backgroundSize = new BackgroundSize(100, 100, true, true, false, true);
+        BackgroundImage backgroundImage = new BackgroundImage(
+                CSAssets.LOBBY_BACKGROUND,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.CENTER,
+                backgroundSize
+        );
+        root.setBackground(new Background(backgroundImage));
 
         // Logo
         ImageView logo = this.createElement("logo", new ImageView(CSAssets.LOGO));
@@ -140,9 +150,9 @@ public class CreateAccountScreen extends Screen {
         VBox layout = this.createElement("menuRoot", new VBox(50, logo, formBox));
         layout.setAlignment(Pos.CENTER);
         layout.setPadding(new Insets(40));
-        StackPane.setAlignment(layout, Pos.CENTER);
+        root.setCenter(layout);
 
-        this.addElement(layout);
+        this.addElement("createroot", root);
     }
 
     private void back() {

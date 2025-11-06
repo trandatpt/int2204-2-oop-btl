@@ -31,15 +31,24 @@ public class ServerSelector extends Screen {
 
 	@Override
 	public void onInit() {
-		// background shit
-		setStyle("-fx-background-color: linear-gradient(to bottom, #1e1e1e, #2a2a2a);");
+		SoundManager.playloop("MusicMenu");
+		// Root layout
+        BorderPane root = new BorderPane();
+        BackgroundSize backgroundSize = new BackgroundSize(100, 100, true, true, false, true);
+        BackgroundImage backgroundImage = new BackgroundImage(
+                CSAssets.LOBBY_BACKGROUND,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.CENTER,
+                backgroundSize
+        );
+        root.setBackground(new Background(backgroundImage));
 
 		// ARKANOID LOGO
 		ImageView logo = this.createElement("logo", new ImageView(
 			CSAssets.LOGO
 		));
 
-		SoundManager.playloop("MusicMenu");
 		logo.setPreserveRatio(true);
 		logo.setFitWidth(500);
 		
@@ -119,9 +128,8 @@ public class ServerSelector extends Screen {
 		VBox layout = this.createElement("menuRoot", new VBox(50, logo, serverBox));
 		layout.setAlignment(Pos.CENTER);
 		layout.setPadding(new Insets(40));
-		StackPane.setAlignment(layout, Pos.CENTER);
-		
-		this.addElement(layout);
+		root.setCenter(layout);
+		this.addElement("menuroot", root);
 	}
 	
 	// called when the user is ready to be online

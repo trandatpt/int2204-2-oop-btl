@@ -22,8 +22,17 @@ public class SettingsScreen extends Screen {
 
     @Override
     public void onInit() {
-        // Background
-        setStyle("-fx-background-color: linear-gradient(to bottom, #1e1e1e, #2a2a2a);");
+        // Root layout
+        BorderPane root = new BorderPane();
+        BackgroundSize backgroundSize = new BackgroundSize(100, 100, true, true, false, true);
+        BackgroundImage backgroundImage = new BackgroundImage(
+                CSAssets.LOBBY_BACKGROUND,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.CENTER,
+                backgroundSize
+        );
+        root.setBackground(new Background(backgroundImage));
 
         ImageView logo = this.createElement("logo", new ImageView(CSAssets.LOGO));
         logo.setPreserveRatio(true);
@@ -60,8 +69,8 @@ public class SettingsScreen extends Screen {
         VBox layout = this.createElement("menuRoot", new VBox(40, logo, buttonBox, contentBox));
         layout.setAlignment(Pos.CENTER);
         layout.setPadding(new Insets(40));
-
-        this.addElement(layout);
+        root.setCenter(layout);
+        this.addElement("settingroot", root);
     }
 
     // Setting volume
