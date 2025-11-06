@@ -18,7 +18,6 @@ public class SoundManager {
             if (!file.exists()) {
                 throw new Exception("File not found: " + path);
             }
-
             Media media = new Media(file.toURI().toString());
             MediaPlayer player = new MediaPlayer(media);
             sounds.put(id, player);
@@ -84,12 +83,12 @@ public class SoundManager {
         }
     }
 
-    public static void clickBottonMenu() {
+    public static void clickButtonMenu() {
         play("Confirm");
         stop("MusicMenu");
     }
 
-    public static void clickBottonLogin() {
+    public static void clickButtonLogin() {
         play("Confirm");
         stop("MusicInGame");
     }
@@ -122,12 +121,12 @@ public class SoundManager {
         loadSound("BrickHit3", "assets/brick-hit-3.wav");
         loadSound("Buzz", "assets/buzz.wav");
         loadSound("ClickTiny", "assets/click_tiny.wav");
-        loadSound("Confirm", "assets/confirm.wav");
+        loadSound("Confirm", "assets/click.mp3");
         loadSound("Electric", "assets/electric.wav");
         loadSound("HighScore", "assets/high_score.wav");
         loadSound("Hurt", "assets/hurt.wav");
         loadSound("Lose", "assets/lose.wav");
-        loadSound("MusicMenu", "assets/music.wav");
+        loadSound("MusicMenu", "assets/music.mp3");
         loadSound("MusicInGame", "assets/musicinpick.wav");
         loadSound("NoSelect", "assets/no-select.wav");
         loadSound("PaddleHit", "assets/paddle_hit.wav");
@@ -135,7 +134,7 @@ public class SoundManager {
         loadSound("PowerUp", "assets/powerup.wav");
         loadSound("Recover", "assets/recover.wav");
         loadSound("Score", "assets/score.wav");
-        loadSound("Select", "assets/select.wav");
+        loadSound("Select", "assets/click.mp3");
         loadSound("Shrink", "assets/shrink.wav");
         loadSound("Switch2", "assets/switch2.wav");
         loadSound("Victory", "assets/victory.wav");
@@ -147,4 +146,8 @@ public class SoundManager {
         loadSound("Bomb", "assets/bomb.wav");
         setVolume(volume);
     }
+
+	public static void pause() {
+		play("Confirm");
+	}
 }

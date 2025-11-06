@@ -46,7 +46,7 @@ public class RoomScreenDynamic extends Screen {
 		root = new BorderPane();
 		BackgroundSize bgSize = new BackgroundSize(100, 100, true, true, false, true);
 		root.setBackground(new Background(
-			new BackgroundImage(CSAssets.LOBBY_BACKGROUND, 
+			new BackgroundImage(CSAssets.VS_BACKGROUND, 
 			BackgroundRepeat.NO_REPEAT,
 			BackgroundRepeat.NO_REPEAT, 
 			BackgroundPosition.CENTER, bgSize
@@ -78,11 +78,15 @@ public class RoomScreenDynamic extends Screen {
 		root.setCenter(teamsContainer);
 
 		// FOOTER
-		Button leaveBtn = new Button("Leave Game");
+		Button leaveBtn = new Button("Leave Room and Return to Lobby");
 		MenuUtils.styleButton(leaveBtn, "#b22222", "#8b1a1a");
 		leaveBtn.setOnAction(e -> leaveRoom());
+		
+		Button leaveServerBtn = new Button("Leave Room and Disconnect");
+		MenuUtils.styleButton(leaveServerBtn, "#b22222", "#8b1a1a");
+		leaveServerBtn.setOnAction(e -> leaveServer());
 
-		HBox footer = new HBox(leaveBtn);
+		HBox footer = new HBox(30, leaveBtn, leaveServerBtn);
 		footer.setAlignment(Pos.CENTER);
 		footer.setPadding(new Insets(20));
 		root.setBottom(footer);
@@ -168,7 +172,7 @@ public class RoomScreenDynamic extends Screen {
 			btnBox.setAlignment(Pos.CENTER);
 			card.getChildren().add(btnBox);
 		}
-
+		
 		card.setOnMouseEntered(e -> card.setStyle(card.getStyle() + "-fx-border-color: #3b8a7c;"));
 		card.setOnMouseExited(e -> card.setStyle(card.getStyle().replace("-fx-border-color: #3b8a7c;", "-fx-border-color: white;")));
 
@@ -220,11 +224,16 @@ public class RoomScreenDynamic extends Screen {
 	    ));
 	}
 
-
 	private void leaveRoom() {
-		SoundManager.clickBottonLogin();
-		LobbyScreen screen = new LobbyScreen();
-		ArkanoidGame.manager().setScreen(screen);
+		SoundManager.clickButtonLogin();
+		ArkanoidGame.core().leaveContext();
+		MenuUtils.displayLobbyScreen();
+	}
+	
+	private void leaveServer() {
+		SoundManager.clickButtonLogin();
+		ArkanoidGame.core().disconnect();
+		MenuUtils.displayLoginScreen();
 	}
 
 	@Override

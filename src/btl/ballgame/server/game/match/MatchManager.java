@@ -70,7 +70,8 @@ public class MatchManager {
     public void tick() {
     	try {
 	        for (ArkanoidWaitRoom room : new ArrayList<>(waitingRooms.values())) {
-	        	if (!room.getOwner().isOnline()) {
+	        	// cleanup empty/headless rooms
+	        	if (!room.getOwner().isOnline() || room.getAllPlayers().size() == 0) {
 	        		removeRoom(room.getRoomId());
 	        		return;
 	        	}

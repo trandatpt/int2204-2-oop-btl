@@ -19,7 +19,6 @@ import btl.ballgame.client.net.handle.ServerPingHandle;
 import btl.ballgame.client.net.handle.ServerWorldInitHandle;
 import btl.ballgame.client.net.handle.ServerSocketCloseHandle;
 import btl.ballgame.client.net.handle.ServerWaitingRoomUpdateHandle;
-import btl.ballgame.client.net.systems.CSEntity;
 import btl.ballgame.client.net.systems.CSEntityRegistry;
 import btl.ballgame.client.net.systems.CSWorld;
 import btl.ballgame.client.net.systems.entities.*;
@@ -28,6 +27,7 @@ import btl.ballgame.protocol.PacketRegistry;
 import btl.ballgame.protocol.ProtoUtils;
 import btl.ballgame.protocol.packets.in.PacketPlayInClientLogin;
 import btl.ballgame.protocol.packets.in.PacketPlayInClientUserCreation;
+import btl.ballgame.protocol.packets.in.PacketPlayInLeaveContext;
 import btl.ballgame.protocol.packets.out.PacketPlayOutClientFlags;
 import btl.ballgame.protocol.packets.out.PacketPlayOutCloseSocket;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntityBBSizeUpdate;
@@ -36,6 +36,7 @@ import btl.ballgame.protocol.packets.out.PacketPlayOutEntityEffects;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntityMetadata;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntityPosition;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntitySpawn;
+import btl.ballgame.protocol.packets.out.PacketPlayOutGameOver;
 import btl.ballgame.protocol.packets.out.PacketPlayOutHelloAck;
 import btl.ballgame.protocol.packets.out.PacketPlayOutListPublicRooms;
 import btl.ballgame.protocol.packets.out.PacketPlayOutWorldInit;
@@ -43,6 +44,7 @@ import btl.ballgame.protocol.packets.out.PacketPlayOutLoginAck;
 import btl.ballgame.protocol.packets.out.PacketPlayOutMatchJoin;
 import btl.ballgame.protocol.packets.out.PacketPlayOutMatchMetadata;
 import btl.ballgame.protocol.packets.out.PacketPlayOutPing;
+import btl.ballgame.protocol.packets.out.PacketPlayOutRoomJoinError;
 import btl.ballgame.protocol.packets.out.PacketPlayOutRoomUpdate;
 import btl.ballgame.protocol.packets.out.PacketPlayOutTitle;
 import btl.ballgame.shared.libs.Constants;
@@ -103,6 +105,7 @@ public class ArkanoidClientCore {
 		this.registry.registerHandler(PacketPlayOutCloseSocket.class, new ServerSocketCloseHandle());
 		this.registry.registerHandler(PacketPlayOutLoginAck.class, new ServerLoginAckHandle());
 		this.registry.registerHandler(PacketPlayOutPing.class, new ServerPingHandle());
+		this.registry.registerHandler(PacketPlayOutRoomJoinError.class, new ServerRoomJoinErrorHandle());
 		// more to add
 		this.registry.registerHandler(PacketPlayOutRoomUpdate.class, new ServerWaitingRoomUpdateHandle());
 		this.registry.registerHandler(PacketPlayOutListPublicRooms.class, new ServerListPublicRoomsHandle());
@@ -144,6 +147,10 @@ public class ArkanoidClientCore {
 	
 	public void disconnect() {
 		this.connection.closeConnection();
+	}
+	
+	public void leaveContext() {
+		this.connection.sendPacket(new PacketPlayInLeaveContext());
 	}
 	
 	public void setUser(String userName, UUID uuid) {

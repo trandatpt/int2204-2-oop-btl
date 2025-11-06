@@ -24,8 +24,6 @@ public class CreateAccountScreen extends Screen {
 
     @Override
     public void onInit() {
-        SoundManager.playloop("MusicInGame");
-
         setStyle("-fx-background-color: linear-gradient(to bottom, #1e1e1e, #2a2a2a);");
 
         // Logo
@@ -104,7 +102,7 @@ public class CreateAccountScreen extends Screen {
 			}
 
             // send registration packet
-            SoundManager.clickBottonLogin();
+            SoundManager.clickButtonLogin();
             core.registerUser(user, pass, repPass);
 
             InformationalScreen creatingScreen = new InformationalScreen(
@@ -146,7 +144,7 @@ public class CreateAccountScreen extends Screen {
     }
 
     private void back() {
-        SoundManager.clickBottonLogin();
+        SoundManager.clickButtonLogin();
         MenuUtils.displayLoginScreen();
     }
     @Override

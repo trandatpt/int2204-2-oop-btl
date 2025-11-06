@@ -4,149 +4,129 @@ import btl.ballgame.client.ArkanoidGame;
 import btl.ballgame.client.CSAssets;
 import btl.ballgame.client.ui.menus.MenuUtils;
 import btl.ballgame.client.ui.screen.Screen;
-import btl.ballgame.protocol.packets.out.PacketPlayOutGameOver; // (NEW) Import packet
-import btl.ballgame.shared.libs.Constants.GameOverType; // (NEW) Assume this exists
+import btl.ballgame.protocol.packets.out.PacketPlayOutGameOver;
+import btl.ballgame.shared.libs.Constants.GameOverType;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundImage;
-import javafx.scene.layout.BackgroundPosition;
-import javafx.scene.layout.BackgroundRepeat;
-import javafx.scene.layout.BackgroundSize;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 
 /**
- * A simple overlay screen to show "VICTORY" or "DEFEAT".
+ * A polished, cinematic overlay shown when the game ends.
  */
 public class GameOverScreen extends Screen {
 
-    // (MODIFIED) Store the entire packet
     private final PacketPlayOutGameOver packet;
 
-    // (REMOVED) Old fields
-    // private final boolean didWin;
-    // private final int finalScore;
-
-    /**
-     * (MODIFIED) Creates the Game Over overlay using the data packet.
-     * @param packet The PacketPlayOutGameOver received from the server.
-     */
     public GameOverScreen(PacketPlayOutGameOver packet) {
         super("GameOverScreen");
         this.packet = packet;
-
-        // Make the whole screen semi-transparent
         this.setStyle("-fx-background-color: rgba(0, 0, 0, 0.75);");
     }
 
     @Override
     public void onInit() {
         StackPane root = new StackPane();
-        root.setPadding(new Insets(20));
+        root.setPadding(new Insets(40));
 
-        // --- Set Background ---
-        BackgroundSize mainBgSize = new BackgroundSize(100, 100, true, true, false, true);
-        BackgroundSize borderBgSize = new BackgroundSize(100, 100, true, true, false, true);
+        // --- Background with blended textures ---
         BackgroundImage mainBg = new BackgroundImage(
                 CSAssets.OVERSCREEN,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundPosition.CENTER,
-                mainBgSize
+                new BackgroundSize(100, 100, true, true, false, true)
         );
         BackgroundImage borderBg = new BackgroundImage(
                 CSAssets.BORDER_BG,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundPosition.CENTER,
-                borderBgSize
+                new BackgroundSize(100, 100, true, true, false, true)
         );
         root.setBackground(new Background(mainBg, borderBg));
 
-        VBox contentBox = new VBox(20);
-        contentBox.setAlignment(Pos.CENTER);
-        contentBox.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        VBox content = new VBox(30);
+        content.setAlignment(Pos.CENTER);
 
-        // 1. Logo
+        // --- LOGO ---
         ImageView logoView = new ImageView(CSAssets.LOGO);
-        logoView.setFitHeight(250);
+        logoView.setFitHeight(220);
         logoView.setPreserveRatio(true);
+        logoView.setOpacity(0.9);
+        logoView.setEffect(new DropShadow(40, Color.color(0, 0, 0, 0.8)));
 
-        // 2. "GAME OVER" Text
+        // --- “GAME OVER” Header ---
         Label gameOverLabel = new Label("GAME OVER");
-        gameOverLabel.setTextFill(Color.GHOSTWHITE);
-        gameOverLabel.setStyle("-fx-font-size: 100px; -fx-font-weight: bold;");
+        gameOverLabel.setTextFill(Color.WHITE);
+        gameOverLabel.setFont(Font.font("Orbitron", FontWeight.EXTRA_BOLD, 80));
+        gameOverLabel.setEffect(new DropShadow(25, Color.color(0.3, 0.3, 1.0, 0.7)));
 
-        // Add Logo and GAME OVER label
-        contentBox.getChildren().addAll(logoView, gameOverLabel);
+        content.getChildren().addAll(logoView, gameOverLabel);
 
-        // --- (NEW) 3. Add UI based on Game Mode ---
+        // --- MODE-SPECIFIC CONTENT ---
         if (packet.isClassic()) {
-            // --- SOLO MODE UI ---
+            // --- SOLO MODE ---
+            Label scoreLabel = makeMonoLabel("Score: " + String.format("%016d", packet.getScore()), Color.LIGHTCYAN, 32);
+            Label levelLabel = makeMonoLabel("Level: " + packet.getLevel(), Color.WHITE, 26);
+            Label highScoreLabel = makeMonoLabel("High Score: " + String.format("%016d", packet.getHighScore()), Color.GOLD, 26);
 
-            // 3a. Final Score (Solo)
-            Label scoreLabel = new Label("Score: " + String.format("%016d", packet.getScore()));
-            scoreLabel.setTextFill(Color.LIGHTCYAN);
-            scoreLabel.setStyle("-fx-font-size: 30px; -fx-font-family: 'Monospaced';");
-
-            // 3b. Level (Solo)
-            Label levelLabel = new Label("Level: " + packet.getLevel());
-            levelLabel.setTextFill(Color.WHITE);
-            levelLabel.setStyle("-fx-font-size: 24px; -fx-font-family: 'Monospaced';");
-
-            // 3c. High Score (Solo)
-            Label highScoreLabel = new Label("High Score: " + String.format("%016d", packet.getHighScore()));
-            highScoreLabel.setTextFill(Color.GOLD);
-            highScoreLabel.setStyle("-fx-font-size: 24px; -fx-font-family: 'Monospaced';");
-
-            contentBox.getChildren().addAll(scoreLabel, levelLabel, highScoreLabel);
+            content.getChildren().addAll(scoreLabel, levelLabel, highScoreLabel);
 
         } else {
-            // --- PVP MODE UI ---
-
-            // 3a. Title (VICTORY or DEFEAT)
-            // (Assuming GameOverType.VICTORY and GameOverType.DEFEAT exist)
+            // --- PVP MODE ---
             boolean didWin = packet.getType() == GameOverType.VERSUS_VICTORY;
-            Label titleLabel = new Label(didWin ? "VICTORY" : "DEFEAT");
-            titleLabel.setTextFill(didWin ? Color.LIGHTGOLDENRODYELLOW : Color.INDIANRED);
-            titleLabel.setStyle("-fx-font-size: 64px; -fx-font-weight: bold;");
 
-            // 3b. Final Score (PvP)
-            Label scoreLabel = new Label(
-                    String.format("Final Score: %02d : %02d", packet.getRedScore(), packet.getBlueScore())
+            Label resultLabel = new Label(didWin ? "VICTORY" : "DEFEAT");
+            resultLabel.setFont(Font.font("Orbitron", FontWeight.BOLD, 70));
+            resultLabel.setTextFill(didWin ? Color.LIGHTGOLDENRODYELLOW : Color.INDIANRED);
+            resultLabel.setEffect(new DropShadow(30, didWin ? Color.GOLD : Color.DARKRED));
+
+            Label scoreLabel = makeMonoLabel(
+                    String.format("Final Score: %02d : %02d", packet.getRedScore(), packet.getBlueScore()),
+                    Color.LIGHTCYAN,
+                    30
             );
-            scoreLabel.setTextFill(Color.LIGHTCYAN);
-            scoreLabel.setStyle("-fx-font-size: 30px; -fx-font-family: 'Monospaced';");
 
-            contentBox.getChildren().addAll(titleLabel, scoreLabel);
+            content.getChildren().addAll(resultLabel, scoreLabel);
         }
 
-        // 4. Buttons
+        // --- QUIT BUTTON ---
         Button quitButton = new Button("Quit to Menu");
         MenuUtils.styleButton(quitButton, "#4d476e", "#353147");
+        quitButton.setFont(Font.font("Orbitron", FontWeight.SEMI_BOLD, 20));
+        quitButton.setTextFill(Color.WHITE);
+        quitButton.setEffect(new DropShadow(10, Color.color(0.2, 0.2, 0.6, 0.8)));
+        quitButton.setPrefWidth(250);
+        quitButton.setPrefHeight(60);
 
         quitButton.setOnAction(e -> {
             ArkanoidGame.core().disconnect();
             MenuUtils.displayServerSelector();
         });
 
-        HBox buttonBox = new HBox(quitButton);
-        buttonBox.setAlignment(Pos.CENTER);
+        VBox.setMargin(quitButton, new Insets(40, 0, 0, 0));
+        content.getChildren().add(quitButton);
 
-        // (MODIFIED) Add button at the end
-        contentBox.getChildren().add(buttonBox);
-        root.getChildren().add(contentBox);
-
+        root.getChildren().add(content);
         this.addElement("root", root);
     }
 
-    @Override
-    public void onRemove() {
+    /** Utility for making monospace-style stat labels */
+    private Label makeMonoLabel(String text, Color color, int size) {
+        Label label = new Label(text);
+        label.setTextFill(color);
+        label.setFont(Font.font("Segoe UI Symbol, Noto Sans Symbols, System", FontWeight.BOLD, size));
+        label.setEffect(new DropShadow(10, Color.color(0, 0, 0, 0.6)));
+        return label;
     }
+
+    @Override
+    public void onRemove() { }
 }

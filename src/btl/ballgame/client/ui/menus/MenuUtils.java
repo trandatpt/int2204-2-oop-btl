@@ -65,6 +65,17 @@ public class MenuUtils {
 		ArkanoidGame.manager().setScreen(selector);
 	}
 	
+	public static void displayLobbyScreen() {
+		if (ArkanoidGame.core() == null) {
+			displayServerSelector();
+			return;
+		}
+		Platform.runLater(() -> {
+			LobbyScreen lobbyScreen = new LobbyScreen();
+			ArkanoidGame.manager().setScreen(lobbyScreen);
+		});
+	}
+	
 	public static void styleButton(Button btn, String baseColor, String hoverColor) {
 		btn.setFont(Font.font(null, FontWeight.BOLD, 14));
 		btn.setStyle("-fx-background-color: " + baseColor + "; -fx-text-fill: white;");
@@ -77,16 +88,15 @@ public class MenuUtils {
 	}
 	
 	public static void toast(String msg) {
-		Alert alert = new Alert(Alert.AlertType.INFORMATION);
-		alert.setHeaderText(null);
-		alert.setContentText(msg);
-		alert.show();
+		toast(AlertType.INFORMATION, msg);
 	}
 	
 	public static void toast(AlertType type, String msg) {
-		Alert alert = new Alert(type);
-		alert.setHeaderText(null);
-		alert.setContentText(msg);
-		alert.show();
+		Platform.runLater(() -> {
+			Alert alert = new Alert(type);
+			alert.setHeaderText(null);
+			alert.setContentText(msg);
+			alert.show();
+		});
 	}
 }

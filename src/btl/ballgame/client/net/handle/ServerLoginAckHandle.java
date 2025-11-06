@@ -28,9 +28,6 @@ public class ServerLoginAckHandle implements PacketHandler<PacketPlayOutLoginAck
 			return;
 		}
 		client.setUser(packet.getUserName(), packet.getServerSideUUID());
-		Platform.runLater(() -> {
-			LobbyScreen lobbyScreen = new LobbyScreen();
-			ArkanoidGame.manager().setScreen(lobbyScreen);
-		});
+		MenuUtils.displayLobbyScreen();
 	}
 }

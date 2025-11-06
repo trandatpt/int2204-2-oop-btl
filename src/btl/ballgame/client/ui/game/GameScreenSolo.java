@@ -292,7 +292,6 @@ public class GameScreenSolo extends Screen {
 	private static final long PAUSE_COOLDOWN_MS = 500; // prevent the server from shitting itself
 
 	public void createPauseScreen() {
-        SoundManager.pause();
 		InformationalScreen pauseScreen = new InformationalScreen("PAUSED", 
 			"Game Menu", null,
 		false);

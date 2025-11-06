@@ -42,8 +42,6 @@ public class LobbyScreen extends Screen {
 
 	@Override
 	public void onInit() {
-		SoundManager.playloop("MusicInGame");
-		
 		// root
 		BorderPane root = new BorderPane();
 		BackgroundSize backgroundSize = new BackgroundSize(100, 100, true, true, false, true);
@@ -123,9 +121,7 @@ public class LobbyScreen extends Screen {
 
 		// auto Refresh (request room list from server periodically)
 		autoRefreshExec = Executors.newSingleThreadScheduledExecutor();
-		autoRefreshExec.scheduleAtFixedRate(this::requestRoomList, 0, 2, TimeUnit.SECONDS);
-		
-		requestRoomList();
+		autoRefreshExec.scheduleAtFixedRate(this::requestRoomList, 0, 2, TimeUnit.SECONDS);		
 	}
 
 	@Override
@@ -144,7 +140,7 @@ public class LobbyScreen extends Screen {
 	
 	public void updateLobbyWith(PacketPlayOutListPublicRooms packet) {
 		if (packet == null || packet.getRooms() == null) {
-			System.err.println("[LobbyScreen] updateLobbyWith(): empty packet or no rooms.");
+			System.err.println("[LobbyScreen] Found a broken packet!");
 			Platform.runLater(() -> {
 				roomListContainer.getChildren().setAll(new Label("Packet Error! No public rooms available."));
 			});
@@ -371,7 +367,7 @@ public class LobbyScreen extends Screen {
 	}
 
 	private void disconnect() {
-		SoundManager.clickBottonLogin();
+		SoundManager.clickButtonLogin();
 		core.disconnect();
 		MenuUtils.displayServerSelector();
 	}

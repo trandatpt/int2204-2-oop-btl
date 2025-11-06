@@ -383,6 +383,8 @@ public class GameScreen extends Screen {
 			pauseOverlay.setVisible(false);
 		});
 		pauseScreen.addButton("Forfeit and Return to Lobby", () -> {
+			ArkanoidGame.core().leaveContext();
+			MenuUtils.displayLobbyScreen();
 		});
 		pauseScreen.addButton("Disconnect and Quit to Title", () -> {
 			ArkanoidGame.core().disconnect();

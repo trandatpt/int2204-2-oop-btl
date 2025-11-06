@@ -35,7 +35,7 @@ public class ProtoUtils {
 		PLAYOUT_LOGIN_ACK 		   = 0xC01,
 		PLAYOUT_CLOSE_SOCKET 	   = 0xC02,
 		PLAYOUT_PING               = 0xC03,
-		//PLAYOUT_WAIT_ROOM_READY    = 0xC04,
+		PLAYOUT_ROOM_JOIN_ERROR    = 0xC04,
 		PLAYOUT_WAIT_ROOM_UPDATE   = 0xC05,
 		PLAYOUT_WAIT_ROOM_DISBAND  = 0xC06,
 		PLAYOUT_ENTITY_SPAWN       = 0xC07,
@@ -88,7 +88,8 @@ public class ProtoUtils {
 		registry.registerPacket(PLAYOUT_WAIT_ROOM_UPDATE, PacketPlayOutRoomUpdate.class, PacketPlayOutRoomUpdate::new);
 		registry.registerPacket(PLAYOUT_WAIT_ROOM_DISBAND, PacketPlayOutRoomDisband.class, PacketPlayOutRoomDisband::new);
 		registry.registerPacket(PLAYOUT_LIST_PUB_ROOMS, PacketPlayOutListPublicRooms.class, PacketPlayOutListPublicRooms::new);
-		
+		registry.registerPacket(PLAYOUT_ROOM_JOIN_ERROR, PacketPlayOutRoomJoinError.class, PacketPlayOutRoomJoinError::new);
+
 		registry.registerPacket(PLAYOUT_ENTITY_SPAWN, PacketPlayOutEntitySpawn.class, PacketPlayOutEntitySpawn::new);
 		registry.registerPacket(PLAYOUT_ENTITY_POSITION, PacketPlayOutEntityPosition.class, PacketPlayOutEntityPosition::new);
 		registry.registerPacket(PLAYOUT_ENTITY_METADATA, PacketPlayOutEntityMetadata.class, PacketPlayOutEntityMetadata::new);

@@ -24,19 +24,9 @@ public class LoginScreen extends Screen {
 
 	@Override
 	public void onInit() {
-
-		SoundManager.playloop("MusicInGame");
-				// Root layout
+		// Root layout
         BorderPane root = new BorderPane();
-        BackgroundSize backgroundSize = new BackgroundSize(100, 100, true, true, false, true);
-        BackgroundImage backgroundImage = new BackgroundImage(
-                CSAssets.LOBBY_BACKGROUND,
-                BackgroundRepeat.NO_REPEAT,
-                BackgroundRepeat.NO_REPEAT,
-                BackgroundPosition.CENTER,
-                backgroundSize
-        );
-        root.setBackground(new Background(backgroundImage));
+        setStyle("-fx-background-color: linear-gradient(to bottom, #1e1e1e, #2a2a2a);");
 
 		// ARKANOID LOGO
 		ImageView logo = this.createElement("logo", new ImageView(
@@ -90,7 +80,7 @@ public class LoginScreen extends Screen {
 				return;
 			}
 			
-			SoundManager.clickBottonLogin();
+			SoundManager.clickButtonLogin();
 			core.login(user, pass);
 			InformationalScreen loggingIn = new InformationalScreen(
 				"Logging in...",
@@ -105,7 +95,7 @@ public class LoginScreen extends Screen {
 
 		createAccountBtn.setOnAction(e -> createAccountScreen());
 		disconnectButton.setOnAction(e -> {
-			SoundManager.clickBottonLogin();
+			SoundManager.clickButtonLogin();
 			core.disconnect();
 			MenuUtils.displayServerSelector();
 		});
@@ -133,11 +123,6 @@ public class LoginScreen extends Screen {
 		root.setCenter(layout);
 		
 		this.addElement("loginroot", root);
-	}
-	
-	// called when the user is ready to be online
-	private void connectOnline() {
-		
 	}
 
 	private void createAccountScreen() {

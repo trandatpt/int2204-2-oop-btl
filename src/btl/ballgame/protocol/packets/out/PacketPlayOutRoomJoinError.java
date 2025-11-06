@@ -11,6 +11,10 @@ public class PacketPlayOutRoomJoinError extends NetworkPacket implements IPacket
 		this.error = error;
 	}
 	
+	public String getError() {
+		return error;
+	}
+	
 	@Override
 	public void write(PacketByteBuf buf) {
 		buf.writeU8String(error);

@@ -222,8 +222,8 @@ public class ArkanoidMatch {
 						break;
 					}
 					case 2: { // pyramid shape, grows smaller as it goes
-						int mid = (cols - 1) / 2;
-						int width = (brickRows - y);
+						double mid = (cols - 1d) / 2d;
+						double width = (brickRows - y);
 						place = (x >= mid - width && x <= mid + width);
 						break;
 					}
@@ -273,6 +273,8 @@ public class ArkanoidMatch {
 			brick = new EntityExplosiveBrick(world.nextEntityId(), loc);
 		} else if (roll < 10) {
 			brick = new EntityItemBrick(world.nextEntityId(), loc);
+		} else if (roll < 20) {
+			brick = new EntityHardBrick(world.nextEntityId(), loc);
 		} else {
 			brick = new EntityBrick(world.nextEntityId(), loc);
 			float h = (hue % 1f + 1f) % 1f;
@@ -429,18 +431,35 @@ public class ArkanoidMatch {
 	
 	private void concludeMatch() {
 		this.changePhase(MatchPhase.CONCLUDED);
-		
 		if (gameMode.isSinglePlayer()) {
 			var gameOver = new PacketPlayOutGameOver(
 				getTeam(TeamColor.RED).getArkanoidScore(), 
 				roundIndex + 1, // level
-				0 // TODO, HIGH SCORE
+				getTeam(TeamColor.RED).getArkanoidScore() // TODO, HIGH SCORE
 			);
 			world.broadcastPackets(gameOver);
 			return;
 		}
 		
-		// TODO handle multiplayer
+		getPlayers().forEach(p -> {
+			PacketPlayOutGameOver gameOver;
+			if (getTeamOf(p).getTeamColor() == winner) {
+				gameOver = new PacketPlayOutGameOver(
+					GameOverType.VERSUS_VICTORY, 
+					getTeam(TeamColor.RED).getFTScore(),
+					getTeam(TeamColor.BLUE).getFTScore(),
+					System.currentTimeMillis() - matchStartTime
+				);
+			} else {
+				gameOver = new PacketPlayOutGameOver(
+					GameOverType.VERSUS_DEFEAT, 
+					getTeam(TeamColor.RED).getFTScore(),
+					getTeam(TeamColor.BLUE).getFTScore(),
+					System.currentTimeMillis() - matchStartTime
+				);
+			}
+			p.playerConnection.sendPacket(gameOver);
+		});
 		return;
 	}
 	

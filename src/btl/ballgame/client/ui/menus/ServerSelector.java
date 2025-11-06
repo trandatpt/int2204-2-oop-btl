@@ -33,13 +33,15 @@ public class ServerSelector extends Screen {
 	public void onInit() {
 		// background shit
 		setStyle("-fx-background-color: linear-gradient(to bottom, #1e1e1e, #2a2a2a);");
-
+		
 		// ARKANOID LOGO
 		ImageView logo = this.createElement("logo", new ImageView(
 			CSAssets.LOGO
 		));
-
+		
+		SoundManager.stopAllSounds();
 		SoundManager.playloop("MusicMenu");
+		
 		logo.setPreserveRatio(true);
 		logo.setFitWidth(500);
 		
@@ -145,7 +147,7 @@ public class ServerSelector extends Screen {
 				return;
 			}
 		}
-		SoundManager.clickBottonMenu();
+		SoundManager.clickButtonMenu();
 		ClientNetworkManager.connectToServer(address);
 	}
 
