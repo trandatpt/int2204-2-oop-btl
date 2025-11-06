@@ -11,8 +11,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-
 
 public class RoomScreenOneVsOne extends Screen {
     private ArkanoidClientCore core;
@@ -131,10 +131,18 @@ public class RoomScreenOneVsOne extends Screen {
         teamLabel.setTextFill(c);
         teamLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
-        String logoKey = teamName.equals("Player1") ? "team_red" : "team_blue";
+        String logoKey = teamName.equals("Player 1") ? "logoTeam_2" : "logoTeam_1";
+        Image img = null;
+        try {
+            img = CSAssets.sprites.getAsImage("logo", logoKey);
+        } catch (Exception e) {
+            System.out.println("Failed to load sprite: logo " + logoKey);
+        }
+        if (img == null) {
+            img = CSAssets.VS_BACKGROUND;
+        }
 
-        // ImageView logoView = new ImageView(CSAssets.VS_BACKGROUND);
-        ImageView logoView = new ImageView(CSAssets.sprites.getAsImage("logo", logoKey));
+        ImageView logoView = new ImageView(img);
         logoView.setFitWidth(28);
         logoView.setFitHeight(28);
         logoView.setPreserveRatio(true);
