@@ -334,36 +334,6 @@ public class GameScreen extends Screen {
             String text = String.format("%02d   %02d", redTeam.ftScore, blueTeam.ftScore);
             if (!roundScoreLabel.getText().equals(text)) roundScoreLabel.setText(text);
         }
-
-        checkGameOver(redTeam, blueTeam);
-    }
-
-    private void checkGameOver(CTeamInfo redTeam, CTeamInfo blueTeam) {
-        if (redTeam == null || blueTeam == null) return;
-
-        boolean redLost = redTeam.livesRemaining == 0;
-        boolean blueLost = blueTeam.livesRemaining == 0;
-
-        if (redLost || blueLost) {
-            gameLoop.stop();
-            gameLoop = null;
-
-            boolean amOnRedTeam = false;
-            if (redTeam.players != null) {
-                for (CPlayerInfo p : redTeam.players) {
-                    if (p.isMe()) {
-                        amOnRedTeam = true;
-                        break;
-                    }
-                }
-            }
-
-            boolean didIWin = (amOnRedTeam && blueLost) || (!amOnRedTeam && redLost);
-            int myScore = amOnRedTeam ? redTeam.arkScore : blueTeam.arkScore;
-
-            GameOverScreen gameOverScreen = new GameOverScreen(didIWin, myScore);
-            ArkanoidGame.manager().setScreen(gameOverScreen);
-        }
     }
 
     private void updateTeamUI(CTeamInfo teamData, Label scoreLabel, HBox heartsBox, VBox playerBox, Color teamColor) {

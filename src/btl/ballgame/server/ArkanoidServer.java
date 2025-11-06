@@ -1,14 +1,9 @@
 package btl.ballgame.server;
 
-import java.io.IOException;
-import java.io.PrintStream;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.Arrays;
-import java.util.Scanner;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
+import btl.ballgame.protocol.PacketCodec;
+import btl.ballgame.protocol.PacketRegistry;
+import btl.ballgame.protocol.ProtoUtils;
+import btl.ballgame.protocol.packets.in.*;
 import btl.ballgame.server.data.DataManager;
 import btl.ballgame.server.game.EntityRegistry;
 import btl.ballgame.server.game.entities.breakable.EntityBrick;
@@ -23,31 +18,22 @@ import btl.ballgame.server.game.match.ArkanoidMatch;
 import btl.ballgame.server.game.match.MatchSettings;
 import btl.ballgame.server.net.NetworkManager;
 import btl.ballgame.server.net.PlayerConnection;
-import btl.ballgame.server.net.handle.ClientChangeRifleModeHandle;
-import btl.ballgame.server.net.handle.ClientDisconnectHandle;
-import btl.ballgame.server.net.handle.ClientHelloHandle;
-import btl.ballgame.server.net.handle.ClientLoginHandle;
-import btl.ballgame.server.net.handle.ClientPaddleInputHandle;
-import btl.ballgame.server.net.handle.ClientPauseGameHandle;
-import btl.ballgame.server.net.handle.ClientPongHandle;
-import btl.ballgame.server.net.handle.ClientUserCreationHandle;
+import btl.ballgame.server.net.handle.*;
 import btl.ballgame.shared.libs.Constants;
+import btl.ballgame.shared.libs.Constants.ArkanoidMode;
+import btl.ballgame.shared.libs.Constants.TeamColor;
 import btl.ballgame.shared.libs.EntityType;
 import btl.ballgame.shared.libs.Utils;
 import btl.ballgame.shared.libs.external.Json;
-import btl.ballgame.shared.libs.Constants.ArkanoidMode;
-import btl.ballgame.shared.libs.Constants.TeamColor;
-import btl.ballgame.protocol.PacketCodec;
-import btl.ballgame.protocol.PacketRegistry;
-import btl.ballgame.protocol.ProtoUtils;
-import btl.ballgame.protocol.packets.in.PacketPlayInChangeFireMode;
-import btl.ballgame.protocol.packets.in.PacketPlayInClientHello;
-import btl.ballgame.protocol.packets.in.PacketPlayInClientLogin;
-import btl.ballgame.protocol.packets.in.PacketPlayInClientUserCreation;
-import btl.ballgame.protocol.packets.in.PacketPlayInDisconnect;
-import btl.ballgame.protocol.packets.in.PacketPlayInPaddleControl;
-import btl.ballgame.protocol.packets.in.PacketPlayInPauseGame;
-import btl.ballgame.protocol.packets.in.PacketPlayInPong;
+
+import java.io.IOException;
+import java.io.PrintStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.Arrays;
+import java.util.Scanner;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class ArkanoidServer {
 	public static final int VERSION_NUMERIC = 1;
@@ -177,9 +163,9 @@ public class ArkanoidServer {
 			playerManager.getPlayer(parts[1]).kick("Kicked");
 			break;
 		case "test": {
-			ArkanoidMatch match = new ArkanoidMatch(new MatchSettings(ArkanoidMode.SOLO_ENDLESS, 2, 180, 3));
+			ArkanoidMatch match = new ArkanoidMatch(new MatchSettings(ArkanoidMode.TWO_VERSUS_TWO, 2, 180, 3));
 			match.assignTeam(TeamColor.RED, Arrays.asList(playerManager.getPlayer(parts[1])));
-			//match.assignTeam(TeamColor.BLUE, Arrays.asList(playerManager.getPlayer(parts[2])));
+			match.assignTeam(TeamColor.BLUE, Arrays.asList(playerManager.getPlayer(parts[2])));
 			match.start();
 			break;
 		}

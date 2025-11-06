@@ -1,62 +1,25 @@
 package btl.ballgame.client;
 
-import java.io.IOException;
-import java.net.Socket;
-import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
 import btl.ballgame.client.net.CServerConnection;
-import btl.ballgame.client.net.handle.ServerClientFlagsHandle;
-import btl.ballgame.client.net.handle.ServerDisplayTitleHandle;
-import btl.ballgame.client.net.handle.ServerEntityBBSizeUpdateHandle;
-import btl.ballgame.client.net.handle.ServerEntityDestroyHandle;
-import btl.ballgame.client.net.handle.ServerEntityEffectsHandle;
-import btl.ballgame.client.net.handle.ServerEntityMetadataUpdateHandle;
-import btl.ballgame.client.net.handle.ServerEntityPositionUpdateHandle;
-import btl.ballgame.client.net.handle.ServerEntitySpawnHandle;
-import btl.ballgame.client.net.handle.ServerHelloAckHandle;
-import btl.ballgame.client.net.handle.ServerLoginAckHandle;
-import btl.ballgame.client.net.handle.ServerMatchInitHandle;
-import btl.ballgame.client.net.handle.ServerMatchMetadataHandle;
-import btl.ballgame.client.net.handle.ServerPingHandle;
-import btl.ballgame.client.net.handle.ServerWorldInitHandle;
-import btl.ballgame.client.net.handle.ServerSocketCloseHandle;
-import btl.ballgame.client.net.systems.CSEntity;
+import btl.ballgame.client.net.handle.*;
 import btl.ballgame.client.net.systems.CSEntityRegistry;
 import btl.ballgame.client.net.systems.CSWorld;
-import btl.ballgame.client.net.systems.entities.CEntityAKBullet;
-import btl.ballgame.client.net.systems.entities.CEntityBrickNormal;
-import btl.ballgame.client.net.systems.entities.CEntityExplosiveBrick;
-import btl.ballgame.client.net.systems.entities.CEntityFallingItem;
-import btl.ballgame.client.net.systems.entities.CEntityItemBrick;
-import btl.ballgame.client.net.systems.entities.CEntityPaddle;
-import btl.ballgame.client.net.systems.entities.CEntityPaddleLocal;
-import btl.ballgame.client.net.systems.entities.CEntityWreckingBall;
+import btl.ballgame.client.net.systems.entities.*;
 import btl.ballgame.protocol.PacketCodec;
 import btl.ballgame.protocol.PacketRegistry;
 import btl.ballgame.protocol.ProtoUtils;
 import btl.ballgame.protocol.packets.in.PacketPlayInClientLogin;
 import btl.ballgame.protocol.packets.in.PacketPlayInClientUserCreation;
-import btl.ballgame.protocol.packets.out.PacketPlayOutClientFlags;
-import btl.ballgame.protocol.packets.out.PacketPlayOutCloseSocket;
-import btl.ballgame.protocol.packets.out.PacketPlayOutEntityBBSizeUpdate;
-import btl.ballgame.protocol.packets.out.PacketPlayOutEntityDestroy;
-import btl.ballgame.protocol.packets.out.PacketPlayOutEntityEffects;
-import btl.ballgame.protocol.packets.out.PacketPlayOutEntityMetadata;
-import btl.ballgame.protocol.packets.out.PacketPlayOutEntityPosition;
-import btl.ballgame.protocol.packets.out.PacketPlayOutEntitySpawn;
-import btl.ballgame.protocol.packets.out.PacketPlayOutHelloAck;
-import btl.ballgame.protocol.packets.out.PacketPlayOutWorldInit;
-import btl.ballgame.protocol.packets.out.PacketPlayOutLoginAck;
-import btl.ballgame.protocol.packets.out.PacketPlayOutMatchJoin;
-import btl.ballgame.protocol.packets.out.PacketPlayOutMatchMetadata;
-import btl.ballgame.protocol.packets.out.PacketPlayOutPing;
-import btl.ballgame.protocol.packets.out.PacketPlayOutTitle;
+import btl.ballgame.protocol.packets.out.*;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.EntityType;
+
+import java.io.IOException;
+import java.net.Socket;
+import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class ArkanoidClientCore {
 	private CServerConnection connection;
@@ -118,6 +81,7 @@ public class ArkanoidClientCore {
 		this.registry.registerHandler(PacketPlayOutClientFlags.class, new ServerClientFlagsHandle());
 		this.registry.registerHandler(PacketPlayOutTitle.class, new ServerDisplayTitleHandle());
 		this.registry.registerHandler(PacketPlayOutEntityEffects.class, new ServerEntityEffectsHandle());
+        this.registry.registerHandler(PacketPlayOutGameOver.class, new ServerGameOverHandle());
 	}
 	
 	/**

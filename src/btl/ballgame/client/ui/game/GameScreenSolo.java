@@ -247,16 +247,6 @@ public class GameScreenSolo extends Screen {
         CTeamInfo soloTeam = match.getTeams().get(TeamColor.RED);
         if (soloTeam != null) {
             updateTeamUI(soloTeam, scoreValueSolo, heartsSolo, playerBoxSolo, Color.RED);
-            checkGameOver(soloTeam);
-        }
-    }
-
-    private void checkGameOver(CTeamInfo soloTeam) {
-        if (soloTeam.livesRemaining == 0) {
-            gameLoop.stop();
-            gameLoop = null;
-            GameOverScreen gameOverScreen = new GameOverScreen(false, soloTeam.arkScore);
-            ArkanoidGame.manager().setScreen(gameOverScreen);
         }
     }
 

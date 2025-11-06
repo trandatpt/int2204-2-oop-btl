@@ -16,7 +16,8 @@ public class CSAssets {
         BORDER_BG = image("BorderBackground.png"),
         BORDER_RED = image("redBorder.png"),
         BORDER_BLUE = image("blueBorder.png"),
-        BORDER_GAME = image("GameBorder.png");
+        BORDER_GAME = image("GameBorder.png"),
+        OVERSCREEN = image("overScreen.gif")
 	;
 	
 	public static void init() {
