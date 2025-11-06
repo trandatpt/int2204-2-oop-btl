@@ -5,10 +5,9 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.IntConsumer;
-
-import javax.sound.midi.VoiceStatus;
 
 import btl.ballgame.protocol.packets.out.PacketPlayOutClientFlags;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntityEffects;
@@ -64,6 +63,7 @@ public class ArkanoidMatch {
 	
 	private boolean paused = false;
 	private boolean clientRequestedPause = false;
+	private ScheduledFuture<?> mainTask;
 	
 	/**
 	 * Creates a new ArkanoidMatch instance.
@@ -76,7 +76,7 @@ public class ArkanoidMatch {
 		this.world = new WorldServer(this, 600, 800);
 		this.matchId = UUID.randomUUID();
 		
-		Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
+		 this.mainTask = Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
 			if (clientRequestedPause) return;
 			try {
 				this.daemonTick();
@@ -444,6 +444,11 @@ public class ArkanoidMatch {
 		return;
 	}
 	
+	public void cleanup() {
+		this.mainTask.cancel(true);
+		getPlayers().forEach(ArkaPlayer::leaveGame);
+	}
+	
 	// queued tasks
 	Map<Integer, Queue<Runnable>> queuedTasks = new ConcurrentHashMap<>();
 	// current tick counter
@@ -672,7 +677,7 @@ public class ArkanoidMatch {
 		}
 		
 		runLater(60, () -> {
-			countdown(4, 30, (timeLeft) -> {
+			countdown(5, 30, (timeLeft) -> {
 				boolean intro = timeLeft == 4;
 				this.broadcastFormattedTitle(EnumTitle.TITLE, 
 					intro ? "<b>ROUND " + (roundIndex + 1) : "<b>" + timeLeft,
@@ -720,7 +725,7 @@ public class ArkanoidMatch {
 		);
 		
 		runLater(30, () -> {
-			countdown(4, 30, (timeLeft) -> {
+			countdown(5, 30, (timeLeft) -> {
 				boolean intro = timeLeft == 4;
 				this.broadcastFormattedTitle(EnumTitle.TITLE, 
 					intro ? "<b>LEVEL " + (roundIndex + 1) : "<b>" + timeLeft,
@@ -836,6 +841,7 @@ public class ArkanoidMatch {
 	 * @param player The player who left.
 	 */
 	public void onPlayerLeft(ArkaPlayer player) {
+		player.leaveGame();
 		this.paddleOf(player).remove();
 		this.getTeamOf(player).removePlayer(player);
 		syncMatchStateWithClients();

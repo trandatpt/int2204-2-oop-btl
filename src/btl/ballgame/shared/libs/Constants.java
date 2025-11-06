@@ -142,18 +142,24 @@ public class Constants {
 	}
 	
 	public static enum ArkanoidMode {
-		SOLO_ENDLESS(true),
+		SOLO_ENDLESS("Classic Endless Arkanoid", true),
 		
-		ONE_VERSUS_ONE(false),
-		TWO_VERSUS_TWO(false);
+		ONE_VERSUS_ONE("One vs One (1v1)",false),
+		TWO_VERSUS_TWO("Two vs Two (2v2)", false);
 		
 		private boolean sp;
-		ArkanoidMode(boolean singlePlayer) {
+		private String friendlyName;
+		ArkanoidMode(String friendlyName, boolean singlePlayer) {
 			this.sp = singlePlayer;
+			this.friendlyName = friendlyName;
 		}
 		
 		public boolean isSinglePlayer() {
 			return sp;
+		}
+		
+		public String getFriendlyName() {
+			return friendlyName;
 		}
 		
 	    private static final ArkanoidMode[] values = values();

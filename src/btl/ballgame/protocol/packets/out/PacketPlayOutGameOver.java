@@ -1,8 +1,5 @@
 package btl.ballgame.protocol.packets.out;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import btl.ballgame.protocol.PacketByteBuf;
 import btl.ballgame.protocol.packets.NetworkPacket;
 import btl.ballgame.shared.libs.Constants.GameOverType;
@@ -12,7 +9,6 @@ public class PacketPlayOutGameOver extends NetworkPacket implements IPacketPlayO
 	
 	// for VERSUS mode
 	private GameOverType type;
-	private List<String> participants;
 	private int redScore;
 	private int blueScore;
 	private long time;
@@ -27,13 +23,11 @@ public class PacketPlayOutGameOver extends NetworkPacket implements IPacketPlayO
 	// constructor for VERSUS
 	public PacketPlayOutGameOver(
 		GameOverType type, 
-		List<String> participants, 
 		int redScore, int blueScore,
 		long time
 	) {
 		this.classic = false;
 		this.type = type;
-		this.participants = participants;
 		this.redScore = redScore;
 		this.blueScore = blueScore;
 		this.time = time;
@@ -53,10 +47,6 @@ public class PacketPlayOutGameOver extends NetworkPacket implements IPacketPlayO
 
 	public GameOverType getType() {
 		return type;
-	}
-
-	public List<String> getParticipants() {
-		return participants;
 	}
 
 	public int getRedScore() {
@@ -89,10 +79,6 @@ public class PacketPlayOutGameOver extends NetworkPacket implements IPacketPlayO
 		
 		if (!classic) {
 			buf.writeInt8((byte) type.ordinal());
-			buf.writeInt8((byte) participants.size());
-			for (String name : participants) {
-				buf.writeU8String(name);
-			}
 			buf.writeInt32(redScore);
 			buf.writeInt32(blueScore);
 			buf.writeInt64(time);
@@ -109,11 +95,6 @@ public class PacketPlayOutGameOver extends NetworkPacket implements IPacketPlayO
 		
 		if (!classic) {
 			this.type = GameOverType.values()[buf.readInt8()];
-			int count = buf.readInt8();
-			this.participants = new ArrayList<>(count);
-			for (int i = 0; i < count; i++) {
-				this.participants.add(buf.readU8String());
-			}
 			this.redScore = buf.readInt32();
 			this.blueScore = buf.readInt32();
 			this.time = buf.readInt64();

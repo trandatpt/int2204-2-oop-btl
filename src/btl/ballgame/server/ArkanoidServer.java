@@ -20,6 +20,7 @@ import btl.ballgame.server.game.entities.dynamic.EntityFallingItem;
 import btl.ballgame.server.game.entities.dynamic.EntityPaddle;
 import btl.ballgame.server.game.entities.dynamic.EntityWreckingBall;
 import btl.ballgame.server.game.match.ArkanoidMatch;
+import btl.ballgame.server.game.match.MatchManager;
 import btl.ballgame.server.game.match.MatchSettings;
 import btl.ballgame.server.net.NetworkManager;
 import btl.ballgame.server.net.PlayerConnection;
@@ -30,6 +31,12 @@ import btl.ballgame.server.net.handle.ClientLoginHandle;
 import btl.ballgame.server.net.handle.ClientPaddleInputHandle;
 import btl.ballgame.server.net.handle.ClientPauseGameHandle;
 import btl.ballgame.server.net.handle.ClientPongHandle;
+import btl.ballgame.server.net.handle.ClientRoomCreateHandle;
+import btl.ballgame.server.net.handle.ClientRoomJoinHandle;
+import btl.ballgame.server.net.handle.ClientRoomLeaveContextHandle;
+import btl.ballgame.server.net.handle.ClientRoomListRequestHandle;
+import btl.ballgame.server.net.handle.ClientRoomReadyHandle;
+import btl.ballgame.server.net.handle.ClientRoomSwapTeamHandle;
 import btl.ballgame.server.net.handle.ClientUserCreationHandle;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.EntityType;
@@ -44,10 +51,16 @@ import btl.ballgame.protocol.packets.in.PacketPlayInChangeFireMode;
 import btl.ballgame.protocol.packets.in.PacketPlayInClientHello;
 import btl.ballgame.protocol.packets.in.PacketPlayInClientLogin;
 import btl.ballgame.protocol.packets.in.PacketPlayInClientUserCreation;
+import btl.ballgame.protocol.packets.in.PacketPlayInCreateRoom;
 import btl.ballgame.protocol.packets.in.PacketPlayInDisconnect;
+import btl.ballgame.protocol.packets.in.PacketPlayInJoinRoom;
+import btl.ballgame.protocol.packets.in.PacketPlayInLeaveContext;
 import btl.ballgame.protocol.packets.in.PacketPlayInPaddleControl;
 import btl.ballgame.protocol.packets.in.PacketPlayInPauseGame;
 import btl.ballgame.protocol.packets.in.PacketPlayInPong;
+import btl.ballgame.protocol.packets.in.PacketPlayInRequestRoomList;
+import btl.ballgame.protocol.packets.in.PacketPlayInRoomSetReady;
+import btl.ballgame.protocol.packets.in.PacketPlayInRoomSwapTeam;
 
 public class ArkanoidServer {
 	public static final int VERSION_NUMERIC = 1;
@@ -73,6 +86,7 @@ public class ArkanoidServer {
 	
 	private NetworkManager netMan;
 	private PlayerManager playerManager;
+	private MatchManager matchManager;
 	
 	private EntityRegistry entityRegistry;
 	
@@ -112,6 +126,7 @@ public class ArkanoidServer {
 		this.netMan = new NetworkManager();
 		this.playerManager = new PlayerManager();
 		this.entityRegistry = new EntityRegistry();
+		this.matchManager = new MatchManager();
 		
 		System.out.println("[ArkanoidServer] Registering necessary components...");
 		ProtoUtils.registerMutualPackets(this.registry);
@@ -133,6 +148,7 @@ public class ArkanoidServer {
 				netMan.pingAllClients();
 			}
 			++globalTicksPassed;
+			matchManager.tick();
 		}, 0, ArkanoidServer.MS_PER_TICK, TimeUnit.MILLISECONDS);
 		
 		executor.scheduleAtFixedRate(() -> {
@@ -210,8 +226,14 @@ public class ArkanoidServer {
 		this.registry.registerHandler(PacketPlayInDisconnect.class, new ClientDisconnectHandle());
 		this.registry.registerHandler(PacketPlayInPauseGame.class, new ClientPauseGameHandle());
 		this.registry.registerHandler(PacketPlayInPong.class, new ClientPongHandle());
+		this.registry.registerHandler(PacketPlayInRequestRoomList.class, new ClientRoomListRequestHandle());
 		this.registry.registerHandler(PacketPlayInPaddleControl.class, new ClientPaddleInputHandle());
 		this.registry.registerHandler(PacketPlayInChangeFireMode.class, new ClientChangeRifleModeHandle());
+		this.registry.registerHandler(PacketPlayInCreateRoom.class, new ClientRoomCreateHandle());
+		this.registry.registerHandler(PacketPlayInLeaveContext.class, new ClientRoomLeaveContextHandle());
+		this.registry.registerHandler(PacketPlayInRoomSwapTeam.class, new ClientRoomSwapTeamHandle());
+		this.registry.registerHandler(PacketPlayInRoomSetReady.class, new ClientRoomReadyHandle());
+		this.registry.registerHandler(PacketPlayInJoinRoom.class, new ClientRoomJoinHandle());
 	}
 	
 	public EntityRegistry getEntityRegistry() {
@@ -236,6 +258,10 @@ public class ArkanoidServer {
 	
 	public DataManager getDataManager() {
 		return dataManager;
+	}
+	
+	public MatchManager getMatchManager() {
+		return matchManager;
 	}
 	
 	// misc
