@@ -39,7 +39,7 @@ public class MultiBall extends BaseEffect {
 			float radAngle = (float) (rand.nextFloat() * Math.PI * 2);
 			Vector2f newDir = Vector2f.fromTheta(radAngle);
 	        Location spawnLoc = rootLoc.clone().add(
-	        	newDir.normalize().multiply(root.getWidth())
+	        	newDir.normalize().multiply(root.getWidth() * 2)
 	        ); // seperate the balls
 	        spawnLoc.setDirection(newDir);
 	        

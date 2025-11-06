@@ -1,11 +1,15 @@
 package btl.ballgame.client.ui.game;
 
+import btl.ballgame.client.ArkanoidClientCore;
 import btl.ballgame.client.ArkanoidGame;
 import btl.ballgame.client.CSAssets;
 import btl.ballgame.client.ClientArkanoidMatch;
 import btl.ballgame.client.ClientArkanoidMatch.CPlayerInfo;
 import btl.ballgame.client.ClientArkanoidMatch.CTeamInfo;
+import btl.ballgame.client.ui.menus.InformationalScreen;
+import btl.ballgame.client.ui.menus.MenuUtils;
 import btl.ballgame.client.ui.screen.Screen;
+import btl.ballgame.protocol.packets.in.PacketPlayInPauseGame;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.Constants.TeamColor;
 import javafx.animation.AnimationTimer;
@@ -13,6 +17,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
@@ -41,9 +46,11 @@ public class GameScreenSolo extends Screen {
 
     // Map of player UUID to PlayerInfoUI for reuse
     private final Map<String, PlayerInfoUI> playerUIMap = new HashMap<>();
+    
+    private boolean gamePaused;
 
     public GameScreenSolo(GameRenderCanvas gameRenderCanvas) {
-        super("game");
+        super("Singleplayer (Arkanoid Classic)");
         this.gameRenderCanvas = gameRenderCanvas;
         this.match = ArkanoidGame.core().getActiveMatch();
     }
@@ -200,6 +207,7 @@ public class GameScreenSolo extends Screen {
         gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
+            	if (gamePaused) return;
                 long elapsedTime = now - lastTick;
                 lastTick = now;
 
@@ -220,6 +228,7 @@ public class GameScreenSolo extends Screen {
             }
         };
         gameLoop.start();
+        createPauseScreen();
     }
 
     public void onUpdate(float tpf) {
@@ -274,6 +283,54 @@ public class GameScreenSolo extends Screen {
             }
         }
     }
+    
+	// SINGLEPLAYER PAUSE (will send a pause siggnal to the server)
+	public StackPane pauseOverlay;
+	private long lastPauseToggle = 0; // mms
+	private static final long PAUSE_COOLDOWN_MS = 500; // prevent the server from shitting itself
+
+	public void createPauseScreen() {
+		InformationalScreen pauseScreen = new InformationalScreen("PAUSED", 
+			"Game Menu", null,
+		false);
+
+		// Example buttons
+		pauseScreen.addButton("Back To Game", () -> {
+			pauseOverlay.setVisible(false);
+			updatePause();
+		});
+		pauseScreen.addButton("Quit to Title", () -> {
+			ArkanoidGame.core().disconnect();
+			MenuUtils.displayServerSelector();
+		});
+
+		pauseScreen.onInit();
+
+		pauseOverlay = new StackPane();
+		pauseOverlay.setStyle("-fx-background-color: rgba(0,0,0,0.7);");
+		pauseOverlay.getChildren().add(pauseScreen);
+		pauseOverlay.setVisible(false);
+
+		this.addElement("pauseScreen", pauseOverlay);
+
+		setOnKeyPressed(event -> {
+			if (event.getCode() == KeyCode.ESCAPE) {
+				long now = System.currentTimeMillis();
+				if (now - lastPauseToggle >= PAUSE_COOLDOWN_MS) {
+					lastPauseToggle = now;
+					pauseOverlay.setVisible(!pauseOverlay.isVisible());
+					updatePause();
+				}
+			}
+		});
+	}
+	
+	private void updatePause() {
+		this.gamePaused = pauseOverlay.isVisible();
+		ArkanoidGame.core().getConnection().sendPacket(
+			new PacketPlayInPauseGame(gamePaused)
+		);
+	}
 
     @Override
     public void onRemove() {

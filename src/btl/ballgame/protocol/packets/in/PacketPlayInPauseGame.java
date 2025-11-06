@@ -8,6 +8,7 @@ public class PacketPlayInPauseGame extends NetworkPacket implements IPacketPlayI
 	
 	private boolean paused;
 	public PacketPlayInPauseGame(boolean pause) {
+		this.paused = pause;
 	}
 	
 	public boolean isPaused() {

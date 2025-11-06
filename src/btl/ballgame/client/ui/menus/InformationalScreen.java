@@ -73,12 +73,6 @@ public class InformationalScreen extends Screen {
 		logo.setPreserveRatio(true);
 		logo.setFitWidth(500);
 		
-		// "INFORMATIONAL" CONTENT
-		Label informational = this.createElement("informationalText", new Label(this.content));
-		informational.setTextFill(Color.WHITE);
-		informational.setTextAlignment(TextAlignment.CENTER);
-		informational.setFont(Font.font(null, FontWeight.BOLD, 18));
-		
 		// DEFINE THE LAYOUT
 		VBox buttonsLayout = new VBox(10,
 			this.screenButtons.toArray(Node[]::new)
@@ -92,7 +86,16 @@ public class InformationalScreen extends Screen {
 			mini.setFont(Font.font(15));
 			infoLayout.getChildren().add(mini);
 		}
-		infoLayout.getChildren().add(informational);
+		
+		// "INFORMATIONAL" CONTENT
+		if (content != null) {
+			Label informational = this.createElement("informationalText", new Label(this.content));
+			informational.setTextFill(Color.WHITE);
+			informational.setTextAlignment(TextAlignment.CENTER);
+			informational.setFont(Font.font(null, FontWeight.BOLD, 18));
+			infoLayout.getChildren().add(informational);
+		}
+		
 		infoLayout.getChildren().add(buttonsLayout);
 		infoLayout.setAlignment(Pos.CENTER);
 

@@ -31,7 +31,7 @@ public class CEntityWreckingBall extends CSInterpolatedEntity {
 	@Override
 	public void render(GraphicsContext cv) {
 		super.render(cv); // interpolation
-		int tint = primary ? 0xFFFFFF : 0xe00707; // red if the ball is unimportant
+		int tint = !primary ? 0xFFFFFF : 0xe00707; // red if the ball is unimportant
 		
 		cv.save();
 		if (renderUpsideDown) { // if the item falls up (blue), flip it

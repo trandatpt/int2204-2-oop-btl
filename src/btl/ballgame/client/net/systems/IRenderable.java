@@ -2,12 +2,12 @@ package btl.ballgame.client.net.systems;
 
 import btl.ballgame.client.CSAssets;
 import btl.ballgame.client.TextureAtlas;
-import btl.ballgame.shared.libs.Constants.DriftBehavior;
-import btl.ballgame.shared.libs.Constants.ParticlePriority;
-import btl.ballgame.shared.libs.Constants.ParticleType;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.effect.Blend;
 import javafx.scene.effect.BlendMode;
+import javafx.scene.effect.ColorInput;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 /**
  * Supply information for rendering 
@@ -45,7 +45,7 @@ public interface IRenderable {
 	}
 	
 	/**
-	 * Draw a tinted image, SDL_SetTextureColorMod equivalent
+	 * Draw a tinted image, SDL_SetTextureColorMod (half baked) equivalent
 	 */
 	default void drawTinted(GraphicsContext gc, Image img, 
 		double x, double y, 

@@ -26,7 +26,7 @@ public class ClientPauseGameHandle implements PacketHandler<PacketPlayInPauseGam
 			return;
 		}
 		
-		match.setPaused(packet.isPaused());
+		match.setClientRequestedPause(packet.isPaused());
 		match.syncMatchStateWithClients();
 	}
 }

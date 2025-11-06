@@ -73,7 +73,8 @@ public class GameRenderCanvas extends Screen {
 		ctx.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		
 		world.particles().flushQueue();
-
+		
+		long time = System.currentTimeMillis();
 		// flip the view vertically for blue team players,
 		// so their paddles always appear at the bottom of the screen
 		// regardless of the server's coordinate system 
@@ -92,6 +93,7 @@ public class GameRenderCanvas extends Screen {
 		
 		// render particles that are upright REGARDLESS
 		world.particles().render(ParticlePriority.LATEST_IGNORE_FLIP, ctx);
+		System.out.println("frametime: " + (System.currentTimeMillis() - time) + "ms");
 	}
 
     private void listenToKeys() {

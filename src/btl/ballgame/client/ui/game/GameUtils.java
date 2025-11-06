@@ -1,9 +1,5 @@
 package btl.ballgame.client.ui.game;
 
-import static btl.ballgame.client.ui.game.GameUtils.BUFF_ENLARGE_BALL;
-import static btl.ballgame.client.ui.game.GameUtils.BUFF_MULTI_BALL;
-import static btl.ballgame.client.ui.game.GameUtils.BUFF_PADDLE_EXPAND;
-
 import btl.ballgame.client.CSAssets;
 import btl.ballgame.client.ClientArkanoidMatch.CPlayerInfo;
 import btl.ballgame.shared.libs.Constants;
@@ -19,25 +15,21 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 public class GameUtils {
-    public static final Image RED_TEAM_ICON = CSAssets.sprites.getAsImage("logo", "team_red");
-    public static final Image BLUE_TEAM_ICON = CSAssets.sprites.getAsImage("logo", "team_blue");
-    
-    public static final Image RIFLE_ICON = CSAssets.sprites.getAsImage("ui_component", "kalashnikov");
-    public static final Image HEART_ICON = CSAssets.sprites.getAsImage("ui_component", "heart");
-    
-    public static final Image BULLET_ICON = CSAssets.sprites.getAsImage("other_entities", "bullet");
-    
-    public static final Image BUFF_ENLARGE_BALL = CSAssets.sprites.getAsImage("buff", "enlarge_ball");
-    public static final Image BUFF_MULTI_BALL = CSAssets.sprites.getAsImage("buff", "multi_ball");
-    public static final Image BUFF_PADDLE_EXPAND = CSAssets.sprites.getAsImage("buff", "paddle_expand");
-    
-    public static void createPauseScreen() {
-    	
-    }
-    
-    /**
-     * Omit for now.
-     */
+	public static final Image RED_TEAM_ICON = CSAssets.sprites.getAsImage("logo", "team_red");
+	public static final Image BLUE_TEAM_ICON = CSAssets.sprites.getAsImage("logo", "team_blue");
+	
+	public static final Image RIFLE_ICON = CSAssets.sprites.getAsImage("ui_component", "kalashnikov");
+	public static final Image HEART_ICON = CSAssets.sprites.getAsImage("ui_component", "heart");
+	
+	public static final Image BULLET_ICON = CSAssets.sprites.getAsImage("other_entities", "bullet");
+	
+	public static final Image BUFF_ENLARGE_BALL = CSAssets.sprites.getAsImage("buff", "enlarge_ball");
+	public static final Image BUFF_MULTI_BALL = CSAssets.sprites.getAsImage("buff", "multi_ball");
+	public static final Image BUFF_PADDLE_EXPAND = CSAssets.sprites.getAsImage("buff", "paddle_expand");
+
+	/**
+	 * Omit for now.
+	 */
 	public static void updatePlayerUI(PlayerInfoUI ui, CPlayerInfo data) {
 		if (ui == null || data == null) {
 			return;

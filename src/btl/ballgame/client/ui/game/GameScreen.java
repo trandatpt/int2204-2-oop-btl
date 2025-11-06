@@ -5,6 +5,8 @@ import btl.ballgame.client.CSAssets;
 import btl.ballgame.client.ClientArkanoidMatch;
 import btl.ballgame.client.ClientArkanoidMatch.CPlayerInfo;
 import btl.ballgame.client.ClientArkanoidMatch.CTeamInfo;
+import btl.ballgame.client.ui.menus.InformationalScreen;
+import btl.ballgame.client.ui.menus.MenuUtils;
 import btl.ballgame.client.ui.screen.Screen;
 import btl.ballgame.shared.libs.Constants;
 import btl.ballgame.shared.libs.Constants.TeamColor;
@@ -13,6 +15,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
@@ -47,7 +50,7 @@ public class GameScreen extends Screen {
     private final Map<String, PlayerInfoUI> playerUIMap = new HashMap<>();
 
     public GameScreen(GameRenderCanvas gameRenderCanvas) {
-        super("game");
+        super("Multiplayer (3rd-party Server)");
         this.gameRenderCanvas = gameRenderCanvas;
         this.match = ArkanoidGame.core().getActiveMatch();
     }
@@ -312,6 +315,8 @@ public class GameScreen extends Screen {
             }
         };
         gameLoop.start();
+        
+        createPauseScreen();
     }
 
     public void onUpdate(float tpf) {
@@ -361,6 +366,47 @@ public class GameScreen extends Screen {
             }
         }
     }
+    
+	// MULTIPLAYER "PAUSE" MENU (will NOT actually pause the game, just an overlay to quit, disconnec)
+	public StackPane pauseOverlay;
+	private long lastPauseToggle = 0; // mms
+	private static final long PAUSE_COOLDOWN_MS = 500; // prevent the server from shitting itself
+	
+	public void createPauseScreen() {
+		InformationalScreen pauseScreen = new InformationalScreen("OVERLAY", 
+			"Game Menu", null,
+		false);
+
+		// Example buttons
+		pauseScreen.addButton("Back to Game", () -> {
+			pauseOverlay.setVisible(false);
+		});
+		pauseScreen.addButton("Forfeit and Return to Lobby", () -> {
+		});
+		pauseScreen.addButton("Disconnect and Quit to Title", () -> {
+			ArkanoidGame.core().disconnect();
+			MenuUtils.displayServerSelector();
+		});
+
+		pauseScreen.onInit();
+
+		pauseOverlay = new StackPane();
+		pauseOverlay.setStyle("-fx-background-color: rgba(0,0,0,0.7);");
+		pauseOverlay.getChildren().add(pauseScreen);
+		pauseOverlay.setVisible(false);
+
+		this.addElement("pauseScreen", pauseOverlay);
+
+		setOnKeyPressed(event -> {
+			if (event.getCode() == KeyCode.ESCAPE) {
+				long now = System.currentTimeMillis();
+				if (now - lastPauseToggle >= PAUSE_COOLDOWN_MS) {
+					lastPauseToggle = now;
+					pauseOverlay.setVisible(!pauseOverlay.isVisible());
+				}
+			}
+		});
+	}
     
     @Override
     public void onRemove() {

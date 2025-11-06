@@ -8,6 +8,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.IntConsumer;
 
+import javax.sound.midi.VoiceStatus;
+
 import btl.ballgame.protocol.packets.out.PacketPlayOutClientFlags;
 import btl.ballgame.protocol.packets.out.PacketPlayOutEntityEffects;
 import btl.ballgame.protocol.packets.out.PacketPlayOutGameOver;
@@ -61,6 +63,7 @@ public class ArkanoidMatch {
 	static final int BASE_MARGIN = 50;
 	
 	private boolean paused = false;
+	private boolean clientRequestedPause = false;
 	
 	/**
 	 * Creates a new ArkanoidMatch instance.
@@ -74,6 +77,7 @@ public class ArkanoidMatch {
 		this.matchId = UUID.randomUUID();
 		
 		Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
+			if (clientRequestedPause) return;
 			try {
 				this.daemonTick();
 				if (!paused && matchStarted && currentPhase != MatchPhase.CONCLUDED) {
@@ -367,6 +371,12 @@ public class ArkanoidMatch {
 		getPlayerInfoOf(player).syncEffect(map);
 	}
 	
+	public void clearEffects(ArkaPlayer player) {
+		for (EffectType type : EffectType.values()) {
+			removeEffect(player, type);
+		}
+	}
+	
 	/**
 	 * Adds a new effect to a player.
 	 * If the player already has an effect of the same type, the old 
@@ -626,6 +636,7 @@ public class ArkanoidMatch {
 			teams.get(roundWinner).addFTScore(1);
 		}
 		roundIndex++;
+		getPlayers().forEach(this::clearEffects);
 		for (TeamInfo team : teams.values()) {
 			team.resetForNextRound();
 		}
@@ -964,8 +975,8 @@ public class ArkanoidMatch {
 		));
 	}
 	
-	public void setPaused(boolean paused) {
-		this.paused = paused;
+	public void setClientRequestedPause(boolean paused) {
+		this.clientRequestedPause = paused;
 	}
 	
 	/**

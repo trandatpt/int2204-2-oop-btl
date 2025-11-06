@@ -28,6 +28,7 @@ import btl.ballgame.server.net.handle.ClientDisconnectHandle;
 import btl.ballgame.server.net.handle.ClientHelloHandle;
 import btl.ballgame.server.net.handle.ClientLoginHandle;
 import btl.ballgame.server.net.handle.ClientPaddleInputHandle;
+import btl.ballgame.server.net.handle.ClientPauseGameHandle;
 import btl.ballgame.server.net.handle.ClientPongHandle;
 import btl.ballgame.server.net.handle.ClientUserCreationHandle;
 import btl.ballgame.shared.libs.Constants;
@@ -45,6 +46,7 @@ import btl.ballgame.protocol.packets.in.PacketPlayInClientLogin;
 import btl.ballgame.protocol.packets.in.PacketPlayInClientUserCreation;
 import btl.ballgame.protocol.packets.in.PacketPlayInDisconnect;
 import btl.ballgame.protocol.packets.in.PacketPlayInPaddleControl;
+import btl.ballgame.protocol.packets.in.PacketPlayInPauseGame;
 import btl.ballgame.protocol.packets.in.PacketPlayInPong;
 
 public class ArkanoidServer {
@@ -175,9 +177,9 @@ public class ArkanoidServer {
 			playerManager.getPlayer(parts[1]).kick("Kicked");
 			break;
 		case "test": {
-			ArkanoidMatch match = new ArkanoidMatch(new MatchSettings(ArkanoidMode.ONE_VERSUS_ONE, 2, 180, 3));
+			ArkanoidMatch match = new ArkanoidMatch(new MatchSettings(ArkanoidMode.SOLO_ENDLESS, 2, 180, 3));
 			match.assignTeam(TeamColor.RED, Arrays.asList(playerManager.getPlayer(parts[1])));
-			match.assignTeam(TeamColor.BLUE, Arrays.asList(playerManager.getPlayer(parts[2])));
+			//match.assignTeam(TeamColor.BLUE, Arrays.asList(playerManager.getPlayer(parts[2])));
 			match.start();
 			break;
 		}
@@ -206,6 +208,7 @@ public class ArkanoidServer {
 		this.registry.registerHandler(PacketPlayInClientUserCreation.class, new ClientUserCreationHandle());
 		this.registry.registerHandler(PacketPlayInClientLogin.class, new ClientLoginHandle());
 		this.registry.registerHandler(PacketPlayInDisconnect.class, new ClientDisconnectHandle());
+		this.registry.registerHandler(PacketPlayInPauseGame.class, new ClientPauseGameHandle());
 		this.registry.registerHandler(PacketPlayInPong.class, new ClientPongHandle());
 		this.registry.registerHandler(PacketPlayInPaddleControl.class, new ClientPaddleInputHandle());
 		this.registry.registerHandler(PacketPlayInChangeFireMode.class, new ClientChangeRifleModeHandle());
