@@ -69,7 +69,7 @@ public class GameRenderCanvas extends Screen {
 		}
 		
 		// fill the background
-		ctx.setFill(Color.GRAY);
+		ctx.setFill(Color.BLACK);
 		ctx.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		
 		world.particles().flushQueue();

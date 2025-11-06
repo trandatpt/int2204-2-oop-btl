@@ -55,6 +55,16 @@ public class PacketByteBuf {
 		return new PacketByteBuf(ByteBuffer.wrap(data), false);
 	}
 	
+	/**
+	 * Converts a byte array into a PacketByteBuffer.
+	 *
+	 * @param in input stream (socket)
+	 * @return a {@code PacketByteBuf} positioned at the start of the array
+	 */
+	public static PacketByteBuf consume(byte[] data) {
+		return new PacketByteBuf(ByteBuffer.wrap(data), false);
+	}
+	
 	private boolean dynamicLength;
 	private ByteBuffer backend;
 	

@@ -225,5 +225,6 @@ public class CServerConnection implements ConnectionCtx {
 			closeWithNotify("Timed out");
 			return;
 		}
+		closeWithNotify(e.toString());
 	}
 }

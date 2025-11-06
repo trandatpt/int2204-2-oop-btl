@@ -21,6 +21,7 @@ public class PlayerManager {
 		// register the player and attach connection
 		trackingPlayers.put(player.getUniqueId(), player);
 		connection.attachTo(player);
+		player.setOnline(true);
 		System.out.println("[PLAYERMAN] Player " + player.getName() + " (" + player.getUniqueId() + ") joined the server.");
 		return player;
 	}
@@ -28,6 +29,7 @@ public class PlayerManager {
 	public void removePlayer(UUID uniqueId) {
 		ArkaPlayer player = getPlayer(uniqueId);
 		if (player == null) return;
+		player.setOnline(false);
 		trackingPlayers.remove(uniqueId);
 		if (player.getCurrentGame() != null) {
 			player.getCurrentGame().onPlayerLeft(player);

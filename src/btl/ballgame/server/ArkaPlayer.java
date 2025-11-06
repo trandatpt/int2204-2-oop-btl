@@ -5,6 +5,7 @@ import java.util.UUID;
 import btl.ballgame.protocol.packets.out.PacketPlayOutTitle;
 import btl.ballgame.server.data.PlayerData;
 import btl.ballgame.server.game.match.ArkanoidMatch;
+import btl.ballgame.server.game.match.ArkanoidWaitRoom;
 import btl.ballgame.server.net.PlayerConnection;
 import btl.ballgame.shared.libs.Constants.EnumTitle;
 
@@ -13,7 +14,9 @@ public class ArkaPlayer {
 	private final UUID uuid;
 	private final String userName;
 	private final PlayerData data;
+	private boolean online = true;
 	
+	private ArkanoidWaitRoom currentWaitingRoom = null;
 	private ArkanoidMatch currentGame = null;
 	
 	protected ArkaPlayer(PlayerData data, PlayerConnection conn) {
@@ -27,8 +30,37 @@ public class ArkaPlayer {
 		return currentGame;
 	}
 	
+	public ArkanoidWaitRoom getCurrentWaitingRoom() {
+		return currentWaitingRoom;
+	}
+	
+	public void joinWaitingRoom(ArkanoidWaitRoom room) {
+		if (currentWaitingRoom != null) {
+			leaveWaitingRoom(); // leave previous room if any
+		}
+		this.currentWaitingRoom = room;
+		this.currentGame = null; // cannot be in game while in waiting room
+	}
+	
+	// Leave the current waiting room
+	public void leaveWaitingRoom() {
+	    if (currentWaitingRoom != null) {
+	        currentWaitingRoom.removePlayer(this);
+	        currentWaitingRoom = null;
+	    }
+	}
+	
 	public void joinGame(ArkanoidMatch currentGame) {
+		this.leaveWaitingRoom();
 		this.currentGame = currentGame;
+	}
+	
+	public void leaveGame() {
+		this.currentGame = null;
+	}
+	
+	public boolean isBusy() {
+	    return getCurrentWaitingRoom() != null || getCurrentGame() != null;
 	}
 	
 	public UUID getUniqueId() {
@@ -53,6 +85,14 @@ public class ArkaPlayer {
 	
 	public static UUID getUUIDFromName(String userName) {
 		return UUID.nameUUIDFromBytes(("ArkaPlayer:" + userName.toLowerCase()).getBytes());
+	}
+	
+	public void setOnline(boolean online) {
+		this.online = online;
+	}
+	
+	public boolean isOnline() {
+		return online;
 	}
 	
 	/**
