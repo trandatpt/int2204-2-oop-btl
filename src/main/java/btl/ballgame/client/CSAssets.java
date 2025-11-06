@@ -49,6 +49,7 @@ public class CSAssets {
 		if (!file.exists()) {
 			throw new RuntimeException("Required asset: " + path + " is missing!");
 		}
+		System.out.println("Load image: " + "assets/" + path);
 		return new Image(file.toURI().toString());
 	}
 
@@ -57,6 +58,7 @@ public class CSAssets {
 		if (!file.exists()) {
 			throw new RuntimeException("Required video: " + path + " is missing!");
 		}
+		System.out.println("Load video/gif: " + "assets/" + path);
 		Media media = new Media(file.toURI().toString());
 		return new MediaPlayer(media);
 	}
