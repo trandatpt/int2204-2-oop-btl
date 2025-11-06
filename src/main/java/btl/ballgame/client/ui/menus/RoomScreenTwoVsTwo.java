@@ -9,6 +9,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
@@ -138,12 +139,23 @@ public class RoomScreenTwoVsTwo extends Screen {
         teamLabel.setTextFill(c);
         teamLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
+        String logoKey = teamName.equals("Team 1") ? "team_red" : "team_blue";
+
+        ImageView logoView = new ImageView(CSAssets.sprites.getAsImage("logo", logoKey));
+        logoView.setFitWidth(28);
+        logoView.setFitHeight(28);
+        logoView.setPreserveRatio(true);
+
+        HBox nameBox = new HBox(8);
+        nameBox.setAlignment(Pos.CENTER);
+        nameBox.getChildren().addAll(logoView, teamLabel);
+
         for (int i = 0; i < 2; i++) {
             BoxPlayer playerBox = createPlayerBox(teamName + " - Player " + (i + 1), media[i]);
             teamBoxes[i] = playerBox;
             teamBox.getChildren().add(playerBox);
         }
-        teamBoxFull.getChildren().addAll(teamLabel, teamBox);
+        teamBoxFull.getChildren().addAll(nameBox, teamBox);
         teamBoxFull.setAlignment(Pos.CENTER);
 
         return teamBoxFull;

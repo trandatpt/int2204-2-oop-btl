@@ -11,6 +11,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
+import javafx.scene.image.ImageView;
+
 
 public class RoomScreenOneVsOne extends Screen {
     private ArkanoidClientCore core;
@@ -129,6 +131,18 @@ public class RoomScreenOneVsOne extends Screen {
         teamLabel.setTextFill(c);
         teamLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
+        String logoKey = teamName.equals("Player1") ? "team_red" : "team_blue";
+
+        // ImageView logoView = new ImageView(CSAssets.VS_BACKGROUND);
+        ImageView logoView = new ImageView(CSAssets.sprites.getAsImage("logo", logoKey));
+        logoView.setFitWidth(28);
+        logoView.setFitHeight(28);
+        logoView.setPreserveRatio(true);
+
+        HBox nameBox = new HBox(8);
+        nameBox.setAlignment(Pos.CENTER);
+        nameBox.getChildren().addAll(logoView, teamLabel);
+
         BoxPlayer player = createPlayerBox(teamName, media);
         if (teamName.equals("Player 1")) {
             player1Box = player;
@@ -136,7 +150,7 @@ public class RoomScreenOneVsOne extends Screen {
             player2Box = player;
         }
         
-        teamBox.getChildren().addAll(teamLabel, player);
+        teamBox.getChildren().addAll(nameBox, player);
         return teamBox;
     }
 
