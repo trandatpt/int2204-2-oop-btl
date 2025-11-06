@@ -79,6 +79,22 @@ public class GameOverScreen extends Screen {
 
             content.getChildren().addAll(scoreLabel, levelLabel, highScoreLabel);
 
+            // --- QUIT BUTTON ---
+            Button quitButton = new Button("Quit to Menu");
+            MenuUtils.styleButton(quitButton, "#4d476e", "#353147");
+            quitButton.setFont(Font.font("Orbitron", FontWeight.SEMI_BOLD, 20));
+            quitButton.setTextFill(Color.WHITE);
+            quitButton.setEffect(new DropShadow(10, Color.color(0.2, 0.2, 0.6, 0.8)));
+            quitButton.setPrefWidth(250);
+            quitButton.setPrefHeight(60);
+
+            quitButton.setOnAction(e -> {
+                ArkanoidGame.core().disconnect();
+                MenuUtils.displayServerSelector();
+            });
+
+            VBox.setMargin(quitButton, new Insets(40, 0, 0, 0));
+            content.getChildren().add(quitButton);
         } else {
             // --- PVP MODE ---
             boolean didWin = packet.getType() == GameOverType.VERSUS_VICTORY;
@@ -86,7 +102,7 @@ public class GameOverScreen extends Screen {
             Label resultLabel = new Label(didWin ? "VICTORY" : "DEFEAT");
             resultLabel.setFont(Font.font("Orbitron", FontWeight.BOLD, 70));
             resultLabel.setTextFill(didWin ? Color.LIGHTGOLDENRODYELLOW : Color.INDIANRED);
-            resultLabel.setEffect(new DropShadow(30, didWin ? Color.GOLD : Color.DARKRED));
+            resultLabel.setEffect(new DropShadow(30, didWin ? Color.GOLD : Color.CORNFLOWERBLUE));
 
             Label scoreLabel = makeMonoLabel(
                     String.format("Final Score: %02d : %02d", packet.getRedScore(), packet.getBlueScore()),
@@ -95,30 +111,29 @@ public class GameOverScreen extends Screen {
             );
 
             content.getChildren().addAll(resultLabel, scoreLabel);
+
+            // --- QUIT BUTTON ---
+            Button quitButton = new Button("Quit to Lobby");
+            MenuUtils.styleButton(quitButton, "#4d476e", "#353147");
+            quitButton.setFont(Font.font("Orbitron", FontWeight.SEMI_BOLD, 20));
+            quitButton.setTextFill(Color.WHITE);
+            quitButton.setEffect(new DropShadow(10, Color.color(0.2, 0.2, 0.6, 0.8)));
+            quitButton.setPrefWidth(250);
+            quitButton.setPrefHeight(60);
+
+            quitButton.setOnAction(e -> {
+                ArkanoidGame.core().leaveContext();
+                MenuUtils.displayLobbyScreen();
+            });
+
+            VBox.setMargin(quitButton, new Insets(40, 0, 0, 0));
+            content.getChildren().add(quitButton);
         }
-
-        // --- QUIT BUTTON ---
-        Button quitButton = new Button("Quit to Menu");
-        MenuUtils.styleButton(quitButton, "#4d476e", "#353147");
-        quitButton.setFont(Font.font("Orbitron", FontWeight.SEMI_BOLD, 20));
-        quitButton.setTextFill(Color.WHITE);
-        quitButton.setEffect(new DropShadow(10, Color.color(0.2, 0.2, 0.6, 0.8)));
-        quitButton.setPrefWidth(250);
-        quitButton.setPrefHeight(60);
-
-        quitButton.setOnAction(e -> {
-            ArkanoidGame.core().disconnect();
-            MenuUtils.displayServerSelector();
-        });
-
-        VBox.setMargin(quitButton, new Insets(40, 0, 0, 0));
-        content.getChildren().add(quitButton);
 
         root.getChildren().add(content);
         this.addElement("root", root);
     }
 
-    /** Utility for making monospace-style stat labels */
     private Label makeMonoLabel(String text, Color color, int size) {
         Label label = new Label(text);
         label.setTextFill(color);
