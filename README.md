@@ -7,7 +7,8 @@ This project was developed as part of the *Object-Oriented Programming* course a
 
 ## 🧩 Overview
 
-Arkanoid: Global Offensive builds upon the spirit of the original Arkanoid while introducing a new layer of depth and competitiveness. It combines classic brick-breaking mechanics with arena-style multiplayer battles and a modular, scalable architecture.
+Arkanoid: Global Offensive builds upon the spirit of the original Arkanoid while introducing a new layer of depth and competitiveness. It combines classic brick-breaking mechanics with arena-style multiplayer battles and a modular, scalable architecture.<br><br>
+Wonder how it plays? [View the Demo Youtube Video](https://youtu.be/zq4zS0_tc_A) (GitHub doesn't allow big large files, this video is 300MB)
 
 ---
 
