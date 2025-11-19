@@ -3,14 +3,11 @@
 **Arkanoid: Global Offensive** is a modern reinterpretation of the classic Arkanoid, reimagined with a real-time multiplayer system, server-authoritative architecture, and physics-based competitive gameplay.
 This project was developed as part of the *Object-Oriented Programming* course at the **University of Engineering and Technology (UET), Vietnam National University**.
 
----
 
 ## 🧩 Overview
 
 Arkanoid: Global Offensive builds upon the spirit of the original Arkanoid while introducing a new layer of depth and competitiveness. It combines classic brick-breaking mechanics with arena-style multiplayer battles and a modular, scalable architecture.<br><br>
-Wonder how it plays? [View the Demo Youtube Video](https://youtu.be/zq4zS0_tc_A) (GitHub doesn't allow big large files, this video is 300MB)
-
----
+Wonder how it plays? [**View the Demo Youtube Video**](https://youtu.be/zq4zS0_tc_A) (GitHub doesn't allow big large files, this video is 300MB+)
 
 ## 🚀 Features
 
@@ -35,15 +32,18 @@ Wonder how it plays? [View the Demo Youtube Video](https://youtu.be/zq4zS0_tc_A)
 * **And much much more!**
   It would take too long to describe all of it, so try it for yourself
 
----
-
 ## 🧰 Technologies and Libraries
 
 * **JavaFX** — User interface framework for the desktop client
 * **mjson** — Lightweight JSON library by *Borislav Iordanov*
 * **Maven** — Build automation and dependency management tool
 
----
+## 🎶 BGMs Used in this Project
+- Arkanoid Classic BGM: [Moscow Nights/Chiều Mát-xcơ-va](https://www.youtube.com/watch?v=OeZHtZaBawU)
+- Arkanoid PVP ARENA BGM: [The Psychotic and Cute Guest (U.N. Owen was Her)](https://www.youtube.com/watch?v=an1H_G6e98Q)
+- Lobby Calm BGM: [Wet Hands - C418](https://www.youtube.com/watch?v=MSepOYJxB64)
+- Various SFX sources...
+
 
 ## ⚙️ Build and Run
 
@@ -67,4 +67,4 @@ mvn test
 ## 🧑‍💻 Team
 Omitted for privacy
 
-© 2025 Arkanoi:GO Team. All rights reserved.
+© 2025 Arkanoid: Global Offesive Team (N6). All rights reserved.
